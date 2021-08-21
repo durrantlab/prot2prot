@@ -131,6 +131,7 @@ def main(node_params=None, pdb_txt=None):
     for c in coors:
         if c[2] < 0:
             print("Some atoms were behind the camera. Cancelling...")
+            # __pragma__ ('js', "alert('Please reload the page and try again...');")
             return
 
     # Get the atoms from farthest to closest.
@@ -148,7 +149,7 @@ def main(node_params=None, pdb_txt=None):
         return b[0] - a[0]
     ?"""
 
-    # __pragma__ ('js', "dists.sort(compare);")
+    
 
     max_dist = dists[0][0]
     min_dist = dists[len(dists) - 1][0]

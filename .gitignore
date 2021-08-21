@@ -1,0 +1,14 @@
+*.pyc
+*.old*
+__pycache__
+*.blend1*
+.DS_Store
+node_modules
+rsync.sh
+*.orig*
+tests
+saved_models
+*.bin
+model.json
+canvas
+old
