@@ -2,16 +2,16 @@
 # pip install transcrypt
 
 # Clean previous version.
-rm -rf ../py_gen_training_data/__target__/ ./dist/
+rm -rf ../py-gen-training-data/__target__/ ./dist/
 
 # Compile the python file to javascript.
-cd ../py_gen_training_data/
+cd ../py-gen-training-data/
 # --nomin
 transcrypt --nomin --build --ecom --verbose make_img
 cd -
 
 # Move the javascript library to the dist directory.
-mv ../py_gen_training_data/__target__/ ./dist
+mv ../py-gen-training-data/__target__/ ./dist
 
 # Copy some additional files.
 cp -r src_aux/* dist/

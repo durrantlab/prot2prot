@@ -79,6 +79,6 @@ for f in glob.glob("*.pdb.gz")[:2]:
 
     pdbs[f] = {"coors": coors, "elems": elems, "vdws": vdws}
 
-with open("../py_gen_training_data/make_img/pdbs.py", "w") as f:
+with open("../py-gen-training-data/make_img/pdbs.py", "w") as f:
     f.write("pdb_files = " + json.dumps(pdbs))
     f.write("\n")
