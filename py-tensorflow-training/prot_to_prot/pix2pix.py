@@ -34,11 +34,13 @@ import time
 import datetime
 from PIL import Image
 import numpy
-from generate_images import generate_images
-from size256 import PATH, IMG_DIMEN, Generator, CHECKPOINT_DIR
-from down_up_samples import downsample, upsample
-import glob
-import random
+from .input_output import generate_images, make_checkpoint, restore_checkpoint, save_checkpoint
+from .generators.size256 import PATH, IMG_DIMEN, Generator, CHECKPOINT_DIR
+from .generators.loss import generator_loss
+from .down_up_samples import downsample, upsample
+from .images import load_image_train, load_from_img, load_image_test, get_random_img
+from .vars import set_img_dimen
+from .descriminator import Discriminator, discriminator_loss
 
 # from matplotlib import pyplot as plt
 # from IPython import display
@@ -47,49 +49,24 @@ def main():
 
     """Each original image is of size `256 x 512` containing two `256 x 256` images:"""
 
-    def get_random_img():
-        fls = glob.glob(str(PATH + 'train/*.png'))
-        return random.choice(fls)
+    set_img_dimen(IMG_DIMEN)
 
     # sample_image = tf.io.read_file(str(PATH + 'train/0471202805568984.png'))
-    sample_image = tf.io.read_file(get_random_img())
-    sample_image = tf.io.decode_jpeg(sample_image)
-    print(sample_image.shape)
+    # sample_image = tf.io.read_file(get_random_img(PATH))
+    # sample_image = tf.io.decode_jpeg(sample_image)
+    # print(sample_image.shape)
 
-    """You need to separate real building facade images from the architecture label images—all of which will be of size `256 x 256`.
+    """You need to separate real building facade images from the architecture
+    label images—all of which will be of size `256 x 256`.
 
     Define a function that loads image files and outputs two image tensors:
     """
 
+    """Plot a sample of the input (architecture label image) and real (building
+    facade photo) images:"""
 
-    def load(image_file):
-        # Read and decode an image file to a uint8 tensor
-        image = tf.io.read_file(image_file)
-        image = tf.image.decode_jpeg(image)
-
-        # Split each image tensor into two tensors:
-        # - one with a real building facade image
-        # - one with an architecture label image
-        w = tf.shape(image)[1]
-        w = w // 2
-
-        # TODO: JDD changed below (flipped input and real).
-        # input_image = image[:, w:, :]
-        # real_image = image[:, :w, :]
-        real_image = image[:, w:, :]
-        input_image = image[:, :w, :]
-
-        # Convert both images to float32 tensors
-        input_image = tf.cast(input_image, tf.float32)
-        real_image = tf.cast(real_image, tf.float32)
-
-        return input_image, real_image
-
-
-    """Plot a sample of the input (architecture label image) and real (building facade photo) images:"""
-
-    # inp, re = load(str(PATH + 'train/0471202805568984.png'))
-    inp, re = load(get_random_img())
+    # inp, re = load_from_img(str(PATH + 'train/0471202805568984.png'))
+    inp, re = load_from_img(get_random_img(PATH))
 
     # Casting to int for matplotlib to display the images
     # plt.figure()
@@ -115,50 +92,7 @@ def main():
     # Each image is 256x256 in size
     # IMG_DIMEN = 256
 
-
-    def resize(input_image, real_image, height, width):
-        input_image = tf.image.resize(input_image, [height, width],
-                                    method=tf.image.ResizeMethod.NEAREST_NEIGHBOR)
-        real_image = tf.image.resize(real_image, [height, width],
-                                    method=tf.image.ResizeMethod.NEAREST_NEIGHBOR)
-
-        return input_image, real_image
-
-
-    def random_crop(input_image, real_image):
-        stacked_image = tf.stack([input_image, real_image], axis=0)
-        cropped_image = tf.image.random_crop(
-            stacked_image, size=[2, IMG_DIMEN, IMG_DIMEN, 3])
-
-        return cropped_image[0], cropped_image[1]
-
     # Normalizing the images to [-1, 1]
-
-
-    def normalize(input_image, real_image):
-        input_image = (input_image / 127.5) - 1
-        real_image = (real_image / 127.5) - 1
-
-        return input_image, real_image
-
-
-    @tf.function()
-    def random_jitter(input_image, real_image):
-        # Resizing to 286x286
-        # input_image, real_image = resize(input_image, real_image, 286, 286)
-        input_image, real_image = resize(
-            input_image, real_image, IMG_DIMEN + 30, IMG_DIMEN + 30)  # TODO: UPDATED
-
-        # Random cropping back to 256x256
-        input_image, real_image = random_crop(input_image, real_image)
-
-        if tf.random.uniform(()) > 0.5:
-            # Random mirroring
-            input_image = tf.image.flip_left_right(input_image)
-            real_image = tf.image.flip_left_right(real_image)
-
-        return input_image, real_image
-
 
     """You can inspect some of the preprocessed output:"""
 
@@ -173,25 +107,6 @@ def main():
     """Having checked that the loading and preprocessing works, let's define a
     couple of helper functions that load and preprocess the training and test
     sets:"""
-
-
-    def load_image_train(image_file, rand_jitt=True):
-        input_image, real_image = load(image_file)
-        if rand_jitt:  # TODO: JDD add to test.
-            input_image, real_image = random_jitter(input_image, real_image)
-        input_image, real_image = normalize(input_image, real_image)
-
-        return input_image, real_image
-
-
-    def load_image_test(image_file):
-        input_image, real_image = load(image_file)
-        input_image, real_image = resize(input_image, real_image,
-                                        IMG_DIMEN, IMG_DIMEN)
-        input_image, real_image = normalize(input_image, real_image)
-
-        return input_image, real_image
-
 
     """## Build an input pipeline with `tf.data`"""
 
@@ -225,15 +140,13 @@ def main():
     Define the downsampler (encoder):
     """
 
+    # down_model = downsample(3, 4)
+    # down_result = down_model(tf.expand_dims(inp, 0))
+    # print(down_result.shape)
 
-    down_model = downsample(3, 4)
-    down_result = down_model(tf.expand_dims(inp, 0))
-    print(down_result.shape)
-
-
-    up_model = upsample(3, 4)
-    up_result = up_model(down_result)
-    print(up_result.shape)
+    # up_model = upsample(3, 4)
+    # up_result = up_model(down_result)
+    # print(up_result.shape)
 
     """Define the generator with the downsampler and the upsampler:"""
 
@@ -245,101 +158,35 @@ def main():
 
     """Test the generator:"""
 
-    gen_output = generator(inp[tf.newaxis, ...], training=use_training)
+    # gen_output = generator(inp[tf.newaxis, ...], training=use_training)
 
     # plt.imshow(gen_output[0, ...])
 
     """### Define the generator loss
 
-    GANs learn a loss that adapts to the data, while cGANs learn a structured loss that penalizes a possible structure that differs from the network output and the target image, as described in the [pix2pix paper](https://arxiv.org/abs/1611.07004).
+    GANs learn a loss that adapts to the data, while cGANs learn a structured
+    loss that penalizes a possible structure that differs from the network
+    output and the target image, as described in the [pix2pix
+    paper](https://arxiv.org/abs/1611.07004).
 
-    - The generator loss is a sigmoid cross-entropy loss of the generated images and an **array of ones**.
-    - The pix2pix paper also mentions the L1 loss, which is a MAE (mean absolute error) between the generated image and the target image.
-    - This allows the generated image to become structurally similar to the target image.
-    - The formula to calculate the total generator loss is `gan_loss + LAMBDA * l1_loss`, where `LAMBDA = 100`. This value was decided by the authors of the paper.
+    - The generator loss is a sigmoid cross-entropy loss of the generated images
+      and an **array of ones**.
+    - The pix2pix paper also mentions the L1 loss, which is a MAE (mean absolute
+      error) between the generated image and the target image.
+    - This allows the generated image to become structurally similar to the
+      target image.
+    - The formula to calculate the total generator loss is `gan_loss + LAMBDA *
+      l1_loss`, where `LAMBDA = 100`. This value was decided by the authors of
+      the paper.
     """
 
-    LAMBDA = 100
-
     loss_object = tf.keras.losses.BinaryCrossentropy(from_logits=True)
-
-
-    def generator_loss(disc_generated_output, gen_output, target):
-        gan_loss = loss_object(tf.ones_like(
-            disc_generated_output), disc_generated_output)
-
-        # Mean absolute error
-        l1_loss = tf.reduce_mean(tf.abs(target - gen_output))
-
-        total_gen_loss = gan_loss + (LAMBDA * l1_loss)
-
-        return total_gen_loss, gan_loss, l1_loss
-
 
     """The training procedure for the generator is as follows:
 
     ![Generator Update
     Image](https://github.com/tensorflow/docs/blob/master/site/en/tutorials/generative/images/gen.png?raw=1)
-
-    ## Build the discriminator
-
-    The discriminator in the pix2pix cGAN is a convolutional PatchGAN classifier—it
-    tries to classify if each image _patch_ is real or not real, as described in the
-    [pix2pix paper](https://arxiv.org/abs/1611.07004).
-
-    - Each block in the discriminator is: Convolution -> Batch normalization ->
-    Leaky ReLU.
-    - The shape of the output after the last layer is `(batch_size, 30, 30, 1)`.
-    - Each `30 x 30` image patch of the output classifies a `70 x 70` portion of the
-    input image.
-    - The discriminator receives 2 inputs: 
-        - The input image and the target image, which it should classify as real.
-        - The input image and the generated image (the output of the generator),
-        which it should classify as fake.
-        - Use `tf.concat([inp, tar], axis=-1)` to concatenate these 2 inputs
-        together.
-
-    Let's define the discriminator:
     """
-
-
-    def Discriminator():
-        # TODO: I think the layers discriminator don't change as much as the
-        # generator.
-
-        initializer = tf.random_normal_initializer(0., 0.02)
-
-        # inp = tf.keras.layers.Input(shape=[256, 256, 3], name='input_image')
-        # tar = tf.keras.layers.Input(shape=[256, 256, 3], name='target_image')
-
-        # TODO: Did update this.
-        inp = tf.keras.layers.Input(shape=[IMG_DIMEN, IMG_DIMEN, 3], name='input_image')
-        tar = tf.keras.layers.Input(shape=[IMG_DIMEN, IMG_DIMEN, 3], name='target_image')
-
-        # (batch_size, 256, 256, channels*2)
-        x = tf.keras.layers.concatenate([inp, tar])
-
-        down1 = downsample(64, 4, False)(x)  # (batch_size, 128, 128, 64)
-        down2 = downsample(128, 4)(down1)  # (batch_size, 64, 64, 128)
-        down3 = downsample(256, 4)(down2)  # (batch_size, 32, 32, 256)
-
-        zero_pad1 = tf.keras.layers.ZeroPadding2D()(down3)  # (batch_size, 34, 34, 256)
-        conv = tf.keras.layers.Conv2D(512, 4, strides=1,
-                                    kernel_initializer=initializer,
-                                    use_bias=False)(zero_pad1)  # (batch_size, 31, 31, 512)
-
-        batchnorm1 = tf.keras.layers.BatchNormalization()(conv)
-
-        leaky_relu = tf.keras.layers.LeakyReLU()(batchnorm1)
-
-        zero_pad2 = tf.keras.layers.ZeroPadding2D()(
-            leaky_relu)  # (batch_size, 33, 33, 512)
-
-        last = tf.keras.layers.Conv2D(1, 4, strides=1,
-                                    kernel_initializer=initializer)(zero_pad2)  # (batch_size, 30, 30, 1)
-
-        return tf.keras.Model(inputs=[inp, tar], outputs=last)
-
 
     """Visualize the discriminator model architecture:"""
 
@@ -348,29 +195,9 @@ def main():
 
     """Test the discriminator:"""
 
-    disc_out = discriminator([inp[tf.newaxis, ...], gen_output], training=use_training)
+    # disc_out = discriminator([inp[tf.newaxis, ...], gen_output], training=use_training)
     # plt.imshow(disc_out[0, ..., -1], vmin=-20, vmax=20, cmap='RdBu_r')
     # plt.colorbar()
-
-    """### Define the discriminator loss
-
-    - The `discriminator_loss` function takes 2 inputs: **real images** and **generated images**.
-    - `real_loss` is a sigmoid cross-entropy loss of the **real images** and an **array of ones(since these are the real images)**.
-    - `generated_loss` is a sigmoid cross-entropy loss of the **generated images** and an **array of zeros (since these are the fake images)**.
-    - The `total_loss` is the sum of `real_loss` and `generated_loss`.
-    """
-
-
-    def discriminator_loss(disc_real_output, disc_generated_output):
-        real_loss = loss_object(tf.ones_like(disc_real_output), disc_real_output)
-
-        generated_loss = loss_object(tf.zeros_like(
-            disc_generated_output), disc_generated_output)
-
-        total_disc_loss = real_loss + generated_loss
-
-        return total_disc_loss
-
 
     """The training procedure for the discriminator is shown below.
 
@@ -386,16 +213,11 @@ def main():
     generator_optimizer = tf.keras.optimizers.Adam(2e-4, beta_1=0.5)
     discriminator_optimizer = tf.keras.optimizers.Adam(2e-4, beta_1=0.5)
 
-    checkpoint_prefix = os.path.join(CHECKPOINT_DIR, "ckpt")
-    checkpoint = tf.train.Checkpoint(generator_optimizer=generator_optimizer,
-                                    discriminator_optimizer=discriminator_optimizer,
-                                    generator=generator,
-                                    discriminator=discriminator)
+    make_checkpoint(CHECKPOINT_DIR, generator_optimizer, discriminator_optimizer, generator, discriminator)
 
-
-    # TODO: JDD addition: restore checkpoint here
     try:
-        checkpoint.restore(tf.train.latest_checkpoint(CHECKPOINT_DIR))
+        # TODO: JDD addition: restore checkpoint here
+        restore_checkpoint()
         print("Loaded checkpoint...")
 
         test_and_save = False
@@ -465,7 +287,6 @@ def main():
             sys.exit(0)
     except:
         print("NO CHECKPOINT TO RESTORE, OR SOME OTHER ERROR!")
-        import time
         time.sleep(5)
 
     """## Generate images
@@ -514,8 +335,9 @@ def main():
                 [input_image, gen_output], training=use_training)
 
             gen_total_loss, gen_gan_loss, gen_l1_loss = generator_loss(
-                disc_generated_output, gen_output, target)
-            disc_loss = discriminator_loss(disc_real_output, disc_generated_output)
+                disc_generated_output, gen_output, target, loss_object
+            )
+            disc_loss = discriminator_loss(disc_real_output, disc_generated_output, loss_object)
 
         generator_gradients = gen_tape.gradient(gen_total_loss,
                                                 generator.trainable_variables)
@@ -570,7 +392,7 @@ def main():
 
             # Save (checkpoint) the model every 5k steps
             if (step + 1) % 5000 == 0:
-                checkpoint.save(file_prefix=checkpoint_prefix)
+                save_checkpoint()
 
 
     """This training loop saves logs that you can view in TensorBoard to monitor the training progress.
@@ -622,7 +444,7 @@ def main():
     """
 
     # Restoring the latest checkpoint in CHECKPOINT_DIR
-    checkpoint.restore(tf.train.latest_checkpoint(CHECKPOINT_DIR))
+    restore_checkpoint()
 
     """## Generate some images using the test set"""
 

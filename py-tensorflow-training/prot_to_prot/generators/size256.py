@@ -1,6 +1,6 @@
 import tensorflow as tf
-from vars import OUTPUT_CHANNELS
-from down_up_samples import downsample, upsample
+from ..vars import OUTPUT_CHANNELS
+from ..down_up_samples import downsample, upsample
 
 PATH = "./imgs_256/"
 CHECKPOINT_DIR = "./training_checkpoints_256.no_norm.v4"
