@@ -5,6 +5,7 @@
   browser, inference in the browser)
 * `./pdbs/` : Code that puts PDB data in a Python module (for convenience in
   testing).
+* `./py-tensorflow-training/` : Code for training the pix2pix model.
 
 # TODO
 
