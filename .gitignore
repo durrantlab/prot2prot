@@ -13,3 +13,8 @@ model.json
 canvas
 old
 .vscode
+training_checkpoints*
+logs/
+input.png
+predicted.png
+target.png
