@@ -12,7 +12,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 """
 
 # TODO: JDD made it so this is toggleable for testing purposes.
-use_training = False  # TODO: Should be true
+use_training = False  # TODO: Was originally true
 
 # @title Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -26,24 +26,18 @@ use_training = False  # TODO: Should be true
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import pdb
 import tensorflow as tf
-import os
-import pathlib
 import time
-import datetime
-from PIL import Image
-import numpy
-from .input_output import generate_images, make_checkpoint, restore_checkpoint, save_checkpoint
+from .input_output.images.saving import generate_images
+from .input_output.checkpoints import make_checkpoint, restore_checkpoint, save_checkpoint
 from .generators.size256 import PATH, IMG_DIMEN, Generator, CHECKPOINT_DIR
 from .generators.loss import generator_loss
-from .down_up_samples import downsample, upsample
-from .images import load_image_train, load_from_img, load_image_test, get_random_img
+from .input_output.images.loading import load_image_train, load_from_img, load_image_test, get_random_img
 from .vars import set_img_dimen
 from .descriminator import Discriminator, discriminator_loss
-
-# from matplotlib import pyplot as plt
-# from IPython import display
+from .input_output.datasets import load_datasets
+from .input_output.summary import make_summary_writer, write_to_summary
+from .input_output.export_model import export_model
 
 def main():
 
@@ -68,12 +62,6 @@ def main():
     # inp, re = load_from_img(str(PATH + 'train/0471202805568984.png'))
     inp, re = load_from_img(get_random_img(PATH))
 
-    # Casting to int for matplotlib to display the images
-    # plt.figure()
-    # plt.imshow(inp / 255.0)
-    # plt.figure()
-    # plt.imshow(re / 255.0)
-
     """As described in the [pix2pix paper](https://arxiv.org/abs/1611.07004), you
     need to apply random jittering and mirroring to preprocess the training set.
 
@@ -87,41 +75,15 @@ def main():
 
     # The facade training set consist of 400 images
     BUFFER_SIZE = 25  # Was 400
+
     # The batch size of 1 produced better results for the U-Net in the original pix2pix experiment
     BATCH_SIZE = 1
-    # Each image is 256x256 in size
-    # IMG_DIMEN = 256
 
     # Normalizing the images to [-1, 1]
 
-    """You can inspect some of the preprocessed output:"""
-
-    # plt.figure(figsize=(6, 6))
-    # for i in range(4):
-    #     rj_inp, rj_re = random_jitter(inp, re)
-    #     plt.subplot(2, 2, i + 1)
-    #     plt.imshow(rj_inp / 255.0)
-    #     plt.axis('off')
-    # plt.show()
-
-    """Having checked that the loading and preprocessing works, let's define a
-    couple of helper functions that load and preprocess the training and test
-    sets:"""
-
     """## Build an input pipeline with `tf.data`"""
 
-    train_dataset = tf.data.Dataset.list_files(str(PATH + 'train/*.png'))
-    train_dataset = train_dataset.map(load_image_train,
-                                    num_parallel_calls=tf.data.AUTOTUNE)
-    train_dataset = train_dataset.shuffle(BUFFER_SIZE)
-    train_dataset = train_dataset.batch(BATCH_SIZE)
-
-    try:
-        test_dataset = tf.data.Dataset.list_files(str(PATH + 'test/*.png'))
-    except tf.errors.InvalidArgumentError:
-        test_dataset = tf.data.Dataset.list_files(str(PATH + 'val/*.png'))
-    test_dataset = test_dataset.map(load_image_test)
-    test_dataset = test_dataset.batch(BATCH_SIZE)
+    train_dataset, test_dataset = load_datasets(PATH, BUFFER_SIZE, BATCH_SIZE)
 
     """## Build the generator
 
@@ -147,9 +109,6 @@ def main():
     # up_model = upsample(3, 4)
     # up_result = up_model(down_result)
     # print(up_result.shape)
-
-    """Define the generator with the downsampler and the upsampler:"""
-
 
     """Visualize the generator model architecture:"""
 
@@ -215,100 +174,15 @@ def main():
 
     make_checkpoint(CHECKPOINT_DIR, generator_optimizer, discriminator_optimizer, generator, discriminator)
 
-    try:
-        # TODO: JDD addition: restore checkpoint here
-        restore_checkpoint()
-        print("Loaded checkpoint...")
-
-        test_and_save = False
-
-        if test_and_save:
-            # This works, but output image is not valid (both JavaScript and Python gave
-            # similar results, so it's real)
-            # def model_refresh_without_nan(model):
-            #     # See https://github.com/tensorflow/tensorflow/issues/38698 to overcome
-            #     # bug
-            #     valid_weights = []
-            #     for i, l in enumerate(model.get_weights()):
-            #         if numpy.isnan(l).any():
-            #             new_weights = numpy.nan_to_num(l)
-            #             # new_weights[:] = 1
-            #             valid_weights.append(new_weights)
-            #             print("!!!!!", l, i)
-            #         else:
-            #             valid_weights.append(l)
-            #     model.set_weights(valid_weights)
-            # model_refresh_without_nan(generator)
-
-            def check_nan_in_model(model):
-                # See https://github.com/tensorflow/tensorflow/issues/38698
-                for il, layer in enumerate(model.layers):
-                    for iw, l in enumerate(layer.weights):
-                        if numpy.isnan(l).any():
-                            print("\nlayer #" + str(il) + " (" + layer.name + "), weight " + str(iw) + ", has NaN!\n")
-                            return
-
-                print("\nGood! NaN not found in any layer weights!\n")
-            check_nan_in_model(generator)
-
-            # tf.saved_model.save(generator, "./pb_tests_test/")
-            # generator.save("test-model.h5", save_format='h5')
-            generator.save("test-model")
-            print("Saved pb model...")
-
-            # Below for testing
-            # _input_image, _real_image = load_image_train(str(PATH + 'train/0471202805568984.new.png.2-2.png'), False)
-            # gen_output = generator(_input_image[tf.newaxis, ...], training=False)
-
-            # test_input, prediction = generate_images(
-            #     generator, 
-            #     tf.reshape(_input_image, [1, IMG_DIMEN, IMG_DIMEN, 3]), 
-            #     tf.reshape(_real_image, [1, IMG_DIMEN, IMG_DIMEN, 3]), 
-            #     use_training
-            #     False
-            # )
-
-            print("")
-            print("Testing...")
-            print("")
-
-            # print("tensor.arraySync()[0][64][151]")
-            # print(test_input[0][64][151].numpy())
-            # print("")
-            # print("result.arraySync()[0][64][151]")
-            # print(prediction[0][64][151].numpy())
-            # print("")
-            print("getWeights()")
-            print("\n".join([str(i+1) + ":  " + str(numpy.min(w)) + " " + str(numpy.max(w)) for i, w in enumerate(generator.get_weights())]))
-
-
-            pdb.set_trace()
-            import sys
-            sys.exit(0)
-    except:
-        print("NO CHECKPOINT TO RESTORE, OR SOME OTHER ERROR!")
-        time.sleep(5)
-
-    """## Generate images
-
-    Write a function to plot some images during training.
-
-    - Pass images from the test set to the generator.
-    - The generator will then translate the input image into the output.
-    - The last step is to plot the predictions and _voila_!
-
-    Note: The `training=True` is intentional here since you want the batch
-    statistics, while running the model on the test dataset. If you use
-    `training=False`, you get the accumulated statistics learned from the training
-    dataset (which you don't want).
-    """
-
-    # generate_images now defined in separate module
+    # To export the model in the latest checkpoint for converting to
+    # tensorflow.js, set the below to True. Otherwise just loads latest
+    # checkpoint.
+    export_model(False, generator)
 
     """Test the function:"""
 
-    for example_input, example_target in test_dataset.take(1):
-        generate_images(generator, example_input, example_target, use_training)
+    # for example_input, example_target in test_dataset.take(1):
+    #     generate_images(generator, example_input, example_target, use_training)
 
     """## Training
 
@@ -321,9 +195,7 @@ def main():
 
     log_dir = "logs/"
 
-    summary_writer = tf.summary.create_file_writer(
-        log_dir + "fit/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S"))
-
+    make_summary_writer(log_dir)
 
     @tf.function
     def train_step(input_image, target, step):
@@ -349,11 +221,7 @@ def main():
         discriminator_optimizer.apply_gradients(zip(discriminator_gradients,
                                                     discriminator.trainable_variables))
 
-        with summary_writer.as_default():
-            tf.summary.scalar('gen_total_loss', gen_total_loss, step=step//1000)
-            tf.summary.scalar('gen_gan_loss', gen_gan_loss, step=step//1000)
-            tf.summary.scalar('gen_l1_loss', gen_l1_loss, step=step//1000)
-            tf.summary.scalar('disc_loss', disc_loss, step=step//1000)
+        write_to_summary(step, gen_total_loss, gen_gan_loss, gen_l1_loss, disc_loss)
 
 
     """The actual training loop. Since this tutorial can run of more than one

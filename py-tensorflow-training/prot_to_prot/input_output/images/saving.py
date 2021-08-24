@@ -1,9 +1,19 @@
 from PIL import Image
 import numpy
-import os
-import tensorflow as tf
 
-# from pix2pix import use_training
+"""## Generate images
+
+    Write a function to plot some images during training.
+
+    - Pass images from the test set to the generator.
+    - The generator will then translate the input image into the output.
+    - The last step is to plot the predictions and _voila_!
+
+    Note: The `training=True` is intentional here since you want the batch
+    statistics, while running the model on the test dataset. If you use
+    `training=False`, you get the accumulated statistics learned from the training
+    dataset (which you don't want).
+    """
 
 def generate_images(model, test_input, target, use_training, pause=False):
     prediction = model(test_input, training=use_training)
@@ -36,24 +46,3 @@ def generate_images(model, test_input, target, use_training, pause=False):
     # plt.show()
 
     return test_input, prediction
-
-checkpoint_prefix = None
-checkpoint = None
-CHECKPOINT_DIR = None
-
-def make_checkpoint(checkpoint_dir, generator_optimizer, discriminator_optimizer, generator, discriminator):
-    global checkpoint_prefix, checkpoint, CHECKPOINT_DIR
-    CHECKPOINT_DIR = checkpoint_dir
-    checkpoint_prefix = os.path.join(CHECKPOINT_DIR, "ckpt")
-    checkpoint = tf.train.Checkpoint(generator_optimizer=generator_optimizer,
-                                    discriminator_optimizer=discriminator_optimizer,
-                                    generator=generator,
-                                    discriminator=discriminator)
-
-def restore_checkpoint():
-    global checkpoint, CHECKPOINT_DIR
-    checkpoint.restore(tf.train.latest_checkpoint(CHECKPOINT_DIR))
-
-def save_checkpoint():
-    global checkpoint, checkpoint_prefix
-    checkpoint.save(file_prefix=checkpoint_prefix)
