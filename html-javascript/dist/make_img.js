@@ -1,4 +1,4 @@
-// Transcrypt'ed from Python, 2021-08-22 00:46:40
+// Transcrypt'ed from Python, 2021-08-23 22:00:28
 var make_img = {};
 var math = {};
 var random = {};
@@ -16,7 +16,7 @@ import * as __module_random__ from './random.js';
 __nest__ (random, '', __module_random__);
 import {out_pdb} from './make_img.out_pdb.js';
 import {run_blender} from './make_img.run_blender.js';
-export {ColorScheme, out_pdb, numpy, from_pdb_txt, draw_ellipse, get_image_mod, run_blender, get_image_draw, pdbs};
+export {get_image_draw, ColorScheme, out_pdb, from_pdb_txt, draw_ellipse, run_blender, pdbs, get_image_mod, numpy};
 var __name__ = '__main__';
 export var sep = '/';
 export var PDB_FILENAME = random.choice (list (pdbs.pdb_files.py_keys ()));
