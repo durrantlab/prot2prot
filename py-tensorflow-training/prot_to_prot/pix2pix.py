@@ -31,10 +31,10 @@ import time
 from .input_output.images.saving import generate_images
 from .input_output.checkpoints import make_checkpoint, restore_checkpoint, save_checkpoint
 
-# from .generators.size256 import PATH, IMG_DIMEN, Generator, CHECKPOINT_DIR
+from .generators.size256 import PATH, IMG_DIMEN, Generator, CHECKPOINT_DIR
 # from .generators.size256Full import PATH, IMG_DIMEN, Generator, CHECKPOINT_DIR
 # from .generators.size256Full_v2 import PATH, IMG_DIMEN, Generator, CHECKPOINT_DIR
-from .generators.size256Full_v3 import PATH, IMG_DIMEN, Generator, CHECKPOINT_DIR
+# from .generators.size256Full_v4 import PATH, IMG_DIMEN, Generator, CHECKPOINT_DIR
 
 from .generators.loss import generator_loss
 from .input_output.images.loading import load_image_train, load_from_img, load_image_test, get_random_img

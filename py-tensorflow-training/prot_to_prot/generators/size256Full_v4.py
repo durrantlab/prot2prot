@@ -1,9 +1,9 @@
 import tensorflow as tf
 from ..vars import OUTPUT_CHANNELS
-from ..down_up_samples import downsample, upsample
+from ..down_up_samples import downsample, upsample, upsample2
 
 PATH = "./size_256_full/"
-CHECKPOINT_DIR = "./training_checkpoints_256.no_norm.v4"
+CHECKPOINT_DIR = "./training_checkpoints_256_full_v4"
 
 IMG_DIMEN = 256
 
@@ -30,6 +30,8 @@ def Generator():
         downsample(512, 4, apply_batchnorm=False, apply_layernorm=True, layer_name="downsample8"),  # (batch_size, 1, 1, 512)
     ]
 
+    # upsmpl = upsample2
+
     up_stack = [
         upsample(512, 4, apply_dropout=True, layer_name="upsample1"),  # (batch_size, 2, 2, 1024)
         upsample(512, 4, apply_dropout=True, layer_name="upsample2"),  # (batch_size, 4, 4, 1024)
@@ -37,7 +39,7 @@ def Generator():
         upsample(512, 4, layer_name="upsample4"),  # (batch_size, 16, 16, 1024)
         upsample(256, 4, layer_name="upsample5"),  # (batch_size, 32, 32, 512)
         upsample(128, 4, layer_name="upsample6"),  # (batch_size, 64, 64, 256)
-        upsample(64, 4, layer_name="upsample7"),  # (batch_size, 128, 128, 128)
+        upsample2(64, 4, layer_name="upsample7"),  # (batch_size, 128, 128, 128)
     ]
 
     initializer = tf.random_normal_initializer(0., 0.02)
@@ -46,6 +48,9 @@ def Generator():
                                            padding='same',
                                            kernel_initializer=initializer,
                                            activation='tanh')  # (batch_size, 256, 256, 3)
+
+    # Consider: https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix/issues/190
+    # https://distill.pub/2016/deconv-checkerboard/
 
     x = inputs
 
@@ -57,9 +62,15 @@ def Generator():
 
     skips = reversed(skips[:-1])
 
+    # for up, skip in zip(up_stack, skips):
+    #     x = up(x)
+    #     print(x.shape, skip.shape)
+    # sdfsdff
+
     # Upsampling and establishing the skip connections
     for up, skip in zip(up_stack, skips):
         x = up(x)
+        # print(x.shape, skip.shape)
         x = tf.keras.layers.Concatenate()([x, skip])
 
     x = last(x)
