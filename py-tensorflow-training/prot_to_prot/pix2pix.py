@@ -14,6 +14,9 @@ Licensed under the Apache License, Version 2.0 (the "License");
 # TODO: JDD made it so this is toggleable for testing purposes.
 use_training = False  # TODO: Was originally true
 
+# If True, exports the model rather than train.
+EXPORT_MODEL = False
+
 # @title Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -31,7 +34,10 @@ import time
 from .input_output.images.saving import generate_images
 from .input_output.checkpoints import make_checkpoint, restore_checkpoint, save_checkpoint
 
-from .generators.size256 import PATH, IMG_DIMEN, Generator, CHECKPOINT_DIR
+from .generators.size64 import PATH, IMG_DIMEN, Generator, CHECKPOINT_DIR, BETA_1, ID
+# from .generators.size256 import PATH, IMG_DIMEN, Generator, CHECKPOINT_DIR, BETA_1, ID
+# from .generators.size512 import PATH, IMG_DIMEN, Generator, CHECKPOINT_DIR, BETA_1, ID
+
 # from .generators.size256Full import PATH, IMG_DIMEN, Generator, CHECKPOINT_DIR
 # from .generators.size256Full_v2 import PATH, IMG_DIMEN, Generator, CHECKPOINT_DIR
 # from .generators.size256Full_v4 import PATH, IMG_DIMEN, Generator, CHECKPOINT_DIR
@@ -44,7 +50,10 @@ from .input_output.datasets import load_datasets
 from .input_output.summary import make_summary_writer, write_to_summary
 from .input_output.export_model import export_model
 
+import wandb
+
 def main():
+    wandb.init(project='pix2pix_prot2prot', id=ID, resume=True)
 
     """Each original image is of size `256 x 512` containing two `256 x 256` images:"""
 
@@ -87,7 +96,6 @@ def main():
     # Normalizing the images to [-1, 1]
 
     """## Build an input pipeline with `tf.data`"""
-
     train_dataset, test_dataset = load_datasets(PATH, BUFFER_SIZE, BATCH_SIZE)
 
     """## Build the generator
@@ -174,15 +182,15 @@ def main():
     ## Define the optimizers and a checkpoint-saver
     """
 
-    generator_optimizer = tf.keras.optimizers.Adam(2e-4, beta_1=0.5)
-    discriminator_optimizer = tf.keras.optimizers.Adam(2e-4, beta_1=0.5)
+    generator_optimizer = tf.keras.optimizers.Adam(2e-4, beta_1=BETA_1)
+    discriminator_optimizer = tf.keras.optimizers.Adam(2e-4, beta_1=BETA_1)
 
     make_checkpoint(CHECKPOINT_DIR, generator_optimizer, discriminator_optimizer, generator, discriminator)
 
     # To export the model in the latest checkpoint for converting to
     # tensorflow.js, set the below to True. Otherwise just loads latest
     # checkpoint.
-    export_model(False, generator)
+    export_model(EXPORT_MODEL, generator, CHECKPOINT_DIR)
 
     """Test the function:"""
 
@@ -228,6 +236,8 @@ def main():
 
         write_to_summary(step, gen_total_loss, gen_gan_loss, gen_l1_loss, disc_loss)
 
+        return gen_total_loss, disc_loss
+
 
     """The actual training loop. Since this tutorial can run of more than one
     dataset, and the datasets vary greatly in size the training loop is setup to
@@ -239,7 +249,6 @@ def main():
     - Every 5k steps: save a checkpoint.
     """
 
-
     def fit(train_ds, test_ds, steps):
         example_input, example_target = next(iter(test_ds.take(1)))
         start = time.time()
@@ -249,22 +258,29 @@ def main():
                 # display.clear_output(wait=True)
 
                 if step != 0:
-                    print(
-                        f'Time taken for 1000 steps: {time.time()-start:.2f} sec\n')
+                    secs = time.time()-start
+                    print(f'Time taken for 1000 steps: {secs:.2f} sec\n')
+                    wandb.log({"secs_per_1000_steps": secs})
+
+                # wandb.log({"checkpoint_saved_every_5k": step})
 
                 start = time.time()
 
                 generate_images(generator, example_input, example_target, use_training)
                 print(f"Step: {step//1000}k")
 
-            train_step(input_image, target, step)
+            gen_total_loss, disc_loss = train_step(input_image, target, step)
+
+            if (step + 1) % 250 == 0:
+                wandb.log({"gen_loss": gen_total_loss, "disc_loss": disc_loss})
 
             # Training step
-            if (step+1) % 10 == 0:
+            if (step + 1) % 10 == 0:
                 print('.', end='', flush=True)
 
             # Save (checkpoint) the model every 5k steps
             if (step + 1) % 5000 == 0:
+                wandb.log({"checkpoint_saved_every_5k": step})
                 save_checkpoint()
 
 

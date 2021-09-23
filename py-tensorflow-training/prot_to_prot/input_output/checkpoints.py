@@ -19,6 +19,8 @@ def make_checkpoint(checkpoint_dir, generator_optimizer, discriminator_optimizer
 
 def restore_checkpoint():
     global checkpoint, CHECKPOINT_DIR
+    print("Checkpoint dir: " + CHECKPOINT_DIR)
+    # import pdb; pdb.set_trace()
     checkpoint.restore(tf.train.latest_checkpoint(CHECKPOINT_DIR))
 
 def save_checkpoint():

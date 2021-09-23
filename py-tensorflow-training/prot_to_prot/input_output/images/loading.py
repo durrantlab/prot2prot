@@ -2,7 +2,7 @@ from ...image_processing import random_jitter, normalize, resize
 import glob
 import random
 import tensorflow as tf
-from ...vars import IMG_DIMEN
+from ...vars import get_img_dimen
 
 
 def load_image_train(image_file, rand_jitt=True):
@@ -16,6 +16,7 @@ def load_image_train(image_file, rand_jitt=True):
 
 def load_image_test(image_file):
     input_image, real_image = load_from_img(image_file)
+    IMG_DIMEN = get_img_dimen()
     input_image, real_image = resize(input_image, real_image,
                                     IMG_DIMEN, IMG_DIMEN)
     input_image, real_image = normalize(input_image, real_image)
