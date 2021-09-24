@@ -18,3 +18,8 @@ logs/
 input.png
 predicted.png
 target.png
+models
+dist
+gen-training-data/output*
+*.exr
+*.blend*
