@@ -12,7 +12,7 @@ IMG_DIMEN = 512
 BETA_1 = 0.5
 
 # ID="size512_lr0.5_v5"
-ID="fixed_size512"
+ID="fixed_size512.v2"
 
 def Generator():
     inputs = tf.keras.layers.Input(shape=[512, 512, 3])

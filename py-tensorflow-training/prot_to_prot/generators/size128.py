@@ -7,7 +7,7 @@ CHECKPOINT_DIR = "./training_checkpoints_128.no_norm.v4"
 
 IMG_DIMEN = 128
 BETA_1 = 0.5
-ID="fixed_size128"
+ID="size128.fixed_data"
 
 def Generator():
     inputs = tf.keras.layers.Input(shape=[128, 128, 3])
