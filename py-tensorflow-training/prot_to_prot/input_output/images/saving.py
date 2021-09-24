@@ -1,5 +1,6 @@
 from PIL import Image
 import numpy
+import wandb
 
 """## Generate images
 
@@ -19,7 +20,7 @@ def generate_images(model, test_input, target, use_training, pause=False):
     prediction = model(test_input, training=use_training)
     if pause:
         import pdb; pdb.set_trace()
-        
+
     print("Save images here...")
     # plt.figure(figsize=(15, 15))
 
@@ -34,6 +35,11 @@ def generate_images(model, test_input, target, use_training, pause=False):
         img_np = a.astype(numpy.uint8)
         img = Image.fromarray(img_np)
         img.save(t)
+
+        if t == "target.png":
+            wandb.log({"img": [wandb.Image(img_np, caption="Target")]})
+        elif t == "predicted.png":
+            wandb.log({"img": [wandb.Image(img_np, caption="Predicted")]})
 
     # title = ['Input Image', 'Ground Truth', 'Predicted Image']
 

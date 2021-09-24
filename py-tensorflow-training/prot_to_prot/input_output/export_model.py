@@ -4,7 +4,7 @@ import time
 import pdb
 import sys
 
-def export_model(test_and_save, generator):
+def export_model(test_and_save, generator, checkpoint_dir):
     try:
         # TODO: JDD addition: restore checkpoint here
         restore_checkpoint()
@@ -41,7 +41,7 @@ def export_model(test_and_save, generator):
 
             # tf.saved_model.save(generator, "./pb_tests_test/")
             # generator.save("test-model.h5", save_format='h5')
-            generator.save("test-model")
+            generator.save(checkpoint_dir + ".saved-model")
             print("Saved pb model...")
 
             # Below for testing
@@ -56,9 +56,9 @@ def export_model(test_and_save, generator):
             #     False
             # )
 
-            print("")
-            print("Testing...")
-            print("")
+            # print("")
+            # print("Testing...")
+            # print("")
 
             # print("tensor.arraySync()[0][64][151]")
             # print(test_input[0][64][151].numpy())
@@ -66,8 +66,10 @@ def export_model(test_and_save, generator):
             # print("result.arraySync()[0][64][151]")
             # print(prediction[0][64][151].numpy())
             # print("")
-            print("getWeights()")
-            print("\n".join([str(i+1) + ":  " + str(numpy.min(w)) + " " + str(numpy.max(w)) for i, w in enumerate(generator.get_weights())]))
+            # print("getWeights()")
+            # print("\n".join([str(i+1) + ":  " + str(numpy.min(w)) + " " + str(numpy.max(w)) for i, w in enumerate(generator.get_weights())]))
+
+            print("Cntrl-D stop here!")
 
             pdb.set_trace()
             sys.exit(0)

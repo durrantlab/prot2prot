@@ -1,7 +1,7 @@
 import tensorflow as tf
 import glob
 import random
-from .vars import IMG_DIMEN
+from .vars import get_img_dimen
 
 def resize(input_image, real_image, height, width):
     input_image = tf.image.resize(input_image, [height, width],
@@ -14,6 +14,7 @@ def resize(input_image, real_image, height, width):
 
 def random_crop(input_image, real_image):
     stacked_image = tf.stack([input_image, real_image], axis=0)
+    IMG_DIMEN = get_img_dimen()
     cropped_image = tf.image.random_crop(
         stacked_image, size=[2, IMG_DIMEN, IMG_DIMEN, 3])
 
@@ -30,6 +31,7 @@ def normalize(input_image, real_image):
 def random_jitter(input_image, real_image):
     # Resizing to 286x286
     # input_image, real_image = resize(input_image, real_image, 286, 286)
+    IMG_DIMEN = get_img_dimen()
     input_image, real_image = resize(
         input_image, real_image, IMG_DIMEN + 30, IMG_DIMEN + 30)  # TODO: UPDATED
 

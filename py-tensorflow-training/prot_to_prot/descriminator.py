@@ -1,4 +1,4 @@
-from .vars import IMG_DIMEN
+from .vars import get_img_dimen
 import tensorflow as tf
 from .down_up_samples import downsample
 
@@ -35,6 +35,7 @@ def Discriminator():
     # tar = tf.keras.layers.Input(shape=[256, 256, 3], name='target_image')
 
     # TODO: Did update this.
+    IMG_DIMEN = get_img_dimen()
     inp = tf.keras.layers.Input(shape=[IMG_DIMEN, IMG_DIMEN, 3], name='input_image')
     tar = tf.keras.layers.Input(shape=[IMG_DIMEN, IMG_DIMEN, 3], name='target_image')
 
