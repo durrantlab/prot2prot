@@ -1,111 +1,142 @@
-import * as tf from '@tensorflow/tfjs';
-import { InputColorScheme } from './ColorSchemes/InputColorScheme';
+import { loadTfjs } from '../../Utils';
 import { ParentColorScheme } from './ColorSchemes/ParentColorScheme';
-import { StandardColorScheme } from './ColorSchemes/StandardColorScheme';
-import { getImageDataFromCanvasContext, makeInMemoryCanvas, makeInMemoryCanvasContext } from './ImageDataHelper';
+import { getImageDataFromCanvasContext, makeInMemoryCanvasContext } from './ImageDataHelper';
 import { coorsTensor, elements, vdw } from './PDBParser';
 
 let FOCAL_LENGTH = 1418.5  // 10/0.050  # If using 1/dist to define magnification.
 
-export let rotMat = tf.tensor(
-    [
-        [1, 0, 0],
-        [0, 1, 0],
-        [0, 0, 1]
-    ]
-);
+export let rotMat: any;
+export let offsetVec: any;
 
-export let offsetVec = tf.tensor([0, 0, 0]);
+var tf: any;
 
-export function getCoorsTransformed(): tf.Tensor<tf.Rank> {
+export function getCoorsTransformed(): any {  // tf.Tensor<tf.Rank>
     // Apply rotation and offset, return new coors
     
-    // First, rotate
-    let coors = applyRotation();
-    
-    // Now translate it
-    coors = coors.add(offsetVec);
+    return tf.tidy(() => {
+        // First, rotate
+        let coors = applyRotation();
+        
+        // Now translate it
+        coors = coors.add(offsetVec);
 
-    return coors;
+        return coors;
+    });
 }
 
-export function makeImg(imgSize: number, colorScheme: ParentColorScheme): ImageData {
+export function makeImg(imgSize: number, colorScheme: ParentColorScheme): Promise<ImageData> {
     // Get color scheme
     // let colorScheme = new StandardColorScheme();
     // colorScheme = new InputColorScheme();
 
-    let coors = getCoorsTransformed();
-    
-    // It must be in front of the "camera". Alternative would be to remove atoms
-    // < 0.
-    let minZ = coors.min(0).arraySync()[2];
-    if (minZ < 5) {
-        let delta = tf.tensor([0, 0, -minZ + 5]);
-        coors = coors.add(delta);
+    return loadTfjs().then((tfMod) => {
+        tf = tfMod;
 
-        // Update offsetVec too in case you generate transformed PDB afterwards.
-        offsetVec = offsetVec.add(delta);
-    }
+        // Set initial values if needed.
+        if (rotMat === undefined) {
+            rotMat = tf.tensor(
+                [
+                    [1, 0, 0],
+                    [0, 1, 0],
+                    [0, 0, 1]
+                ]
+            );
 
-    // Get the max distance from the origin to any atom.
-    let dists = coors.mul(coors).sum(1).sqrt();
-    let maxDist = dists.max().arraySync();
-    let distsSorted = (dists.arraySync() as number[]).map((v, i) => {
-        return [v, i]
-    }).sort((a, b) => b[0] - a[0])
-
-    // Get the atom centers in 2D (canvas space).
-    let drawCentersTensor = points3Dto2D(coors, imgSize);
-
-    // Get the atom radii in 2D (canvas space).
-    let tmpZeros = tf.zeros([vdw.size]);
-    let radiiToAdd = tf.stack([vdw, tmpZeros, tmpZeros]).transpose();
-    let coorsEdges = coors.add(radiiToAdd);
-    let drawEdges = points3Dto2D(coorsEdges, imgSize);
-    let drawRadii = column(drawEdges.sub(drawCentersTensor), 0).arraySync();
-
-    let drawCenters = drawCentersTensor.arraySync();
-
-    // Create a canvas
-    let context = makeInMemoryCanvasContext(imgSize, "canvasRenderer");
-    context.fillStyle = colorScheme.backgroundColorHex;
-    context.fillRect(0, 0, imgSize, imgSize)
-
-    // For debugging
-    // document.body.appendChild(canvas);  
-
-    // Draw spheres
-    for (let data of distsSorted) {
-        let atomCenterDist = data[0];
-        let i = data[1];
-        let element = elements[i];
-        let colorsInf = colorScheme.getColorsForAtom(
-            atomCenterDist, 
-            maxDist as number, 
-            element, 
-            drawRadii[i]
-        );
-
-        let center = drawCenters[i];
-        let first = true;
-        for (let subCircle of colorsInf.subCircles) {
-            context.beginPath();
-            context.arc(center[0], center[1], subCircle.radius, 0, 2 * Math.PI, false);
-            context.fillStyle = subCircle.color; //  "rgb(0,0,0)";  // fill_color;
-            context.fill();
-            context.lineWidth = 1;
-            context.strokeStyle = first ? colorsInf.outline : subCircle.color;  // "rgb(0,0,0)" // outline_color;
-            context.stroke();
-            first = false;
+            offsetVec = tf.tensor([0, 0, 0]);
         }
 
-    }
-
-    // return image
-    return getImageDataFromCanvasContext(context);
+        let distsSorted: number[][];
+        let maxDist: number;
+        let drawCenters: number[][];
+        let drawRadii: number[];
+        let newOffsetVec: any;  // tf.Tensor<tf.Rank>;
+        [distsSorted, maxDist, drawCenters, drawRadii, newOffsetVec] = tf.tidy(() => {
+            let coors = getCoorsTransformed();
+        
+            // It must be in front of the "camera". Alternative would be to remove atoms
+            // < 0.
+            let minZ = coors.min(0).arraySync()[2];
+            // let newOffsetVec = (offsetVec as tf.Tensor<tf.Rank>).clone()
+            let newOffsetVec = offsetVec.clone()
+            if (minZ < 5) {
+                let delta = tf.tensor([0, 0, -minZ + 5]);
+                coors = coors.add(delta);
+        
+                // Update offsetVec too in case you generate transformed PDB afterwards.
+                newOffsetVec = newOffsetVec.add(delta);
+            }
+        
+            // Get the max distance from the origin to any atom.
+            let dists = coors.mul(coors).sum(1).sqrt();
+            let maxDist = dists.max().arraySync();
+            let distsSorted = (dists.arraySync() as number[]).map((v, i) => {
+                return [v, i]
+            }).sort((a, b) => b[0] - a[0]);
+        
+            // Get the atom centers in 2D (canvas space).
+            let drawCentersTensor = points3Dto2D(coors, imgSize);
+            let drawCenters = drawCentersTensor.arraySync();
+        
+            // Get the atom radii in 2D (canvas space).
+            let tmpZeros = tf.zeros([vdw.size]);
+            let radiiToAdd = tf.stack([vdw, tmpZeros, tmpZeros]).transpose();
+            let coorsEdges = coors.add(radiiToAdd);
+            let drawEdges = points3Dto2D(coorsEdges, imgSize);
+            let drawRadii = column(drawEdges.sub(drawCentersTensor), 0).arraySync();
+            
+            return [
+                distsSorted as number[][],
+                maxDist as number,
+                drawCenters as number[][],
+                drawRadii as number[],
+                newOffsetVec
+            ];
+        });
+        offsetVec.dispose();
+        offsetVec = newOffsetVec;
+    
+        // Create a canvas
+        let context = makeInMemoryCanvasContext(imgSize, "canvasRenderer");
+        context.fillStyle = colorScheme.backgroundColorHex;
+        context.fillRect(0, 0, imgSize, imgSize)
+    
+        // For debugging
+        // document.body.appendChild(canvas);  
+    
+        // Draw spheres
+        for (let data of distsSorted) {
+            let atomCenterDist = data[0];
+            let i = data[1];
+            let element = elements[i];
+            let colorsInf = colorScheme.getColorsForAtom(
+                atomCenterDist, 
+                maxDist, 
+                element, 
+                drawRadii[i]
+            );
+    
+            let center = drawCenters[i];
+            let first = true;
+            for (let subCircle of colorsInf.subCircles) {
+                context.beginPath();
+                context.arc(center[0], center[1], subCircle.radius, 0, 2 * Math.PI, false);
+                context.fillStyle = subCircle.color; //  "rgb(0,0,0)";  // fill_color;
+                context.fill();
+                context.lineWidth = 1;
+                context.strokeStyle = first ? colorsInf.outline : subCircle.color;  // "rgb(0,0,0)" // outline_color;
+                context.stroke();
+                first = false;
+            }
+        }
+    
+        // return image
+        return getImageDataFromCanvasContext(context);
+    });
+    
 }
 
-function points3Dto2D(pts3D: tf.Tensor<tf.Rank>, imgSize: number): tf.Tensor<tf.Rank> {
+// function points3Dto2D(pts3D: tf.Tensor<tf.Rank>, imgSize: number): tf.Tensor<tf.Rank> {
+function points3Dto2D(pts3D: any, imgSize: number): any {
     // Project the points onto a 2D plane
     let xs = column(pts3D, 0);
     let ys = column(pts3D, 1);
@@ -125,7 +156,8 @@ function points3Dto2D(pts3D: tf.Tensor<tf.Rank>, imgSize: number): tf.Tensor<tf.
     return xy;
 }
 
-function column(tensor: tf.Tensor<tf.Rank>, idx: number): tf.Tensor<tf.Rank> {
+// function column(tensor: tf.Tensor<tf.Rank>, idx: number): tf.Tensor<tf.Rank> {
+function column(tensor: any, idx: number): any {
     return tf.gather(tensor, [idx], 1);
 }
 
@@ -162,9 +194,12 @@ export function updateRotMat(axis: string, degrees: number): void {
     );
 
     rotMat = tf.matMul(t, rotMat);
+
+    t.dispose();
 }
 
 export function updateOffsetVec(deltaX: number, deltaY: number, deltaZ: number): void {
+    offsetVec.dispose();
     offsetVec = tf.tensor([deltaX, deltaY, deltaZ])
 }
 

@@ -1,0 +1,153 @@
+// @ts-ignore
+import neuralRenderersInfo from "../../../models/info.json";
+
+export let pickNeuralRendererTemplate = /* html */ `
+<sub-section title="Pick Neural Renderer" v-if="showFileInputs">
+    <form-select
+        label="Renderer"
+        :options="neuralRendererOptions"
+        storeVarName="selectedNeuralRenderer"
+        @change="updateAssociatedInfo"
+    ></form-select>
+
+    <form-select
+        label="Dimensions"
+        v-if="$store.state.selectedNeuralRenderer"
+        :options="dimensionsOptions"
+        storeVarName="selectedDimensions"
+        @change="updateAssociatedInfo"
+    ></form-select>
+
+    <form-select
+        label="Quality"
+        v-if="$store.state.selectedDimensions"
+        :options="qualityOptions"
+        storeVarName="selectedQuality"
+        @change="updateAssociatedInfo"
+    ></form-select>
+
+    <p>
+        {{description}}
+        {{colorScheme}}
+    </p>
+</sub-section>
+`;
+
+export let pickNeuralRendererData = {
+    "description": "",
+    "colorScheme": "",
+}
+
+export let pickNeuralRendererMethodsFunctions = {
+    "updateAssociatedInfo"(): void {
+        let state = this.$store.state;
+        let nr = this.getCurrentNeuralRendererInfo();
+        this["description"] = nr["description"];
+        this["colorScheme"] = nr["colorScheme"];
+
+        // this["modelSize"] = neuralRenderersInfo
+        //     [state["selectedNeuralRenderer"]]
+        //     ["sizes"]
+        //     [state["selectedDimensions"]];
+    },
+
+    getCurrentNeuralRendererInfo(): any {
+        return neuralRenderersInfo[this.$store.state["selectedNeuralRenderer"]];
+    },
+
+    getCurrentDimensionsInfo(): any {
+        let nrInfo = this.getCurrentNeuralRendererInfo();
+        if (!nrInfo) {
+            return undefined;
+        }
+        return nrInfo["sizes"];
+    },
+
+    getCurrentQualityInfo(): any {
+        let dimenInfo = this.getCurrentDimensionsInfo();
+        if (!dimenInfo) {
+            return undefined;
+        }
+        return dimenInfo[this.$store.state["selectedDimensions"]];
+    }
+}
+
+export let pickNeuralRendererComputedFunctions = {
+    "neuralRendererOptions"(): any[] { 
+        let options = Object.keys(neuralRenderersInfo).map((r) => {
+            return {value: r, text: neuralRenderersInfo[r]["name"]}
+        });
+        if (this.$store.state["selectedNeuralRenderer"] === "") {
+            this.$store.commit("setVar", {
+                name: "selectedNeuralRenderer",
+                val: options[0].value
+            });
+            this["updateAssociatedInfo"]();
+        }
+        return options;
+    },
+
+    "dimensionsOptions"(): any[] {
+        let sizeInfo = this.getCurrentDimensionsInfo();
+
+        if (!sizeInfo) {
+            return [];
+        }
+        
+        let ids = Object.keys(sizeInfo);
+        let options = ids.map((s) => {
+            return {value: s, text: `${s}px x ${s}px`};
+        });
+
+        if (
+            (this.$store.state["selectedDimensions"] === "")
+            || (ids.indexOf(this.$store.state["selectedDimensions"]) === -1)
+        ) {
+            this.$store.commit("setVar", {
+                name: "selectedDimensions",
+                val: options[0].value
+            });
+            // this["updateAssociatedInfo"]();
+        };
+
+        return options;
+    },
+
+    "qualityOptions"(): any[] {
+        let qualInfo = this.getCurrentQualityInfo();
+
+        if (!qualInfo) {
+            return [];
+        }
+
+        let descriptions = {
+            "full": "NOUSE",  // Don't use
+            "float16": "NOUSE",  // Don't use
+            "uint16": "High",  // smallish, same as even full model per vis inspect
+            "uint8": "Low",  // smallest
+        };
+
+        let options = [];
+        for (let id in qualInfo) {
+            if ((descriptions[id] === "NOUSE") || (descriptions[id] === undefined)) {
+                continue;
+            }
+            options.push({value: id, text: descriptions[id] + " (" + qualInfo[id] + ")"});
+        }
+
+        let ids = Object.keys(qualInfo);
+
+        if (
+            (this.$store.state["selectedQuality"] === "")
+            || (ids.indexOf(this.$store.state["selectedQuality"]) === -1)
+        ) {
+            this.$store.commit("setVar", {
+                name: "selectedQuality",
+                val: options[0].value
+            });
+            this["updateAssociatedInfo"]();
+        };
+
+        return options;
+    }
+}

@@ -57,11 +57,11 @@ let methodsFunctions = {
 }
 
 /**
- * Setup the vina-output Vue commponent.
+ * Setup the prot2prot-output Vue commponent.
  * @returns void
  */
 export function setup(): void {
-    Vue.component('vina-output', {
+    Vue.component('prot2prot-output', {
         "template": `
             <div>
                 <sub-section title="Visualization">
@@ -70,7 +70,7 @@ export function setup(): void {
                         id="input-group-receptor-3dmol"
                         description=""
                     >
-                        <threedmol :autoLoad="true" type="docked" :proteinSurface="true"></threedmol>
+                        <!-- <threedmol :autoLoad="true" type="docked" :proteinSurface="true"></threedmol> -->
                     </form-group>
                     <!-- <results-table></results-table> -->
                     <p class="text-center mb-0">Execution time: {{time}} seconds</p>
@@ -117,8 +117,6 @@ export function setup(): void {
                         <form-button :small="true" @click.native="vinaOutputContentsDownload">Download</form-button>
                     </form-group>
                 </sub-section>
-
-                <!-- <vina-commandline></vina-commandline> -->
             </div>
         `,
         "props": {},

@@ -4,7 +4,7 @@
 
 
 import * as Utils from "../Utils";
-import * as ThreeDMol from "../UI/ThreeDMol";
+// import * as ThreeDMol from "../UI/ThreeDMol.ts.old";
 
 // @ts-ignore
 // import ExampleReceptorPDBQT from "../example/1xdn.pdbqt";
@@ -55,8 +55,8 @@ interface IInputFileNames {
 
 export const store = new Vuex.Store({
     "state": {
-        "vinaParams": {},
-        "validation": {},
+        // "vinaParams": {},
+        // "validation": {},
         hideDockingBoxParams: false,
         "tabIdx": 0,
         "receptorFileName": "",
@@ -72,7 +72,7 @@ export const store = new Vuex.Store({
         // "outputContentsExample": ExampleOutputPDBQT,
         "dockedContents": "",
         "parametersTabDisabled": false,
-        "existingVinaOutputTabDisabled": false,
+        // "existingVinaOutputTabDisabled": false,
         "runningTabDisabled": true,
         "startOverTabDisabled": true,
         "outputTabDisabled": true,
@@ -95,6 +95,10 @@ export const store = new Vuex.Store({
         "protDist": 150,
         "leftRightOffset": 0,
         "upDownOffset": 0,
+
+        "selectedNeuralRenderer": "",
+        "selectedDimensions": "",
+        "selectedQuality": ""
     },
     "mutations": {
         /**
@@ -107,25 +111,6 @@ export const store = new Vuex.Store({
          */
         "setVar"(state: any, payload: IVueXStoreSetVar): void {
             state[payload.name] = payload.val;
-
-        },
-
-        /**
-         * Set one of the vina parameters.
-         * @param  {any}        state    The VueX state.
-         * @param  {iVueXParam} payload  An object with information about
-         *                               which vina parameter to set.
-         * @returns void
-         */
-        "setVinaParam"(state: any, payload: iVueXParam): void {
-            // By redefining the whole variable, it becomes reactive. Directly
-            // changing individual properties is not reactive.
-            state["vinaParams"] = Utils.getNewObjWithUpdate(
-                state["vinaParams"],
-                payload.name,
-                payload.val
-            );
-            state.hideDockingBoxParams = state["vinaParams"]["score_only"] === true
         },
 
         /**
@@ -181,33 +166,33 @@ export const store = new Vuex.Store({
          * @param  {any} state  The VueX state.
          * @returns void
          */
-        "outputToData"(state: any): void {
-            let data = [];
+        // "outputToData"(state: any): void {
+        //     let data = [];
 
-            let outPdbqtFileTxt = state["outputContents"];
+        //     let outPdbqtFileTxt = state["outputContents"];
 
-            // Get info like score and rmsd from output file.
-            let re = /^REMARK VINA RESULT:\W+?([0-9\.\-]+)\W+?([0-9\.\-]+)\W+?([0-9\.\-]+)$/gm
-            let match;
-            let i = 1;
-            while (match = re.exec(outPdbqtFileTxt)) {
-                data.push([
-                    i, match[1], match[2], match[3]
-                ].map(d => +d));
-                i++;
-            }
+        //     // Get info like score and rmsd from output file.
+        //     let re = /^REMARK VINA RESULT:\W+?([0-9\.\-]+)\W+?([0-9\.\-]+)\W+?([0-9\.\-]+)$/gm
+        //     let match;
+        //     let i = 1;
+        //     while (match = re.exec(outPdbqtFileTxt)) {
+        //         data.push([
+        //             i, match[1], match[2], match[3]
+        //         ].map(d => +d));
+        //         i++;
+        //     }
 
-            // Get pdb frames from output pdbqt file.
-            let framesPDBQTs = outPdbqtFileTxt.split("ENDMDL");
-            let framePDBs = framesPDBQTs
-                            .map(t => ThreeDMol.pdbqtToPDB(t, this.$store))
-                            .filter(t => t !== "")
-                            .map((t, i) => { return [data[i], t]; });
-            state["pdbOutputFrames"] = framePDBs;
+        //     // Get pdb frames from output pdbqt file.
+        //     let framesPDBQTs = outPdbqtFileTxt.split("ENDMDL");
+        //     let framePDBs = framesPDBQTs
+        //                     .map(t => ThreeDMol.pdbqtToPDB(t, this.$store))
+        //                     .filter(t => t !== "")
+        //                     .map((t, i) => { return [data[i], t]; });
+        //     state["pdbOutputFrames"] = framePDBs;
 
-            // Set the first docked frame as the selected one.
-            state["dockedContents"] = framePDBs[0][1];
-        },
+        //     // Set the first docked frame as the selected one.
+        //     state["dockedContents"] = framePDBs[0][1];
+        // },
 
         /**
          * Open the modal.

@@ -25,12 +25,12 @@ export function setup(): void {
                 <!-- <convert-file-modal></convert-file-modal> -->
                 <!-- <draw-smiles-modal></draw-smiles-modal> -->
                 <div id="no-mobile">
-                    <b-jumbotron class="jumbo" header="Prot2Prot ${VERSION}" lead="AutoDock Vina Ported to WebAssembly">
+                    <b-jumbotron class="jumbo" header="Prot2Prot ${VERSION}" lead="Advanced protein rendering in the browser">
                         <p>Prot2Prot ${VERSION} is not designed to work on mobile phones. Please use a device with a larger screen.</p>
                     </b-jumbotron>
                 </div>
 
-                <b-jumbotron class="jumbo" style="background-image:url(${Utils.curPath()}webina_logo.jpg);" header="Prot2Prot ${VERSION}" lead="AutoDock Vina Ported to WebAssembly">
+                <b-jumbotron class="jumbo" style="background-image:url(${Utils.curPath()}webina_logo.jpg);" header="Prot2Prot ${VERSION}" lead="Advanced protein rendering in the browser">
                     <p>Brought to you by the <a target="_blank" href="http://durrantlab.com">Durrant Lab</a>.</p>
                     <b-button variant="primary" target="_blank" href="http://durrantlab.com">More Info</b-button>
                 </b-jumbotron>
@@ -39,22 +39,17 @@ export function setup(): void {
                     <b-tabs v-model="tabIdx" card fill pills vertical content-class="mt-3"> <!-- vertical -->
                         <b-tab title="Input Parameters" active :disabled="parametersTabDisabled">
                             <b-card-text>
-                                <vina-params></vina-params>
+                                <prot2prot-params></prot2prot-params>
                             </b-card-text>
                         </b-tab>
-                        <!-- <b-tab title="Existing Vina Output" :disabled="existingVinaOutputTabDisabled">
-                            <b-card-text>
-                                <vina-existing-output></vina-existing-output>
-                            </b-card-text>
-                        </b-tab> -->
                         <b-tab title="Running Prot2Prot" :disabled="runningTabDisabled">
                             <b-card-text>
-                                <vina-running></vina-running>
+                                <prot2prot-running></prot2prot-running>
                             </b-card-text>
                         </b-tab>
                         <b-tab title="Output" :disabled="outputTabDisabled">
                             <b-card-text>
-                                <vina-output></vina-output>
+                                <prot2prot-output></prot2prot-output>
                             </b-card-text>
                         </b-tab>
                         <b-tab title="Start Over" :disabled="startOverTabDisabled">
@@ -120,9 +115,9 @@ export function setup(): void {
              * Determine whether the existing vina output tab is disabled.
              * @returns boolean  True if it is disabled, false otherwise.
              */
-            "existingVinaOutputTabDisabled"(): boolean {
-                return this.$store.state["existingVinaOutputTabDisabled"];
-            },
+            // "existingVinaOutputTabDisabled"(): boolean {
+            //     return this.$store.state["existingVinaOutputTabDisabled"];
+            // },
 
             /**
              * Determine whether the start over tab is disabled.

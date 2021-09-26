@@ -110,3 +110,11 @@ export function keepOnlyProteinAtoms(pdbTxt: string): string {
 
     return linesToKeep;
 }
+
+export function loadTfjs(): Promise<any> {
+    return import(
+        /* webpackChunkName: "tf" */ 
+        /* webpackMode: "lazy" */
+        '@tensorflow/tfjs'
+    );
+}

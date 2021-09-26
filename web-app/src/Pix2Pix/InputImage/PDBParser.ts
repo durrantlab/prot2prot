@@ -1,4 +1,4 @@
-import * as tf from '@tensorflow/tfjs';
+import { loadTfjs } from '../../Utils';
 
 // This list not exhaustive!
 let twoLetterElements = new Set([
@@ -14,38 +14,45 @@ let vdwRadii = {
     "PB": 2.02, "BI": 2.00, "K": 2.75, "I": 1.98, "NI": 1.63, "SE": 1.90
 }
 
-export let coorsTensor: tf.Tensor<tf.Rank>;
+export let coorsTensor: any;  // tf.Tensor<tf.Rank>;
 export let elements: string[];
-export let vdw: tf.Tensor<tf.Rank>;
+export let vdw: any;  // tf.Tensor<tf.Rank>;
 export let pdbLines: string[];
 
-export function parsePDB(pdbText: string) {
-    pdbLines = pdbText.split("\n");
-    pdbLines = pdbLines.filter(l => l.startsWith("ATOM") || l.startsWith("HETATM"));
-    let coors = pdbLines.map((l) => {
-        let x = parseFloat(l.substr(30, 8));
-        let y = parseFloat(l.substr(38, 8));
-        let z = parseFloat(l.substr(46, 8));
-        return [x, y, z];
-    });
-    elements = pdbLines.map((l) => {
-        let elem = l.substr(-3).trim();
-        if (elem === "") {
-            elem = elementFromAtomName(l.substr(12, 4).trim());
-        }
-        return elem;
-    });
-    vdw = tf.tensor(
-        elements.map((e) => {
-            // Assume carbon if radii not defined...
-            return vdwRadii[e] !== undefined ? vdwRadii[e] : vdwRadii["C"];
-        })
-    );
+var tf;
 
-    coorsTensor = tf.tensor(coors)
+export function parsePDB(pdbText: string): Promise<any> {
+    return loadTfjs().then((tfMod) => {
+        tf = tfMod;
+        pdbLines = pdbText.split("\n");
+        pdbLines = pdbLines.filter(l => l.startsWith("ATOM") || l.startsWith("HETATM"));
+        let coors = pdbLines.map((l) => {
+            let x = parseFloat(l.substr(30, 8));
+            let y = parseFloat(l.substr(38, 8));
+            let z = parseFloat(l.substr(46, 8));
+            return [x, y, z];
+        });
+        elements = pdbLines.map((l) => {
+            let elem = l.substr(-3).trim();
+            if (elem === "") {
+                elem = elementFromAtomName(l.substr(12, 4).trim());
+            }
+            return elem;
+        });
+        vdw = tf.tensor(
+            elements.map((e) => {
+                // Assume carbon if radii not defined...
+                return vdwRadii[e] !== undefined ? vdwRadii[e] : vdwRadii["C"];
+            })
+        );
+    
+        coorsTensor = tf.tensor(coors)
+    
+        // Center at origin
+        coorsTensor = coorsTensor.sub(coorsTensor.mean(0));
 
-    // Center at origin
-    coorsTensor = coorsTensor.sub(coorsTensor.mean(0));
+        return Promise.resolve(undefined);
+    });
 }
 
 function elementFromAtomName(atomName: string): string {
@@ -54,7 +61,7 @@ function elementFromAtomName(atomName: string): string {
     return (twoLetterElements.has(atomName)) ? atomName : atomName.substr(0, 1);
 }
 
-export function getPDBTextUpdatedCoors(coors: tf.Tensor<tf.Rank>): string {
+export function getPDBTextUpdatedCoors(coors: any): string {  // tf.Tensor<tf.Rank>
     let i = 0;
     let coorsList = coors.arraySync();
     let newPDBLines: string[] = [];
