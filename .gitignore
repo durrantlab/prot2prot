@@ -24,3 +24,5 @@ gen-training-data/output*
 *.exr
 *.blend*
 prot2prot.zip
+gen-training-data/src/Pix2Pix
+test-tfjs

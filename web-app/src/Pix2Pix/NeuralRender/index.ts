@@ -1,7 +1,5 @@
-import { loadTfjs } from '../Utils';
-import { makeInMemoryCanvas, getImageDataFromCanvasContext, getImageDataFromCanvas } from './InputImage/ImageDataHelper';
-
-var tf: any;  // loaded dynamically.
+import { makeInMemoryCanvas, getImageDataFromCanvas } from '../InputImage/ImageDataHelper';
+import { loadTfjs, tf } from '../LoadTF';
 
 function normalize(t) {
     return tf.sub(tf.div(t, 127.5), 1)
@@ -12,19 +10,26 @@ function unnormalize(t) {
 }
 
 let storedModel = undefined;
+let inferenceRunning = false;
 
 export function neuralRender(modelPath: string, imageData: ImageData): Promise<ImageData> {
     let out;
     let outputCanvas;
 
-    return loadTfjs().then((tfMod) => {
-        tf = tfMod;
+    if (inferenceRunning) {
+        console.warn("Already running inference...");
+        return Promise.resolve(undefined);
+    }
 
+    inferenceRunning = true;
+
+    return loadTfjs().then(() => {
         // const input_canvas = document.getElementById('canvasRenderer') as HTMLCanvasElement;
         // const output_canvas = document.getElementById('output_img') as HTMLCanvasElement;
         
         let loadModelPromise = (storedModel === undefined) 
-            ? tf.loadLayersModel(modelPath)
+            // ? tf.loadLayersModel(modelPath)
+            ? tf.loadGraphModel(modelPath)
             : Promise.resolve(storedModel);
 
         return loadModelPromise;
@@ -33,6 +38,9 @@ export function neuralRender(modelPath: string, imageData: ImageData): Promise<I
         if (storedModel === undefined) {
             storedModel = model;
         }
+        
+        // tf.setBackend('cpu');
+        // console.log(tf.getBackend());
 
         // console.log('loaded')
         // console.log(model)
@@ -42,16 +50,20 @@ export function neuralRender(modelPath: string, imageData: ImageData): Promise<I
                 .fromPixels(imageData, 3);
     
             const processed = normalize(data);
+            const channelFirst = processed.transpose([2, 0, 1])
+
             // processed.print()
     
             // Convert to shape [1,256,256,3]
-            let batch = tf.expandDims(processed)
+            let batch = tf.expandDims(channelFirst)
     
             let pred = model.predict(batch);  //  as tf.Tensor<tf.Rank> | tf.TensorLike;
-    
+
+            pred = pred.transpose([0, 2, 3, 1]);
+
             // Convert to shape [256,256,3] and unnormalize
             let out = unnormalize(tf.squeeze(pred, [0]));  // was just 0
-
+            
             return tf.div(out, 255);
         });
 
@@ -61,7 +73,9 @@ export function neuralRender(modelPath: string, imageData: ImageData): Promise<I
     }).then(() => {
         // Because outside of tidy.
         out.dispose();
+        let imgData = getImageDataFromCanvas(outputCanvas);
+        inferenceRunning = false;
         
-        return Promise.resolve(getImageDataFromCanvas(outputCanvas));
-    })
+        return Promise.resolve(imgData);
+    });
 }

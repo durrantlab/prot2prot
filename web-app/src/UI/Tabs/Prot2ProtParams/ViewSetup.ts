@@ -1,10 +1,10 @@
 import { InputColorScheme } from "../../../Pix2Pix/InputImage/ColorSchemes/InputColorScheme";
 import { drawImageDataOnCanvas } from "../../../Pix2Pix/InputImage/ImageDataHelper";
-import { makeImg, updateOffsetVec, updateRotMat } from "../../../Pix2Pix/InputImage/MakeImage";
 import { neuralRender } from "../../../Pix2Pix/NeuralRender";
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { faArrowUp, faArrowDown, faArrowLeft, faArrowRight, faUndo, faRedo, faArrowsAltV, faArrowsAltH, faExpandAlt } from '@fortawesome/free-solid-svg-icons'
 import { StandardColorScheme } from "../../../Pix2Pix/InputImage/ColorSchemes/StandardColorScheme";
+import { makeImg, updateOffsetVec, updateRotMat } from "../../../Pix2Pix/InputImage/MakeImage";
 
 // @ts-ignore
 library.add([
@@ -119,9 +119,32 @@ export let vueSetupMethodsFunctions = {
                 // TODO: mess here. Rendering every time you change protein. Need to use
                 // render button, different tab, specify model, etc.
                 // let imgData = getImageDataFromCanvas(canvas)
-        
-                neuralRender("./models/simple_surf/256/uint16/model.json", imageData).then((imgData: ImageData) => {
-                    drawImageDataOnCanvas(imgData, canvas);
+
+                // const vrmlParserWebWorker = new Worker("renderWebWorker.js?" + Math.random().toString());
+
+                // if (typeof(Worker) !== "undefined") {
+                //     vrmlParserWebWorker.onmessage = (event: MessageEvent) => {
+                //         let data = event.data;
+                //         debugger;
+                //     };
+
+                //     vrmlParserWebWorker.postMessage({
+                //         "cmd": "start",
+                //         "data": "data"
+                //     });
+                // }       
+                
+                // return
+
+
+                let filename: string;
+                filename = "./models/simple_surf/256/uint16/model.json";
+                // filename = "./models/simple_surf/256/uint8/model.json";
+                // filename = "./models/simple_surf/256/full/model.json";
+                neuralRender(filename, imageData).then((imgData: ImageData) => {
+                    if (imgData !== undefined) {
+                        drawImageDataOnCanvas(imgData, canvas);
+                    }
                 });
             }
         });

@@ -44,7 +44,7 @@ export abstract class ParentColorScheme {
             );
             subCircles.push({
                 color: colorStr,
-                radius: newPerpendicularRadius
+                radius: Math.floor(newPerpendicularRadius)
             });
             r--;
         }
@@ -53,6 +53,10 @@ export abstract class ParentColorScheme {
 
     getColorsForAtom(atomCenterDist: number, maxDist: number, element: string, atomDrawRadius: number): IAtomColorInfo {
         let baseColor = this.atomColors[element]
+        if (baseColor === undefined) {
+            // If undefined, use color for carbon.
+            baseColor = this.atomColors["C"];
+        }
     
         let outlineStr = this.outlineColorFromDist(atomCenterDist, maxDist)
 

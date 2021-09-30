@@ -1,9 +1,9 @@
 # Clean previous
-rm -rf src/InputImage
+rm -rf src/Pix2Pix
 rm -rf dist
 
 # Copy files here
-cp -r ../web-app/src/Pix2Pix/InputImage ./src/
+cp -r ../web-app/src/Pix2Pix ./src/
 
 # Compile
 tsc --project ./

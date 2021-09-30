@@ -1,16 +1,13 @@
 const webpack = require('webpack');
-const merge = require('webpack-merge');
-const common = require('./webpack.common.js');
+// const merge = require('webpack-merge');
+// const common = require('./webpack.common.js');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 var CopyWebpackPlugin = require('copy-webpack-plugin');
 const path = require('path');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const {
-    CleanWebpackPlugin
-} = require('clean-webpack-plugin');
 // const ReplaceHashInFileWebpackPlugin = require('replace-hash-in-file-webpack-plugin');
 
-module.exports = merge(common, {
+module.exports = {
     entry: {
         'app': [
             path.join(__dirname, '../../src/index.ts')
@@ -23,13 +20,13 @@ module.exports = merge(common, {
         ],
     },
     plugins: [
-        new CleanWebpackPlugin(), // Clean dist
+        // new CleanWebpackPlugin(), // Clean dist
         new HtmlWebpackPlugin({
             title: 'Prot2Prot',
             template: path.join(__dirname, '../../src/index.html'),
             favicon: path.join(__dirname, '../../src/styles/favicon.ico'),
             minify: true,
-            excludeAssets: [/vrmlWebWorker.*.js/]
+            excludeAssets: [/renderWebWorker*.js/]
         }),
         // new HtmlWebpackExcludeAssetsPlugin(),
         new webpack.ProvidePlugin({
@@ -150,4 +147,4 @@ module.exports = merge(common, {
         // },
         runtimeChunk: 'single'
     }
-});
+}

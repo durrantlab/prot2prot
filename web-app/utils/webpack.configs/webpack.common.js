@@ -1,7 +1,6 @@
 const path = require('path');
 var DuplicatePackageCheckerPlugin = require("duplicate-package-checker-webpack-plugin");
 // const webpack = require('webpack');
-
 module.exports = {
     plugins: [
         new DuplicatePackageCheckerPlugin(),
@@ -19,6 +18,7 @@ module.exports = {
         // }
     },
     output: {
-        path: path.resolve(__dirname, '../../dist')
+        path: path.resolve(__dirname, '../../dist'),
+        globalObject: 'this'
     }
 };

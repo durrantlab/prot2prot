@@ -1,7 +1,9 @@
 const webpack = require('webpack');
 const merge = require('webpack-merge');
-// const webworker = require('./webpack.webworker.js');
+const webworker = require('./webpack.webworker.js');
 const notWebworker = require('./webpack.not-webworker.js');
+const common = require('./webpack.common.js');
+const clean = require('./webpack.clean.js');
 const path = require('path');
 const ClosurePlugin = require('closure-webpack-plugin');
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
@@ -76,8 +78,10 @@ let forProd = {
     }
 }
 
+module.exports = [merge(clean, common, notWebworker, forProd), merge(common, webworker, forProd)];
+
 // let webworkerFinal = merge(webworker, forProd);
-let nonWebworkerFinal = merge(notWebworker, forProd);
+// let nonWebworkerFinal = merge(notWebworker, forProd);
 
 // module.exports = [webworkerFinal, nonWebworkerFinal];
-module.exports = [nonWebworkerFinal];
+// module.exports = [nonWebworkerFinal];

@@ -20,4 +20,4 @@ echo "${BLENDER_PATH} -b base.blend -P blender.py -- \"$(realpath ./model.pdb)\"
 ${BLENDER_PATH} -b base.blend -P blender.py -- "$(realpath ./model.pdb)" "${VMD_PATH}" 1024 target.png
 
 # Clean up
-rm base.blend blender.py paths.sh vis.template.vmd vis.vmd
+rm base.blend blender.py paths.sh vis.template.vmd # vis.vmd

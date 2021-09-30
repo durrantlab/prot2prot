@@ -1,104 +1,141 @@
 const fs = require("fs");
-import { makeImg, updateRotMat, updateOffsetVec, getCoorsTransformed, rotMat, offsetVec } from './InputImage/MakeImage';
-import { parsePDB, getPDBTextUpdatedCoors, elements, removeAllOfElement, replaceOccasionalHydrogen } from './InputImage/PDBParser';
-import { drawImageDataOnCanvas, makeInMemoryCanvas, updateCreateCanvasFunc } from './InputImage/ImageDataHelper';
-import { InputColorScheme } from './InputImage/ColorSchemes/InputColorScheme';
+import { makeImg, updateRotMat, updateOffsetVec, getCoorsTransformed, rotMat, offsetVec, initializeVars } from './Pix2Pix/InputImage/MakeImage';
+import { parsePDB, getPDBTextUpdatedCoors, removeAllOfElement, replaceElement, elements, mergeAtomTypes } from './Pix2Pix/InputImage/PDBParser';
+import { drawImageDataOnCanvas, makeInMemoryCanvas, updateCreateCanvasFunc } from './Pix2Pix/InputImage/ImageDataHelper';
+import { InputColorScheme } from './Pix2Pix/InputImage/ColorSchemes/InputColorScheme';
+import { closestAllowedDist } from './Pix2Pix/InputImage/MakeImage';
 const { createCanvas } = require('canvas')
 
 let imgSize = 1024  // Size of image (pixels)
+let keptHydrogens = true;
+let hydrogenReplacements = [];
+let removeWatersIfPresent = Math.random() < 0.5;
 
 // Load the PDB file
 let pdbFile = process.argv[2];
-const buffer = fs.readFileSync(pdbFile);
-const fileContent = buffer.toString();
-let keptHydrogens = true;
-let hydrogenReplacements = [];
+let pdbTxt = fs.readFileSync(pdbFile).toString();
 
-parsePDB(fileContent);
-
-// Check to make sure the PDB has hydrogen atoms.
-if (elements.indexOf("H") === -1) {
-    console.log(elements);
-    console.log("");
-    console.log("Protein must contain hydrogen atoms!");
-    process.exit();
+if (removeWatersIfPresent) {
+    let lines = pdbTxt.split(/\n/g);
+    lines = lines
+        .filter(l => l.indexOf("HOH") === -1)
+        .filter(l => l.indexOf("WAT") === -1)
+        .filter(l => l.indexOf("TIP3") === -1);
+    pdbTxt = lines.join("\n");
 }
 
-//  Much of the time, you should strip the hydrogens (common for PDB files to
-//  not have hydrogen atoms).
-if (Math.random() < 0.5) {
-    removeAllOfElement("H");
-    keptHydrogens = false;
-} else {
-    // Keeping hydrogens.
-    if (Math.random() < 0.5) {
-        // Consider replacing a few of them with other elements to give the ML
-        // model plenty to train on.
-        let rareElems = [
-            "P", "FE", "K", "NA", "MG", "ZN", 
-            "MN", "F", "CL", "BR", "I", "S"
-        ];
-        let rareElem1 = rareElems[Math.floor(Math.random() * rareElems.length)];
-        let rareElem2 = rareElems[Math.floor(Math.random() * rareElems.length)];
-
-        replaceOccasionalHydrogen(rareElem1, 0.1);
-        replaceOccasionalHydrogen(rareElem2, 0.1);
-
-        hydrogenReplacements.push([rareElem1, 0.1]);
-        hydrogenReplacements.push([rareElem2, 0.1]);
+parsePDB(pdbTxt).then(() => {
+    // Check to make sure the PDB has hydrogen atoms.
+    if (elements.indexOf("H") === -1) {
+        console.log(elements);
+        console.log("");
+        console.log("Protein must contain hydrogen atoms!");
+        process.exit();
     }
-}
 
-// Decide on how to position the PDB
-let xRot = Math.random() * 360;
-let yRot = Math.random() * 360;
-let zRot = Math.random() * 360;
-updateRotMat("X", xRot);
-updateRotMat("Y", yRot);
-updateRotMat("Z", zRot);
+    function modifyPDBAtoms() {
+        //  Much of the time, you should strip the hydrogens (common for PDB files to
+        //  not have hydrogen atoms).
+        if (Math.random() < 0.5) {
+            removeAllOfElement("H");
+            keptHydrogens = false;
+        } else {
+            // Keeping hydrogens.
+            if (Math.random() < 0.5) {
+                // Consider replacing a few of them with other elements to give the ML
+                // model plenty to train on. In some cases, these are merged atom types
+                // (see InputColorScheme.ts).
+                let rareElems = [
+                    "S", "D", "E", "G", "P"
+        
+                    // "P", "FE", "K", "NA", "MG", "ZN", 
+                    // "MN", "F", "CL", "BR", "I", "S"
+                ];
+                let rareElem1 = rareElems[Math.floor(Math.random() * rareElems.length)];
+                let rareElem2 = rareElems[Math.floor(Math.random() * rareElems.length)];
 
-let pdbDist = 150 * Math.random()  // Distance from camera to protein COG
-updateOffsetVec(0, 0, pdbDist);
+                // rareElem1 = "E";
+                // rareElem2 = "G";
+        
+                replaceElement("H", rareElem1, 0.05, true);
+                replaceElement("H", rareElem2, 0.05, true);
+        
+                hydrogenReplacements.push([rareElem1, 0.05]);
+                hydrogenReplacements.push([rareElem2, 0.05]);
+            }
+        }
+    }
+    modifyPDBAtoms();
 
-// Use the node.js-compatible canvas
-updateCreateCanvasFunc(createCanvas);
+    function transformPDBCoors() {
+        // Decide on how to position the PDB
+        initializeVars();
+        let xRot = Math.random() * 360;
+        let yRot = Math.random() * 360;
+        let zRot = Math.random() * 360;
+        updateRotMat("X", xRot);
+        updateRotMat("Y", yRot);
+        updateRotMat("Z", zRot);
+        
+        // Distance from camera to protein COG.
+        let pdbDist = (150 - closestAllowedDist) * Math.random() + closestAllowedDist;
+        updateOffsetVec(0, 0, pdbDist);
+    }
+    transformPDBCoors();
 
-// Make the input imagedata
-let imgData = makeImg(imgSize, new InputColorScheme());
+    function saveTextOutput() {
+        // Make sure output directory exists.
+        if (!fs.existsSync("../output/")){
+            fs.mkdirSync("../output/");
+        }
+        
+        // Pick an ID for this calculation
+        let id = "../output/model." + Math.random().toString().replace(/\./g, "") + "/";
+        if (!fs.existsSync(id)){
+            fs.mkdirSync(id);
+        }
 
-// Put that image data on a canvas
-let newCanvas = makeInMemoryCanvas(imgSize, "tmp");
-drawImageDataOnCanvas(imgData, newCanvas);
+        // Get the updated coordinates.
+        let coors = getCoorsTransformed();
+        let pdbTxt = getPDBTextUpdatedCoors(coors);
 
-// Make sure output directory exists.
-if (!fs.existsSync("../output/")){
-    fs.mkdirSync("../output/");
-}
+        // Save the transformed PDB file.
+        fs.writeFileSync(id + "model.no_atom_merge.pdb", pdbTxt);
 
-// Pick an ID for this calculation
-let id = "../output/model." + Math.random().toString().replace(/\./g, "") + "/";
-if (!fs.existsSync(id)){
-    fs.mkdirSync(id);
-}
+        // Merge the rare atoms into single type and save that too.
+        mergeAtomTypes(true);
+        coors = getCoorsTransformed();
+        pdbTxt = getPDBTextUpdatedCoors(coors);
+        fs.writeFileSync(id + "model.pdb", pdbTxt);
 
-// Save that canvas image
-const out = fs.createWriteStream(id + 'input.png');
-const stream = (newCanvas as any).createPNGStream()
-stream.pipe(out)
+        // Save info
+        fs.writeFileSync(id + "info.json", JSON.stringify({
+            "sourceFile": pdbFile,
+            "id": id,
+            "rotMatrix": rotMat.arraySync(),
+            "offsetVector": offsetVec.arraySync(),
+            "keptHydrogens": keptHydrogens,
+            "hydrogenReplacements": hydrogenReplacements,
+            "removeWatersIfPresent": removeWatersIfPresent
+        }, null, 4));
 
-// Get the updated coordinates.
-let coors = getCoorsTransformed();
-let pdbTxt = getPDBTextUpdatedCoors(coors);
+        return id;
+    }
+    let id = saveTextOutput();
 
-// Save the transformed PDB file
-fs.writeFileSync(id + "model.pdb", pdbTxt);
+    // Use the node.js-compatible canvas
+    updateCreateCanvasFunc(createCanvas);
 
-// Save info
-fs.writeFileSync(id + "info.json", JSON.stringify({
-    "sourceFile": pdbFile,
-    "id": id,
-    "rotMatrix": rotMat.arraySync(),
-    "offsetVector": offsetVec.arraySync(),
-    "keptHydrogens": keptHydrogens,
-    "hydrogenReplacements": hydrogenReplacements
-}, null, 4));
+    // Make the input imagedata.
+    makeImg(imgSize, new InputColorScheme()).then((imgData) => {
+        // Put that image data on a canvas
+        let newCanvas = makeInMemoryCanvas(imgSize, "tmp");
+        drawImageDataOnCanvas(imgData, newCanvas);
+        
+        // Save that canvas image
+        const out = fs.createWriteStream(id + 'input.png');
+        const stream = (newCanvas as any).createPNGStream()
+        stream.pipe(out)
+    });
+});
+

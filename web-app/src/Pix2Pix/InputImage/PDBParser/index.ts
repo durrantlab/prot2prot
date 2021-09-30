@@ -1,29 +1,24 @@
-import { loadTfjs } from '../../Utils';
+import { loadTfjs, tf } from '../../LoadTF';
+import { mergeAtomsData } from './MergedAtoms';
+import { vdwRadii } from './VDWRadii';
 
-// This list not exhaustive!
-let twoLetterElements = new Set([
-    "LI", "MG", "AL", "CL", "MN", "FE", "ZN", "AS", "BR", "MO", "RH", "AG",
-    "AU", "PB", "BI", "NI", "NA", "SE"
-]);
-
-let vdwRadii = {
-    "H": 1.2, "C": 1.7, "N": 1.55, "O": 1.52, "F": 1.47, "P": 1.8, "S": 1.8,
-    "B": 2.0, "LI": 1.82, "NA": 2.27, "MG": 1.73, "AL": 2.00, "CL": 1.75,
-    "CA": 2.00, "MN": 2.00, "FE": 2.00, "CO": 2.00, "CU": 1.40, "ZN": 1.39,
-    "AS": 1.85, "BR": 1.85, "MO": 2.00, "RH": 2.00, "AG": 1.72, "AU": 1.66,
-    "PB": 2.02, "BI": 2.00, "K": 2.75, "I": 1.98, "NI": 1.63, "SE": 1.90
-}
+let twoLetterElements: Set<string>;  // populated in parsePDB
 
 export let coorsTensor: any;  // tf.Tensor<tf.Rank>;
 export let elements: string[];
 export let vdw: any;  // tf.Tensor<tf.Rank>;
 export let pdbLines: string[];
 
-var tf;
-
 export function parsePDB(pdbText: string): Promise<any> {
-    return loadTfjs().then((tfMod) => {
-        tf = tfMod;
+    // Update radii for merged atom types
+    for (let atomType in mergeAtomsData) {
+        vdwRadii[atomType] = mergeAtomsData[atomType][2];
+    }
+
+    // Mark certain element names as having two letters.
+    twoLetterElements = new Set(Object.keys(vdwRadii).filter(e => e.length > 1));
+    
+    return loadTfjs().then(() => {
         pdbLines = pdbText.split("\n");
         pdbLines = pdbLines.filter(l => l.startsWith("ATOM") || l.startsWith("HETATM"));
         let coors = pdbLines.map((l) => {
@@ -113,8 +108,18 @@ export function removeAllOfElement(element: string): void {
     vdw = tf.tensor(vdwArr);
 }
 
-export function replaceOccasionalHydrogen(newElement: string, frequency: number): void {
-    let idxsOfHydrogens = getIdxsOfElements("H");
+// Certain atoms should be considered the same atom for visualization purposes
+// (limited colors).
+export function mergeAtomTypes(updatePDBLine = false): void {
+    for (let newElem in mergeAtomsData) {
+        for (let origElem of mergeAtomsData[newElem][0]) {
+            replaceElement(origElem, newElem, 1.0, updatePDBLine);
+        }
+    }
+}
+
+export function replaceElement(origElement: string, newElement: string, frequency: number, updatePDBLine = false): void {
+    let idxsOfHydrogens = getIdxsOfElements(origElement);
     let initialNewElement = newElement.toUpperCase().trim();
     newElement = (initialNewElement.length === 1) 
         ? " " + initialNewElement 
@@ -124,20 +129,23 @@ export function replaceOccasionalHydrogen(newElement: string, frequency: number)
         if (Math.random() > frequency) {
             continue;
         }
-
+        
         elements[idx] = initialNewElement;
         // let newName = newElement + Math.floor(10 * Math.random()).toString();
-
-        // Also update PDB line
-        let pdbLine = pdbLines[idx];
-
-        while (pdbLine.length < 78) {
-            pdbLine = pdbLine + " ";
+        
+        if (updatePDBLine) {
+            // Also update PDB line. Only do this if you plan to save out the
+            // PDB for loading in external programs (e.g., VMD).
+            let pdbLine = pdbLines[idx];
+    
+            while (pdbLine.length < 78) {
+                pdbLine = pdbLine + " ";
+            }
+    
+            let first = pdbLine.slice(0, 12);
+            let last = pdbLine.slice(17, 76);
+    
+            pdbLines[idx] = first + newElement + "   " + last + newElement;
         }
-
-        let first = pdbLine.slice(0, 12);
-        let last = pdbLine.slice(17, 76);
-
-        pdbLines[idx] = first + newElement + "   " + last + newElement;
     }
 }

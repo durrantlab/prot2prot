@@ -1,7 +1,8 @@
 // This color scheme is used for generating input that is fed into the neural
 // renderer.
 
-import { elements } from "../PDBParser";
+import { elements, mergeAtomTypes } from "../PDBParser";
+import { mergeAtomsData } from "../PDBParser/MergedAtoms";
 import { ParentColorScheme } from "./ParentColorScheme";
 
 export class InputColorScheme extends ParentColorScheme {
@@ -10,7 +11,7 @@ export class InputColorScheme extends ParentColorScheme {
 
     numSubCircleSteps = 3;
 
-    // Don't put anything in B value.
+    // Don't put anything in 3rd (B) value.
     atomColors = {
         "C": [255, 255, 0],
         "N": [255, 0, 0],
@@ -18,26 +19,40 @@ export class InputColorScheme extends ParentColorScheme {
         "H": [0, 128, 0],
         "P": [128, 128, 0],
         
-        "S": [128, 0, 0],
-        "SE": [128, 0, 0],
+        // "S": [128, 0, 0],
+        // "SE": [128, 0, 0],
 
-        "I": [64, 0, 0],
-        "BR": [64, 0, 0],
-        "K": [64, 0, 0],
-        "NA": [64, 0, 0],
+        // "I": [64, 0, 0],
+        // "BR": [64, 0, 0],
+        // "K": [64, 0, 0],
+        // "NA": [64, 0, 0],
 
-        "CL": [0, 64, 0],
-        "F": [0, 64, 0],
+        // "CL": [0, 64, 0],
+        // "F": [0, 64, 0],
 
-        "FE": [64, 64, 0],
-        "MG": [64, 64, 0],
-        "ZN": [64, 64, 0],
-        "PB": [64, 64, 0],
-        "NI": [64, 64, 0],
-        "MN": [64, 64, 0],
+        // "FE": [64, 64, 0],
+        // "MG": [64, 64, 0],
+        // "ZN": [64, 64, 0],
+        // "PB": [64, 64, 0],
+        // "NI": [64, 64, 0],
+        // "MN": [64, 64, 0],
     };
 
+    constructor() {
+        super();
+
+        // Update theatom colors per the mergeAtomsData
+        for (let mergedSymbol in mergeAtomsData) {
+            this.atomColors[mergedSymbol] = mergeAtomsData[mergedSymbol][1];
+        }
+
+        // Also update the PDB-parsed data to merge atoms as needed.
+        mergeAtomTypes();
+    }
+
     colorFromDist(baseColor: number[], dist: number, maxDist: number) {
+        // dist = dist * 0.25;
+
         let alpha = this.getAlphaFromDist(dist, maxDist);
         
         // TODO: Probably a more efficient way of handling this (set element

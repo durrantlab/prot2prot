@@ -25,16 +25,13 @@ import * as FormButton from "../UI/Forms/FormButton";
 import * as FormSelect  from "../UI/Forms/FormSelect";
 
 declare var Vue;
-
-
-
 declare var Vuex;
 
 // import Vuex from "vuex";
 // import BootstrapVue from "bootstrap-vue";
 
 declare var BootstrapVue;
-declare var jQuery;
+// declare var jQuery;
 
 /**
  * Load and setup all Vue components.

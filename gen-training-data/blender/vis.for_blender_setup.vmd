@@ -330,7 +330,7 @@ mol clipplane color  5 0 top {0.5 0.5 0.5 }
 mol clipplane normal 5 0 top {0.0 0.0 1.0}
 mol clipplane status 5 0 top {0}
 mol rename top test_protein_many_atom_types_for_blender.pdb
-set viewpoints([molinfo top]) {{{1 0 0 -0.000329615} {0 1 0 -0.00023482} {0 0 1 -50.0002} {0 0 0 1}} {{-0.390337 -0.307267 -0.867884 0} {0.70804 0.502357 -0.496301 0} {0.588485 -0.808221 0.0214696 0} {0 0 0 1}} {{0.0384124 0 0 0} {0 0.0384124 0 0} {0 0 0.0384124 0} {0 0 0 1}} {{1 0 0 0} {0 1 0 0} {0 0 1 0} {0 0 0 1}}}
+set viewpoints([molinfo top]) {{{1 0 0 -4.11105e-06} {0 1 0 -2.12126e-06} {0 0 1 -42.293} {0 0 0 1}} {{0.915207 0.0399949 0.400994 0} {0.0494686 0.976387 -0.210289 0} {-0.399935 0.212295 0.891618 0} {0 0 0 1}} {{0.0450688 0 0 0} {0 0.0450688 0 0} {0 0 0.0450688 0} {0 0 0 1}} {{1 0 0 0} {0 1 0 0} {0 0 1 0} {0 0 0 1}}}
 lappend viewplist [molinfo top]
 set topmol [molinfo top]
 # done with molecule 0
@@ -362,145 +362,132 @@ color scale colors WBlk {1.0 1.0 1.0} {0.5 0.5 0.5} {0.0 0.0 0.0}
     {color Display {BackgroundTop} black}
     {color Display {BackgroundBot} blue2}
     {color Display {FPS} white}
-    # {color Name {LPA} green}
-    # {color Name {LPB} green}
-
     {color Name {C} silver}
-    {color Name {O} red}
-    {color Name {N} blue}
-    {color Name {S} yellow}
-    {color Name {P} tan}
-    {color Name {H} white}
-    {color Name {I} purple}
-    {color Name {K} purple}
-    # {color Name {F} green}
-    {color Name {M} gray}
-    {color Name {FE} gray}
-    {color Name {MG} gray}
-    {color Name {ZN} gray}
-    # {color Name {PB} gray}
-    # {color Name {NI} gray}
-    {color Name {MN} gray}
-    {color Name {CL} green}
-    {color Name {B} purple}
-    {color Name {BR} purple}
-
-    # {color Type {LP} green}
-    # {color Type {DRUD} pink}
-    # {color Element {X} cyan}
-    # {color Element {Ac} gray}
-    # {color Element {Ag} gray}
-    # {color Element {Al} gray}
-    # {color Element {Am} gray}
-    # {color Element {Ar} gray}
-    # {color Element {As} gray}
-    # {color Element {At} gray}
-    # {color Element {Au} gray}
-    # {color Element {B} gray}
-    # {color Element {Ba} gray}
-    # {color Element {Be} gray}
-    # {color Element {Bh} gray}
-    # {color Element {Bi} gray}
-    # {color Element {Bk} gray}
-    # {color Element {Br} ochre}
-    # {color Element {Ca} ochre}
-    # {color Element {Cd} gray}
-    # {color Element {Ce} gray}
-    # {color Element {Cf} gray}
-    # {color Element {Cl} ochre}
-    # {color Element {Cm} gray}
-    # {color Element {Co} gray}
-    # {color Element {Cr} gray}
-    # {color Element {Cs} gray}
-    # {color Element {Cu} gray}
-    # {color Element {Db} gray}
-    # {color Element {Ds} gray}
-    # {color Element {Dy} gray}
-    # {color Element {Er} gray}
-    # {color Element {Es} gray}
-    # {color Element {Eu} gray}
-    # {color Element {F} ochre}
-    # {color Element {Fe} gray}
-    # {color Element {Fm} gray}
-    # {color Element {Fr} gray}
-    # {color Element {Ga} gray}
-    # {color Element {Gd} gray}
-    # {color Element {Ge} gray}
-    # {color Element {He} gray}
-    # {color Element {Hf} gray}
-    # {color Element {Hg} gray}
-    # {color Element {Ho} gray}
-    # {color Element {Hs} gray}
-    # {color Element {I} ochre}
-    # {color Element {In} gray}
-    # {color Element {Ir} gray}
-    # {color Element {K} ochre}
-    # {color Element {Kr} gray}
-    # {color Element {La} gray}
-    # {color Element {Li} gray}
-    # {color Element {Lr} gray}
-    # {color Element {Lu} gray}
-    # {color Element {Md} gray}
-    # {color Element {Mg} gray}
-    # {color Element {Mn} gray}
-    # {color Element {Mo} gray}
-    # {color Element {Mt} gray}
-    # {color Element {Na} ochre}
-    # {color Element {Nb} gray}
-    # {color Element {Nd} gray}
-    # {color Element {Ne} gray}
-    # {color Element {Ni} gray}
-    # {color Element {No} gray}
-    # {color Element {Np} gray}
-    # {color Element {Os} gray}
-    # {color Element {Pa} gray}
-    # {color Element {Pb} gray}
-    # {color Element {Pd} gray}
-    # {color Element {Pm} gray}
-    # {color Element {Po} gray}
-    # {color Element {Pr} gray}
-    # {color Element {Pt} gray}
-    # {color Element {Pu} gray}
-    # {color Element {Ra} gray}
-    # {color Element {Rb} gray}
-    # {color Element {Re} gray}
-    # {color Element {Rf} gray}
-    # {color Element {Rg} gray}
-    # {color Element {Rh} gray}
-    # {color Element {Rn} gray}
-    # {color Element {Ru} gray}
-    # {color Element {Sb} gray}
-    # {color Element {Sc} gray}
-    # {color Element {Se} ochre}
-    # {color Element {Sg} gray}
-    # {color Element {Si} ochre}
-    # {color Element {Sm} gray}
-    # {color Element {Sn} gray}
-    # {color Element {Sr} gray}
-    # {color Element {Ta} gray}
-    # {color Element {Tb} gray}
-    # {color Element {Tc} gray}
-    # {color Element {Te} gray}
-    # {color Element {Th} gray}
-    # {color Element {Ti} gray}
-    # {color Element {Tl} gray}
-    # {color Element {Tm} gray}
-    # {color Element {U} gray}
-    # {color Element {V} gray}
-    # {color Element {W} gray}
-    # {color Element {Xe} gray}
-    # {color Element {Y} gray}
-    # {color Element {Yb} gray}
-    # {color Element {Zr} gray}
-    # {color Chain {A} blue}
-    # {color Segname {} blue}
-    # {color Conformation {all} blue}
-    # {color Molecule {0} blue}
-    # {color Structure {3_10_Helix} blue}
-    # {color Surface {Grasp} gray}
-    # {color Labels {Springs} orange}
-    # {color Stage {Even} gray}
-    # {color Stage {Odd} silver}
+    {color Name {LPA} silver}
+    {color Name {LPB} silver}
+    {color Name {D} purple}
+    {color Name {E} green}
+    {color Name {G} gray}
+    {color Type {LP} green}
+    {color Type {DRUD} pink}
+    {color Type {D} pink}
+    {color Type {E} cyan}
+    {color Type {G} purple}
+    {color Element {X} cyan}
+    {color Element {Ac} ochre}
+    {color Element {Ag} ochre}
+    {color Element {Al} ochre}
+    {color Element {Am} ochre}
+    {color Element {Ar} ochre}
+    {color Element {As} ochre}
+    {color Element {At} ochre}
+    {color Element {Au} ochre}
+    {color Element {B} ochre}
+    {color Element {Ba} ochre}
+    {color Element {Be} ochre}
+    {color Element {Bh} ochre}
+    {color Element {Bi} ochre}
+    {color Element {Bk} ochre}
+    {color Element {Br} ochre}
+    {color Element {Ca} ochre}
+    {color Element {Cd} ochre}
+    {color Element {Ce} ochre}
+    {color Element {Cf} ochre}
+    {color Element {Cl} ochre}
+    {color Element {Cm} ochre}
+    {color Element {Co} ochre}
+    {color Element {Cr} ochre}
+    {color Element {Cs} ochre}
+    {color Element {Cu} ochre}
+    {color Element {Db} ochre}
+    {color Element {Ds} ochre}
+    {color Element {Dy} ochre}
+    {color Element {Er} ochre}
+    {color Element {Es} ochre}
+    {color Element {Eu} ochre}
+    {color Element {F} ochre}
+    {color Element {Fe} ochre}
+    {color Element {Fm} ochre}
+    {color Element {Fr} ochre}
+    {color Element {Ga} ochre}
+    {color Element {Gd} ochre}
+    {color Element {Ge} ochre}
+    {color Element {He} ochre}
+    {color Element {Hf} ochre}
+    {color Element {Hg} ochre}
+    {color Element {Ho} ochre}
+    {color Element {Hs} ochre}
+    {color Element {I} ochre}
+    {color Element {In} ochre}
+    {color Element {Ir} ochre}
+    {color Element {K} ochre}
+    {color Element {Kr} ochre}
+    {color Element {La} ochre}
+    {color Element {Li} ochre}
+    {color Element {Lr} ochre}
+    {color Element {Lu} ochre}
+    {color Element {Md} ochre}
+    {color Element {Mg} ochre}
+    {color Element {Mn} ochre}
+    {color Element {Mo} ochre}
+    {color Element {Mt} ochre}
+    {color Element {Na} ochre}
+    {color Element {Nb} ochre}
+    {color Element {Nd} ochre}
+    {color Element {Ne} ochre}
+    {color Element {Ni} ochre}
+    {color Element {No} ochre}
+    {color Element {Np} ochre}
+    {color Element {Os} ochre}
+    {color Element {Pa} ochre}
+    {color Element {Pb} ochre}
+    {color Element {Pd} ochre}
+    {color Element {Pm} ochre}
+    {color Element {Po} ochre}
+    {color Element {Pr} ochre}
+    {color Element {Pt} ochre}
+    {color Element {Pu} ochre}
+    {color Element {Ra} ochre}
+    {color Element {Rb} ochre}
+    {color Element {Re} ochre}
+    {color Element {Rf} ochre}
+    {color Element {Rg} ochre}
+    {color Element {Rh} ochre}
+    {color Element {Rn} ochre}
+    {color Element {Ru} ochre}
+    {color Element {Sb} ochre}
+    {color Element {Sc} ochre}
+    {color Element {Se} ochre}
+    {color Element {Sg} ochre}
+    {color Element {Si} ochre}
+    {color Element {Sm} ochre}
+    {color Element {Sn} ochre}
+    {color Element {Sr} ochre}
+    {color Element {Ta} ochre}
+    {color Element {Tb} ochre}
+    {color Element {Tc} ochre}
+    {color Element {Te} ochre}
+    {color Element {Th} ochre}
+    {color Element {Ti} ochre}
+    {color Element {Tl} ochre}
+    {color Element {Tm} ochre}
+    {color Element {U} ochre}
+    {color Element {V} ochre}
+    {color Element {W} ochre}
+    {color Element {Xe} ochre}
+    {color Element {Y} ochre}
+    {color Element {Yb} ochre}
+    {color Element {Zr} ochre}
+    {color Chain {A} blue}
+    {color Segname {} blue}
+    {color Conformation {all} blue}
+    {color Molecule {0} blue}
+    {color Molecule {test_protein_many_atom_types_for_blender.pdb} blue}
+    {color Structure {3_10_Helix} blue}
+    {color Surface {Grasp} gray}
+    {color Labels {Springs} orange}
+    {color Stage {Even} gray}
+    {color Stage {Odd} silver}
   }
   foreach colcmd $colorcmds {
     set val [catch {eval $colcmd}]

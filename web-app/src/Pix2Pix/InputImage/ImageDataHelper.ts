@@ -1,5 +1,13 @@
 var createCanvas: Function = function() { return document.createElement('canvas'); }
 
+// Use offscreen canvas if available.
+if (HTMLCanvasElement.prototype.transferControlToOffscreen) {
+    createCanvas = function() {
+        const offscreenCanvas = new OffscreenCanvas(256, 256);
+        return offscreenCanvas;
+    }
+}
+
 export function updateCreateCanvasFunc(newFunc: Function): void {
     // So you can update it if running from node.
     createCanvas = newFunc;
