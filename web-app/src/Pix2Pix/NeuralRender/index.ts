@@ -23,6 +23,48 @@ export function neuralRender(modelPath: string, imageData: ImageData): Promise<I
 
     inferenceRunning = true;
 
+    let newImageDataTensor;
+
+    return loadTfjs()
+        .then(() => {
+            return new Promise((resolve, reject) => {
+                const webWorker = new Worker("renderWebWorker.js?" + Math.random().toString());
+            
+                if (typeof(Worker) !== "undefined") {
+                    webWorker.onmessage = (event: MessageEvent) => {
+                        inferenceRunning = false;
+                        resolve(event.data["out"] as Float32Array);
+                    };
+            
+                    webWorker.postMessage({
+                        "cmd": "inference",
+                        "data": {
+                            "modelPath": modelPath,
+                            "imageData": imageData
+                        }
+                    });
+                }
+            });
+        })
+        .then((imageDataArray) => {
+            // return tf.tidy(() => {
+
+            // Convert back to tensor.
+            newImageDataTensor = tf.tensor(imageDataArray, [imageData.width, imageData.width, 3]);
+            outputCanvas = makeInMemoryCanvas(imageData.width, "tmp");
+            return tf.browser.toPixels(newImageDataTensor, outputCanvas);
+
+            // })
+        })
+        .then(() => {
+            // Because outside of tidy.
+            newImageDataTensor.dispose();
+            let imgData = getImageDataFromCanvas(outputCanvas);
+            inferenceRunning = false;
+            
+            return Promise.resolve(imgData);
+        })
+
     return loadTfjs().then(() => {
         // const input_canvas = document.getElementById('canvasRenderer') as HTMLCanvasElement;
         // const output_canvas = document.getElementById('output_img') as HTMLCanvasElement;

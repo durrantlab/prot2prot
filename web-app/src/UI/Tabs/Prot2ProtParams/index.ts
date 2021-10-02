@@ -9,8 +9,9 @@ import * as Utils from "../../../Utils";
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { viewSetupComputedFunctions, viewSetupData, viewSetupTemplate } from "./ViewSetup";
 import { loadModelComputedFunctions, loadModelMethodsFunctions, loadModelTemplate } from "./LoadModel";
-import { vueSetupMethodsFunctions } from '../Prot2ProtParams/ViewSetup';
+import { viewSetupMethodsFunctions } from '../Prot2ProtParams/ViewSetup';
 import { pickNeuralRendererComputedFunctions, pickNeuralRendererData, pickNeuralRendererMethodsFunctions, pickNeuralRendererTemplate } from "./PickNeuralRenderer";
+import { protCanvasComputedFunctions, protCanvasData, protCanvasMethodsFunctions, protCanvasWatchFunctions } from "./ProtCanvas";
 
 Vue.component('font-awesome-icon', FontAwesomeIcon)
 // Vue.config.productionTip = false
@@ -43,7 +44,12 @@ let computedFunctions = {
 
     ...viewSetupComputedFunctions,
     ...loadModelComputedFunctions,
-    ...pickNeuralRendererComputedFunctions
+    ...pickNeuralRendererComputedFunctions,
+    ...protCanvasComputedFunctions
+}
+
+let watchFunctions = {
+    ...protCanvasWatchFunctions
 }
 
 /** An object containing the vue-component methods functions. */
@@ -236,9 +242,10 @@ let methodsFunctions = {
         );
     },
 
-    ...vueSetupMethodsFunctions,
+    ...viewSetupMethodsFunctions,
     ...loadModelMethodsFunctions,
-    ...pickNeuralRendererMethodsFunctions
+    ...pickNeuralRendererMethodsFunctions,
+    ...protCanvasMethodsFunctions
 }
 
 /**
@@ -300,7 +307,8 @@ export function setup(): void {
                 "showFileInputs": true,
                 "webAssemblyAvaialble": true,
                 ...pickNeuralRendererData,
-                ...viewSetupData
+                ...viewSetupData,
+                ...protCanvasData
             }
         },
         "methods": methodsFunctions,
@@ -309,6 +317,8 @@ export function setup(): void {
          * Runs when the vue component is mounted.
          * @returns void
          */
-        "mounted": mountedFunction
-    })
+        "mounted": mountedFunction,
+
+        "watch": watchFunctions
+    });
 }

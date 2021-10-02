@@ -42,6 +42,11 @@ export function makeImg(imgSize: number, colorScheme: ParentColorScheme): Promis
     // let colorScheme = new StandardColorScheme();
     // colorScheme = new InputColorScheme();
 
+    if (coorsTensor === undefined) {
+        // No pdb loaded yet.
+        return Promise.resolve(undefined);
+    }
+
     return loadTfjs()
     .then(() => {
         // console.time("makeImage");
@@ -218,22 +223,24 @@ function column(tensor: any, idx: number): any {
     return tf.gather(tensor, [idx], 1);
 }
 
-export function updateRotMat(axis: string, degrees: number): void {
+export function updateRotMat(axis: number[], degrees: number): void {
     let angle = degrees / 180 * Math.PI;
     let ux = 0;
     let uy = 0;
     let uz = 0;
-    switch (axis) {
-        case "X":
-            ux = 1;
-            break;
-        case "Y":
-            uy = 1;
-            break;
-        case "Z":
-            uz = 1;
-            break;
-    }
+    [ux, uy, uz] = axis;  // assuming normalized
+
+    // switch (axis) {
+    //     case "X":
+    //         ux = 1;
+    //         break;
+    //     case "Y":
+    //         uy = 1;
+    //         break;
+    //     case "Z":
+    //         uz = 1;
+    //         break;
+    // }
 
     let cos = Math.cos(angle);
     let sin = Math.sin(angle);
@@ -256,7 +263,14 @@ export function updateRotMat(axis: string, degrees: number): void {
 }
 
 export function updateOffsetVec(deltaX: number, deltaY: number, deltaZ: number): void {
-    offsetVec.dispose();
+    if (tf === undefined) {
+        return;
+    }
+
+    if (offsetVec !== undefined) {
+        offsetVec.dispose();
+    }
+    
     offsetVec = tf.tensor([deltaX, deltaY, deltaZ])
 }
 

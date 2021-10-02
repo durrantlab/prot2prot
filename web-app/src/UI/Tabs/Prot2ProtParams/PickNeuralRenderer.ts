@@ -20,7 +20,7 @@ export let pickNeuralRendererTemplate = /* html */ `
 
     <form-select
         label="Quality"
-        v-if="$store.state.selectedDimensions"
+        v-if="$store.state.selectedDimensions && qualityOptions.length > 1"
         :options="qualityOptions"
         storeVarName="selectedQuality"
         @change="updateAssociatedInfo"
@@ -123,8 +123,8 @@ export let pickNeuralRendererComputedFunctions = {
         let descriptions = {
             "full": "NOUSE",  // Don't use
             "float16": "NOUSE",  // Don't use
-            "uint16": "High",  // smallish, same as even full model per vis inspect
-            "uint8": "Low",  // smallest
+            "uint16": "NOUSE",  // smallish, same as even full model per vis inspect
+            "uint8": "Low",  // smallest, almost identical to uint16 (slight differences only)
         };
 
         let options = [];

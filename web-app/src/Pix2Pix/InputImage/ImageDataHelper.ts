@@ -1,9 +1,14 @@
-var createCanvas: Function = function() { return document.createElement('canvas'); }
+var createCanvas: Function = function(size: number): any { 
+    let canvas = document.createElement('canvas');
+    canvas.width = size;
+    canvas.height = size;
+    return canvas;
+}
 
 // Use offscreen canvas if available.
 if (HTMLCanvasElement.prototype.transferControlToOffscreen) {
-    createCanvas = function() {
-        const offscreenCanvas = new OffscreenCanvas(256, 256);
+    createCanvas = function(size: number): any {
+        const offscreenCanvas = new OffscreenCanvas(size, size);
         return offscreenCanvas;
     }
 }
@@ -11,6 +16,17 @@ if (HTMLCanvasElement.prototype.transferControlToOffscreen) {
 export function updateCreateCanvasFunc(newFunc: Function): void {
     // So you can update it if running from node.
     createCanvas = newFunc;
+}
+
+export function resizeCanvas(canvas: HTMLCanvasElement, newSize: number): HTMLCanvasElement {
+   // Need to resize both canvas dimensions (for drawing) and style (for
+   // display).
+   canvas.width = newSize;
+   canvas.height = newSize;
+   canvas.style.width = `${newSize}px`;
+   canvas.style.height = `${newSize}px`;
+
+   return canvas;
 }
 
 export function drawImageDataOnCanvas(imageData: ImageData, canvas: HTMLCanvasElement): void {
@@ -32,9 +48,9 @@ export function getImageDataFromCanvasContext(context: CanvasRenderingContext2D)
 }
 
 export function makeInMemoryCanvas(imgSize: number, id: string): HTMLCanvasElement {
-    let canvas = createCanvas();
-    canvas.width = imgSize;
-    canvas.height = imgSize;
+    let canvas = createCanvas(imgSize);
+    // canvas.width = imgSize;
+    // canvas.height = imgSize;
     canvas.id = id;
     return canvas;
 }

@@ -1,3 +1,4 @@
+import { initializeVars } from "../../../Pix2Pix/InputImage/MakeImage";
 import { parsePDB } from "../../../Pix2Pix/InputImage/PDBParser";
 import { keepOnlyProteinAtoms, replaceExt } from "../../../Utils";
 import { IConvert, IFileLoaded, IFileLoadError } from "../../Forms/FileLoader/Common/Interfaces";
@@ -50,7 +51,9 @@ export let loadModelMethodsFunctions = {
         }
 
         parsePDB(fileInfo.fileContents).then(() => {
-            this["drawImg"]();
+            initializeVars();
+            this["offset"]();
+            // this["drawImg"]();
         });
 
         return;
