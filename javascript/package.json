@@ -1,6 +1,0 @@
-{
-  "type": "module",
-  "dependencies": {
-    "canvas": "^2.8.0"
-  }
-}
