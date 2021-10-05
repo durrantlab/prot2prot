@@ -18,7 +18,8 @@
 
    The code for training is taken from [junyanz/pytorch-CycleGAN-and-pix2pix:
    Image-to-Image Translation in
-   PyTorch](https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix), with only minor modifications that export an onnx model 
+   PyTorch](https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix), with only
+   minor modifications that export an onnx model when using `test.py`.
 
 4. If you use [kitty terminal](https://sw.kovidgoyal.net/kitty/), visualize the
    latest images (during training) to monitor progress.
