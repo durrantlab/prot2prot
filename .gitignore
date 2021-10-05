@@ -18,7 +18,6 @@ logs/
 input.png
 predicted.png
 target.png
-models
 dist
 gen-training-data/output*
 *.exr
@@ -71,3 +70,4 @@ test/.coverage
 test/data/legacy_serialized.pt
 *~
 .idea
+web-app/*/models
