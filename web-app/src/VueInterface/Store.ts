@@ -96,9 +96,11 @@ export const store = new Vuex.Store({
         "leftRightOffset": 0,
         "upDownOffset": 0,
 
+        "pdbLoaded": false,
         "selectedNeuralRenderer": "",
         "selectedDimensions": "",
-        "selectedQuality": ""
+        "selectedQuality": "",
+        "webWorkerInfo": `Drag, scroll, and pinch to rotate and resize the protein structure. When ready to render, switch from "Preview" to "Prot2Prot."`
     },
     "mutations": {
         /**

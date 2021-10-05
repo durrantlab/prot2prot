@@ -1,12 +1,14 @@
 import { resizeCanvas } from "../../../Pix2Pix/InputImage/ImageDataHelper";
-import { updateRotMat } from "../../../Pix2Pix/InputImage/MakeImage";
 
 export let protCanvasTemplate = /*html*/ `
     <canvas
         ref="viewCanvas"
-        style="width:256px;height:256px;margin-left:auto;margin-right:auto;display:block;"
+        :style="canvasStyle"
         @mousedown="onCanvasMouseDown"
+        
         @mouseup="onCanvasMouseUp"
+        @mouseleave="onCanvasMouseUp"
+        
         @mousemove="onCanvasMouseMove"
         @wheel.prevent="onCanvasWheel"
         ></canvas>
@@ -16,15 +18,43 @@ export let protCanvasTemplate = /*html*/ `
 export let protCanvasWatchFunctions = {
     "selectedDimensions"(newSize: number, oldSize: number): void {
         resizeCanvas(this.$refs["viewCanvas"], newSize);
+        this["preModeSelected"] = "fast";
+        this["drawImg"]();
+    },
+    "selectedNeuralRenderer"(newSize: number, oldSize: number): void {
+        this["preModeSelected"] = "fast";
+        this["drawImg"]();
+    },
+    "selectedQuality"(newSize: number, oldSize: number): void {
+        this["preModeSelected"] = "fast";
         this["drawImg"]();
     }
 }
 
 export let protCanvasComputedFunctions = {
+    "selectedNeuralRenderer": {
+        get(): number {
+            return parseInt(this.$store.state["selectedNeuralRenderer"]);
+        }
+    },
     "selectedDimensions": {
         get(): number {
-            return parseInt(this.$store.state.selectedDimensions);
+            return parseInt(this.$store.state["selectedDimensions"]);
         }
+    },
+    "selectedQuality": {
+        get(): number {
+            return parseInt(this.$store.state["selectedQuality"]);
+        }
+    },
+    "canvasStyle"(): string {
+        let dimen = this.$store.state["selectedDimensions"];
+        let style = `width:${dimen}px;aspect-ratio: 1/1;`;
+        style += "margin-left:auto;margin-right:auto;display:block;";
+        style += "border:#e5e5e5 1px solid;";
+        style += `cursor:${this["mouseStateChanging"] ? "grabbing;" : "grab;"}`;
+        style += "max-width:100%;"
+        return style;
     }
 }
 

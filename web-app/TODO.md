@@ -1,6 +1,47 @@
 ONGOING
 =======
 
+Save button. (DONE, but make look better.)
+
+If it's trying to render on the webworker, but you move the protein again,
+cancel webworker calculations and don't return image.
+
+Make sure scroll zoom work on phones.
+
+Gray out prot2prot render when rendering.
+
+Add more descriptions to model names (where to use, eg.). Also, wanring with 1024x1024.
+
+Lots of Webina cruft
+
+Figur eout if memoty lleaks:
+  console.log(tf.memory());
+  tf.profile
+  https://js.tensorflow.org/api/latest/#memory
+
+
+Example files should work
+
+Experiments
+===========
+
+Some subpanels only show up if molecule loaded.
+
+Enable change model after render (consider model path as id).
+
+Mouse leave canvas should be same as mouse up.
+
+Put max-width on canvas (1024x1024 too big).
+
+No need for worker message to vanish.
+
+Report messages from webworker in main thread.
+
+tfjs way to indicate progress of download (so user not left wondering...)
+  Yes: https://www.geeksforgeeks.org/tensorflow-js-tf-loadgraphmodel-function/
+
+Replace slider and rotate buttons with instructions re. use (drag, scroll).
+
 titles on all buttons to explain controls
 
 Create models that are tiny (maybe 64x64) for fast previewrendering. User can
@@ -16,9 +57,6 @@ Click and drag on image to rotate? Would be great.
 Try using unet128 instead of unet256. How does size compare? Possible to get
 reasonable results? (I think you'll have to use 128 for the 128x128 images, but
 could try with 256 too.)
-
-Experiments
-===========
 
 Don't draw spheres outside viewport. Would have a little time, perhaps.
 

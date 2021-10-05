@@ -224,6 +224,10 @@ function column(tensor: any, idx: number): any {
 }
 
 export function updateRotMat(axis: number[], degrees: number): void {
+    if (tf === undefined) {
+        return;
+    }
+
     let angle = degrees / 180 * Math.PI;
     let ux = 0;
     let uy = 0;
@@ -270,7 +274,7 @@ export function updateOffsetVec(deltaX: number, deltaY: number, deltaZ: number):
     if (offsetVec !== undefined) {
         offsetVec.dispose();
     }
-    
+
     offsetVec = tf.tensor([deltaX, deltaY, deltaZ])
 }
 

@@ -2,7 +2,7 @@
 import neuralRenderersInfo from "../../../models/info.json";
 
 export let pickNeuralRendererTemplate = /* html */ `
-<sub-section title="Pick Neural Renderer" v-if="showFileInputs">
+<sub-section title="Pick Prot2Prot Renderer" v-if="showFileInputs">
     <form-select
         label="Renderer"
         :options="neuralRendererOptions"
@@ -40,7 +40,6 @@ export let pickNeuralRendererData = {
 
 export let pickNeuralRendererMethodsFunctions = {
     "updateAssociatedInfo"(): void {
-        let state = this.$store.state;
         let nr = this.getCurrentNeuralRendererInfo();
         this["description"] = nr["description"];
         this["colorScheme"] = nr["colorScheme"];

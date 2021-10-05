@@ -53,20 +53,16 @@ export let loadModelMethodsFunctions = {
         parsePDB(fileInfo.fileContents).then(() => {
             initializeVars();
             this["offset"]();
+
+            this.$store.commit("setVar", {
+                name: "pdbLoaded",
+                val: true
+            });
+    
             // this["drawImg"]();
         });
 
         return;
-
-        // MakeImg.set_figure_dimens(256);
-        // MakeImg.main(undefined, fileInfo.fileContents, {
-        //     "thetaX": 0,
-        //     "thetaY": 0,
-        //     "thetaZ": 0,
-        //     "deltaX": 0,
-        //     "deltaY": 0,
-        //     "deltaZ": 50,
-        // });
 
         // debugger;
         // this.$store.commit("updateFileName", {

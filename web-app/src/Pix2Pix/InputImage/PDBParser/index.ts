@@ -79,6 +79,9 @@ export function getPDBTextUpdatedCoors(coors: any): string {  // tf.Tensor<tf.Ra
 }
 
 function getIdxsOfElements(element: string): number[] {
+    if (elements === undefined) {
+        return [];
+    }
     let elemsMatchEval = elements.map((e, i) => [e === element, i]);
     let elemsMatchs = elemsMatchEval.filter(e => e[0]);
     return elemsMatchs.map(e => e[1]) as number[];

@@ -23,8 +23,8 @@ export function resizeCanvas(canvas: HTMLCanvasElement, newSize: number): HTMLCa
    // display).
    canvas.width = newSize;
    canvas.height = newSize;
-   canvas.style.width = `${newSize}px`;
-   canvas.style.height = `${newSize}px`;
+   canvas.style.width = `${0.75 * newSize}px`;  // 0.75 to make resolution look a little better in browser
+//    canvas.style.height = `${newSize}px`;
 
    return canvas;
 }

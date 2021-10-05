@@ -216,3 +216,8 @@ div.col small {
     /* input image put on this canvas */
     /* display: none; */
 }
+
+.slide-height {
+    transition: height 0.4s linear;
+    height: auto;
+}

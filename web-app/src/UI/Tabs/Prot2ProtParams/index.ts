@@ -12,6 +12,7 @@ import { loadModelComputedFunctions, loadModelMethodsFunctions, loadModelTemplat
 import { viewSetupMethodsFunctions } from '../Prot2ProtParams/ViewSetup';
 import { pickNeuralRendererComputedFunctions, pickNeuralRendererData, pickNeuralRendererMethodsFunctions, pickNeuralRendererTemplate } from "./PickNeuralRenderer";
 import { protCanvasComputedFunctions, protCanvasData, protCanvasMethodsFunctions, protCanvasWatchFunctions } from "./ProtCanvas";
+import { saveImageMethodsFunctions, saveImageTemplate } from "./SaveImage";
 
 Vue.component('font-awesome-icon', FontAwesomeIcon)
 // Vue.config.productionTip = false
@@ -245,7 +246,8 @@ let methodsFunctions = {
     ...viewSetupMethodsFunctions,
     ...loadModelMethodsFunctions,
     ...pickNeuralRendererMethodsFunctions,
-    ...protCanvasMethodsFunctions
+    ...protCanvasMethodsFunctions,
+    ...saveImageMethodsFunctions
 }
 
 /**
@@ -279,7 +281,14 @@ export function setup(): void {
 
                     ${pickNeuralRendererTemplate}
 
-                    ${viewSetupTemplate}
+                    <div 
+                        class="slide-height"
+                        :style="!$store.state.pdbLoaded ? 'height:0; overflow:hidden; opacity:0;' : ''"
+                    >
+                        ${viewSetupTemplate}
+
+                        ${saveImageTemplate}
+                    </div>
 
                     <!-- <span style="display:none;">{{validate(false)}}</span> --> <!-- Hackish. Just to make reactive. -->
                     <form-button @click.native="onSubmitClick" variant="primary" cls="float-right mb-4">Start Prot2Prot</form-button>

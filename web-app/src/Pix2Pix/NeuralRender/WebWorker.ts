@@ -1,10 +1,11 @@
-// importScripts("https://cdn.jsdelivr.net/npm/@tensorflow/tfjs");
-
-import { loadGraphModel, tidy, browser, expandDims, squeeze, div, sub, mul, add } from '@tensorflow/tfjs';
+import { loadGraphModel, tidy, browser, expandDims, squeeze, div, sub, mul, add, disposeVariables } from '@tensorflow/tfjs';
 
 const ctx: Worker = self as any;
 declare var WorkerGlobalScope: any;
-let storedModel = undefined;
+let storedModel = {
+    path: "",
+    model: undefined
+};
 let out;
 
 // @ts-ignore : A strange shim to avoid bootstrap errors in the webworker.
@@ -14,9 +15,6 @@ self["document"] = {
     },
     "head": {"appendChild"(a) {}}
 }
-
-/** @const {number} */
-// const DATA_CHUNK_SIZE = 10000000;
 
 // Determine if we're in a webworker. See
 // https://stackoverflow.com/questions/7931182/reliably-detect-if-the-script-is-executing-in-a-web-worker
@@ -37,6 +35,7 @@ if (inWebWorker) {
             neuralRender(data["modelPath"], data["imageData"])
             .then((outTypedArray) => {
                 ctx.postMessage({
+                    "cmd": "inference",
                     "out": outTypedArray
                 });
             });
@@ -44,19 +43,39 @@ if (inWebWorker) {
     };
 }
 
-function neuralRender(modelPath: string, imageData: ImageData) {
-    let loadModelPromise = (storedModel === undefined) 
-        // ? tf.loadLayersModel(modelPath)
-        ? loadGraphModel(modelPath)
-        : Promise.resolve(storedModel);
+function sendMsg(msg: string): void {
+    ctx.postMessage({
+        "cmd": "message",
+        "msg": msg
+    });
+}
 
-    return loadModelPromise.then((model) => {
-        if (storedModel === undefined) {
-            storedModel = model;
-        }
+function neuralRender(modelPath: string, imageData: ImageData) {
+    let loadModelPromise = (modelPath !== storedModel.path) 
+        // ? loadLayersModel(modelPath)
+        ? new Promise((resolve, reject) => {
+            if (storedModel.model) {
+                storedModel.model.dispose();
+            }
+
+            resolve(
+                loadGraphModel(modelPath, {
+                    "onProgress"(v) {
+                        sendMsg(`Loading Prot2Prot model (${Math.round(100 * v).toString()}%)...`);
+                    }
+                })
+            );
+        })
+        : Promise.resolve(storedModel.model);
+
+    return loadModelPromise.then((model: any) => {
+        storedModel.model = model;
+        storedModel.path = modelPath;
         
         // tf.setBackend('cpu');
         // console.log(tf.getBackend());
+
+        sendMsg("Rendering image...");
 
         out = tidy(() => {
             let data = browser
@@ -64,17 +83,15 @@ function neuralRender(modelPath: string, imageData: ImageData) {
     
             const processed = normalize(data);
             const channelFirst = processed.transpose([2, 0, 1])
-
-            // processed.print()
     
-            // Convert to shape [1,256,256,3]
+            // Convert to shape [1, 256, 256, 3]
             let batch = expandDims(channelFirst)
     
             let pred = model.predict(batch);  //  as tf.Tensor<tf.Rank> | tf.TensorLike;
 
             pred = pred.transpose([0, 2, 3, 1]);
 
-            // Convert to shape [256,256,3] and unnormalize
+            // Convert to shape [256, 256, 3] and unnormalize
             let out = unnormalize(squeeze(pred, [0]));  // was just 0
             
             return div(out, 255);
@@ -83,6 +100,7 @@ function neuralRender(modelPath: string, imageData: ImageData) {
         return out.data();
     }).then((outArray: number[][]) => {
         out.dispose();
+        sendMsg("Sending image data to main thread...");
         return Promise.resolve(outArray);
     });
 }

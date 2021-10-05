@@ -16,25 +16,28 @@ library.add([
 const maxDist = 500;
 
 export let viewSetupTemplate = /* html */ `
-<sub-section title="View Setup">
+<sub-section title="Molecular Viewer">
     ${protCanvasTemplate}
     <hr />
     <b-container fluid>
         <b-row>
             <b-col>
-                <div style="text-align:center;">Preview Mode</div>
+                <div style="text-align:center;">Render Mode</div>
             </b-col>
         </b-row>
 
         <b-row style="margin-bottom:16px;">
             <b-col>
-                <b-form-radio @change="drawImg" style="margin:auto; display:table;" v-model="preModeSelected" name="some-radios" value="fast">Fast</b-form-radio>
+                <b-form-radio @change="drawImg" style="margin:auto; display:table;" v-model="preModeSelected" name="some-radios" value="fast">Preview</b-form-radio>
             </b-col>
             <b-col>
-                <b-form-radio @change="drawImg" style="margin:auto; display:table;" v-model="preModeSelected" name="some-radios" value="neural">Neural Preview</b-form-radio>
+                <b-form-radio @change="drawImg" style="margin:auto; display:table;" v-model="preModeSelected" name="some-radios" value="neural">Prot2Prot</b-form-radio>
             </b-col>
         </b-row>
+
+        <b-alert class="slide-height" show variant="info">{{$store.state.webWorkerInfo}}</b-alert>
         
+        <!--
         <b-row style="margin-bottom:-11px;">
             <b-col>
                 <div style="text-align:center;">Molecule Distance</div>
@@ -87,11 +90,23 @@ export let viewSetupTemplate = /* html */ `
             <b-col style="max-width:41px; width:41px;">
                 <form-button style="width:41px;" @click.native.prevent="tilt([0, 0, 1], 10)"><font-awesome-icon :icon="['fa', 'arrow-right']"/></form-button>
             </b-col>
-        </b-row>
+        </b-row> -->
     </b-container>
 </sub-section>`;
 
 export let viewSetupMethodsFunctions = {
+    "downloadImg"(): void {
+        import(
+            /* webpackChunkName: "filesaver" */ 
+            /* webpackMode: "lazy" */
+            'file-saver'
+        ).then((mod) => {
+            let canvas = this.$refs["viewCanvas"];
+            canvas.toBlob(function(blob){ 
+                mod.saveAs(blob, "temp4.png"); 
+            });
+        });
+    },
     "tilt"(axis: number[], degrees: number): void {
         updateRotMat(axis, degrees);
         this["drawImg"]();
@@ -111,6 +126,7 @@ export let viewSetupMethodsFunctions = {
     },
 
     "drawImg"(): void {
+        let startDrawImgTime = new Date().getTime();
         let isFast = (this["preModeSelected"] === "fast");
         makeImg(
             this["selectedDimensions"], 
@@ -128,36 +144,19 @@ export let viewSetupMethodsFunctions = {
             if (isFast) {
                 drawImageDataOnCanvas(imageData, canvas);
             } else {
-                // TODO: mess here. Rendering every time you change protein. Need to use
-                // render button, different tab, specify model, etc.
-                // let imgData = getImageDataFromCanvas(canvas)
-
-                // const vrmlParserWebWorker = new Worker("renderWebWorker.js?" + Math.random().toString());
-
-                // if (typeof(Worker) !== "undefined") {
-                //     vrmlParserWebWorker.onmessage = (event: MessageEvent) => {
-                //         let data = event.data;
-                //         debugger;
-                //     };
-
-                //     vrmlParserWebWorker.postMessage({
-                //         "cmd": "start",
-                //         "data": "data"
-                //     });
-                // }       
-                
-                // return
-
                 let filename: string;
                 filename = `./models/${this.$store.state["selectedNeuralRenderer"]}/${this.$store.state["selectedDimensions"]}/${this.$store.state["selectedQuality"]}/model.json`;
-                console.log(filename);
+                // console.log(filename);
                 // filename = "./models/simple_surf/256/uint8/model.json";
                 // filename = "./models/simple_surf/256/full/model.json";
-                console.time("renderTime");
                 neuralRender(filename, imageData).then((imgData: ImageData) => {
                     if (imgData !== undefined) {
                         drawImageDataOnCanvas(imgData, canvas);
-                        console.timeEnd("renderTime");
+                        let deltaTime = (new Date().getTime() - startDrawImgTime) / 1000;
+                        this.$store.commit("setVar", {
+                            name: "webWorkerInfo",
+                            val: `Render time: ${deltaTime.toFixed(1)} seconds`
+                        });
                     }
                 });
             }
