@@ -43,11 +43,6 @@ export let pickNeuralRendererMethodsFunctions = {
         let nr = this.getCurrentNeuralRendererInfo();
         this["description"] = nr["description"];
         this["colorScheme"] = nr["colorScheme"];
-
-        // this["modelSize"] = neuralRenderersInfo
-        //     [state["selectedNeuralRenderer"]]
-        //     ["sizes"]
-        //     [state["selectedDimensions"]];
     },
 
     getCurrentNeuralRendererInfo(): any {

@@ -24,7 +24,6 @@ export function resizeCanvas(canvas: HTMLCanvasElement, newSize: number): HTMLCa
    canvas.width = newSize;
    canvas.height = newSize;
    canvas.style.width = `${0.75 * newSize}px`;  // 0.75 to make resolution look a little better in browser
-//    canvas.style.height = `${newSize}px`;
 
    return canvas;
 }
@@ -49,8 +48,6 @@ export function getImageDataFromCanvasContext(context: CanvasRenderingContext2D)
 
 export function makeInMemoryCanvas(imgSize: number, id: string): HTMLCanvasElement {
     let canvas = createCanvas(imgSize);
-    // canvas.width = imgSize;
-    // canvas.height = imgSize;
     canvas.id = id;
     return canvas;
 }

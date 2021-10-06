@@ -32,11 +32,9 @@ export abstract class ParentColorScheme {
 
     getColorsForManyRadii(baseColor: number[], atomDrawRadius: number, atomCenterDist: number, maxDist: number): IAtomColorRadius[] {
         let subCircles = [];
-        // let numSteps = 3;
         let r = this.numSubCircleSteps;
         while (r > 0) {
             let f = r / this.numSubCircleSteps;
-            // for f in [r / num_steps for r in range(int(num_steps), 0, -1)]:
             let newPerpendicularRadius = f * atomDrawRadius;
             let newDist = atomCenterDist - atomDrawRadius * Math.sqrt(1 - f * f);
             let colorStr = this.colorFromDist(

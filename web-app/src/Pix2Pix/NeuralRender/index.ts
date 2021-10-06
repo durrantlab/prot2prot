@@ -60,14 +60,10 @@ export function neuralRender(modelPath: string, imageData: ImageData): Promise<I
             });
         })
         .then((imageDataArray) => {
-            // return tf.tidy(() => {
-
             // Convert back to tensor.
             newImageDataTensor = tf.tensor(imageDataArray, [imageData.width, imageData.width, 3]);
             outputCanvas = makeInMemoryCanvas(imageData.width, "tmp");
             return tf.browser.toPixels(newImageDataTensor, outputCanvas);
-
-            // })
         })
         .then(() => {
             // Because outside of tidy.

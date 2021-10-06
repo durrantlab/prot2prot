@@ -6,11 +6,6 @@ import { getExt } from "../../Forms/FileLoader/Common/Utils";
 
 export let loadModelTemplate = /* html */ `
 <sub-section title="Input PDB File" v-if="showFileInputs">
-    <!-- TODO: Attention here -->
-    <!-- convert=".pdb, .ent, .xyz, .pqr, .mcif, .mmcif" 
-    description="Formats: PDBQT (best), PDB, ENT, XYZ, PQR, MCIF, MMCIF. If PDB, be sure to add polar hydrogen atoms."
-    -->
-    <!-- label="Receptor" -->
     <file-loader
         id="receptor"
         description="Format: PDB"
@@ -58,13 +53,11 @@ export let loadModelMethodsFunctions = {
                 name: "pdbLoaded",
                 val: true
             });
-    
-            // this["drawImg"]();
         });
 
         return;
 
-        // debugger;
+        // TODO: Still need to think about the below.
         // this.$store.commit("updateFileName", {
         //     type: this["id"],
         //     filename: fileInfo.filename,
@@ -128,41 +121,7 @@ export let loadModelMethodsFunctions = {
                 val: this.$store.state["receptorContentsExample"]
             });
 
-            // this.$store.commit("setVar", {
-            //     name: "ligandContents",
-            //     val: this.$store.state["ligandContentsExample"]
-            // });
-            // this.$store.commit("setVar", {
-            //     name: "crystalContents",
-            //     val: this.$store.state["crystalContentsExample"]
-            // });
-            // this.$store.commit("setVinaParam", {
-            //     name: "center_x",
-            //     val: 41.03
-            // });
-            // this.$store.commit("setVinaParam", {
-            //     name: "center_y",
-            //     val: 18.98
-            // });
-            // this.$store.commit("setVinaParam", {
-            //     name: "center_z",
-            //     val: 14.03
-            // });
-            // this.$store.commit("setVinaParam", {
-            //     name: "size_x",
-            //     val: 20.00
-            // });
-            // this.$store.commit("setVinaParam", {
-            //     name: "size_y",
-            //     val: 20.00
-            // });
-            // this.$store.commit("setVinaParam", {
-            //     name: "size_z",
-            //     val: 20.00
-            // });
-
             // Also update file names so example vina command line is valid.
-            // this.$store.commit("updateFileName", { type: "ligand", filename: "ligand_example.pdbqt" });
             this.$store.commit("updateFileName", { type: "receptor", filename: "receptor_example.pdbqt" });
         }, 100);
     },

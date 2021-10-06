@@ -1,7 +1,6 @@
 // This file is part of Prot2Prot, released under the Apache 2.0 License. See
 // LICENSE.md or go to https://opensource.org/licenses/Apache-2.0 for full
-// details. Copyright 2020 Jacob D. Durrant.
-
+// details. Copyright 2021 Jacob D. Durrant.
 
 import * as Store from "../VueInterface/Store";
 import * as Utils from "../Utils";
@@ -71,46 +70,6 @@ export function setup(): void {
                     });
                 }
             },
-
-            /**
-             * Determine whether the parameters tab is disabled.
-             * @returns boolean  True if it is disabled, false otherwise.
-             */
-            // "parametersTabDisabled"(): boolean {
-            //     return this.$store.state["parametersTabDisabled"];
-            // },
-
-            /**
-             * Determine whether the running tab is disabled.
-             * @returns boolean  True if it is disabled, false otherwise.
-             */
-            // "runningTabDisabled"(): boolean {
-            //     return this.$store.state["runningTabDisabled"];
-            // },
-
-            /**
-             * Determine whether the output tab is disabled.
-             * @returns boolean  True if it is disabled, false otherwise.
-             */
-            // "outputTabDisabled"(): boolean {
-            //     return this.$store.state["outputTabDisabled"];
-            // },
-
-            /**
-             * Determine whether the existing vina output tab is disabled.
-             * @returns boolean  True if it is disabled, false otherwise.
-             */
-            // "existingVinaOutputTabDisabled"(): boolean {
-            //     return this.$store.state["existingVinaOutputTabDisabled"];
-            // },
-
-            /**
-             * Determine whether the start over tab is disabled.
-             * @returns boolean  True if it is disabled, false otherwise.
-             */
-            // "startOverTabDisabled"(): boolean {
-            //     return this.$store.state["startOverTabDisabled"];
-            // }
         },
 
         "methods": {},
@@ -119,8 +78,6 @@ export function setup(): void {
          * Runs when the vue component is mounted.
          * @returns void
          */
-        "mounted"() {
-            // window["$store"] = this.$store;  // For debugging
-        }
+        "mounted"() {}
     })
 }

@@ -38,10 +38,6 @@ export function initializeVars() {
 }
 
 export function makeImg(imgSize: number, colorScheme: ParentColorScheme): Promise<ImageData> {
-    // Get color scheme
-    // let colorScheme = new StandardColorScheme();
-    // colorScheme = new InputColorScheme();
-
     if (coorsTensor === undefined) {
         // No pdb loaded yet.
         return Promise.resolve(undefined);
@@ -190,7 +186,6 @@ export function makeImg(imgSize: number, colorScheme: ParentColorScheme): Promis
 
         // return image
         let imgData = getImageDataFromCanvasContext(context);
-        // console.timeEnd("makeImage");
         return Promise.resolve(imgData);
     });
     
@@ -234,22 +229,9 @@ export function updateRotMat(axis: number[], degrees: number): void {
     let uz = 0;
     [ux, uy, uz] = axis;  // assuming normalized
 
-    // switch (axis) {
-    //     case "X":
-    //         ux = 1;
-    //         break;
-    //     case "Y":
-    //         uy = 1;
-    //         break;
-    //     case "Z":
-    //         uz = 1;
-    //         break;
-    // }
-
     let cos = Math.cos(angle);
     let sin = Math.sin(angle);
     let icos = 1 - cos;
-    // let isin = 1 - sin;
 
     // See
     // https://en.wikipedia.org/wiki/Rotation_matrix#Rotation_matrix_from_axis_and_angle

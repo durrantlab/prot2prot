@@ -6,7 +6,6 @@ import { faArrowUp, faArrowDown, faArrowLeft, faArrowRight, faUndo, faRedo, faAr
 import { StandardColorScheme } from "../../../Pix2Pix/InputImage/ColorSchemes/StandardColorScheme";
 import { makeImg, updateOffsetVec, updateRotMat } from "../../../Pix2Pix/InputImage/MakeImage";
 import { protCanvasTemplate } from "./ProtCanvas";
-import { tf } from "../../../Pix2Pix/LoadTF";
 
 // @ts-ignore
 library.add([
@@ -37,61 +36,6 @@ export let viewSetupTemplate = /* html */ `
         </b-row>
 
         <b-alert class="slide-height" show variant="info">{{$store.state.webWorkerInfo}}</b-alert>
-        
-        <!--
-        <b-row style="margin-bottom:-11px;">
-            <b-col>
-                <div style="text-align:center;">Molecule Distance</div>
-            </b-col>
-        </b-row>
-
-        <b-row>
-            <b-col>
-                <form-group>
-                    <div style="margin-top:10px;">
-                        <input 
-                            type="range" 
-                            name="distanceRange" 
-                            step="1"
-                            min="0"
-                            max=${maxDist}
-                            v-model="protDist"
-                            style="width:100%;"
-                            @change="offset()"
-                        >
-                    </div>
-                </form-group>
-            </b-col>
-        </b-row>
-
-        <b-row>
-            <b-col>
-                <div style="text-align:center;">Molecule Rotation</div>
-            </b-col>
-        </b-row>
-
-        <b-row no-gutters style="width:123px; margin-left:auto; margin-right:auto;">
-            <b-col style="max-width:41px; width:41px;">
-                <form-button style="width:41px;" @click.native.prevent="tilt([0, 1, 0], -10)"><font-awesome-icon :icon="['fa', 'undo']"/></form-button>
-            </b-col>
-            <b-col style="max-width:41px; width:41px;">
-                <form-button style="width:41px;" @click.native.prevent="tilt([1, 0, 0], -10)"><font-awesome-icon :icon="['fa', 'arrow-up']"/></form-button>
-            </b-col>
-            <b-col style="max-width:41px; width:41px;">
-                <form-button style="width:41px;" @click.native.prevent="tilt([0, 1, 0], 10)"><font-awesome-icon :icon="['fa', 'redo']"/></form-button>
-            </b-col>
-        </b-row>
-        <b-row no-gutters style="width:123px; margin-left:auto; margin-right:auto;">
-            <b-col style="max-width:41px; width:41px;">
-            <form-button style="width:41px;" @click.native.prevent="tilt([0, 0, 1], -10)"><font-awesome-icon :icon="['fa', 'arrow-left']"/></form-button>
-            </b-col>
-            <b-col style="max-width:41px; width:41px;">
-                <form-button style="width:41px;" @click.native.prevent="tilt([1, 0, 0], 10)"><font-awesome-icon :icon="['fa', 'arrow-down']"/></form-button>
-            </b-col>
-            <b-col style="max-width:41px; width:41px;">
-                <form-button style="width:41px;" @click.native.prevent="tilt([0, 0, 1], 10)"><font-awesome-icon :icon="['fa', 'arrow-right']"/></form-button>
-            </b-col>
-        </b-row> -->
     </b-container>
 </sub-section>`;
 

@@ -1,11 +1,7 @@
 // This file is part of Prot2Prot, released under the Apache 2.0 License. See
 // LICENSE.md or go to https://opensource.org/licenses/Apache-2.0 for full
-// details. Copyright 2020 Jacob D. Durrant.
+// details. Copyright 2021 Jacob D. Durrant.
 
-
-// import * as Utils from "../../../Utils";
-// import * as MakeImg from "../../Pix2Pix/Library.old/make_img";
-// import { rotat } from '@fortawesome/free-regular-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { viewSetupComputedFunctions, viewSetupData, viewSetupTemplate } from "./ViewSetup";
 import { loadModelComputedFunctions, loadModelMethodsFunctions, loadModelTemplate } from "./LoadModel";
@@ -18,7 +14,6 @@ Vue.component('font-awesome-icon', FontAwesomeIcon)
 // Vue.config.productionTip = false
 
 declare var Vue;
-// declare var jQuery;
 
 /** An object containing the vue-component computed functions. */
 let computedFunctions = {
@@ -87,18 +82,7 @@ export function setup(): void {
         "template": /* html */ `
             <div>
                 <b-form>
-                    <!-- <b-card
-                        class="mb-2 text-center"
-                        style="margin-bottom:1.4rem !important;"
-                    >
-                        <b-card-text>
-                            Use this tab to setup a Prot2Prot job in your browser.
-                            Specify the input files and Prot2Prot parameters below.
-                        </b-card-text>
-                    </b-card> -->
-
                     ${loadModelTemplate}
-
                     ${pickNeuralRendererTemplate}
 
                     <div 
@@ -110,14 +94,6 @@ export function setup(): void {
                         ${saveImageTemplate}
                     </div>
                 </b-form>
-                <!-- <div v-else>
-                    <p>Unfortunately, your browser does not support WebAssembly.
-                    Please <a href='https://developer.mozilla.org/en-US/docs/WebAssembly#Browser_compatibility'
-                    target='_blank'>switch to a browser that does</a> (e.g., Google Chrome).</p>
-                -->
-                    <!-- <p>Note that you can still use the "Existing Vina Output" option
-                    (see menu on the left) even without WebAssembly.</p> -->
-                <!-- </div> -->
             </div>
         `,
         "props": {},
