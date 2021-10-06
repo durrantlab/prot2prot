@@ -1,4 +1,5 @@
-import { loadGraphModel, tidy, browser, expandDims, squeeze, div, sub, mul, add, disposeVariables } from '@tensorflow/tfjs';
+import { loadGraphModel, tidy, browser, expandDims, squeeze, div, sub, mul, add } from '@tensorflow/tfjs';
+// import { memory, tensor, profile } from '@tensorflow/tfjs';
 
 const ctx: Worker = self as any;
 declare var WorkerGlobalScope: any;
@@ -68,10 +69,11 @@ function neuralRender(modelPath: string, imageData: ImageData) {
         })
         : Promise.resolve(storedModel.model);
 
+    // console.log("1 MEMORY", memory());
     return loadModelPromise.then((model: any) => {
         storedModel.model = model;
         storedModel.path = modelPath;
-        
+
         // tf.setBackend('cpu');
         // console.log(tf.getBackend());
 
@@ -101,14 +103,15 @@ function neuralRender(modelPath: string, imageData: ImageData) {
     }).then((outArray: number[][]) => {
         out.dispose();
         sendMsg("Sending image data to main thread...");
+
         return Promise.resolve(outArray);
     });
 }
 
 function normalize(t) {
     return sub(div(t, 127.5), 1)
-}    
+}
 
 function unnormalize(t) {
     return mul(add(t, 1), 127.5)
-}    
+}

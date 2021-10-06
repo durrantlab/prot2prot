@@ -261,9 +261,10 @@ export function updateRotMat(axis: number[], degrees: number): void {
         ]
     );
 
-    rotMat = tf.matMul(t, rotMat);
-
+    let rotMat2 = tf.matMul(t, rotMat);
+    rotMat.dispose();
     t.dispose();
+    rotMat = rotMat2;
 }
 
 export function updateOffsetVec(deltaX: number, deltaY: number, deltaZ: number): void {

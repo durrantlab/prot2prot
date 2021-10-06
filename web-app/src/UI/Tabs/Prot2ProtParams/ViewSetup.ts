@@ -6,6 +6,7 @@ import { faArrowUp, faArrowDown, faArrowLeft, faArrowRight, faUndo, faRedo, faAr
 import { StandardColorScheme } from "../../../Pix2Pix/InputImage/ColorSchemes/StandardColorScheme";
 import { makeImg, updateOffsetVec, updateRotMat } from "../../../Pix2Pix/InputImage/MakeImage";
 import { protCanvasTemplate } from "./ProtCanvas";
+import { tf } from "../../../Pix2Pix/LoadTF";
 
 // @ts-ignore
 library.add([
