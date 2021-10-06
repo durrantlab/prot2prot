@@ -2,10 +2,7 @@
 // LICENSE.md or go to https://opensource.org/licenses/Apache-2.0 for full
 // details. Copyright 2020 Jacob D. Durrant.
 
-
 declare var Vue;
-
-
 
 /** An object containing the vue-component computed functions. */
 let computedFunctions = {

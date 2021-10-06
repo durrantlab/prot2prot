@@ -8,8 +8,6 @@
 import * as FileInputSetup from "../UI/Forms/FileLoader/Setup";
 import * as FileInputMain from "../UI/Forms/FileLoaderMain.Vue";
 import * as Prot2ProtParams from "../UI/Tabs/Prot2ProtParams";
-import * as Prot2ProtRunning from "../UI/Tabs/Prot2ProtRunning";
-import * as Prot2ProtOutput from "../UI/Tabs/Prot2ProtOutput";
 // import * as VinaExistingOutput from "../UI/Tabs/VinaExistingOutput"
 import * as StartOver from "../UI/Tabs/StartOver";
 import * as FormGroup from "../UI/Forms/FormGroup";
@@ -57,8 +55,8 @@ export function setup(): void {
     FileInputMain.setup();
     // ResultsTable.setup();
     Prot2ProtParams.setup();
-    Prot2ProtRunning.setup();
-    Prot2ProtOutput.setup();
+    // Prot2ProtRunning.setup();
+    // Prot2ProtOutput.setup();
     StartOver.setup();
     // VinaExistingOutput.setup();
 }

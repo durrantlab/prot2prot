@@ -14,7 +14,7 @@ export let loadModelTemplate = /* html */ `
     <file-loader
         id="receptor"
         description="Format: PDB"
-        accept=".pdb" 
+        accept=".pdb,.ent" 
         :required="true"
         :allowUrlInput="false"
         :multipleFiles="false"
@@ -162,22 +162,8 @@ export let loadModelMethodsFunctions = {
             // });
 
             // Also update file names so example vina command line is valid.
-            this.$store.commit("updateFileName", { type: "ligand", filename: "ligand_example.pdbqt" });
+            // this.$store.commit("updateFileName", { type: "ligand", filename: "ligand_example.pdbqt" });
             this.$store.commit("updateFileName", { type: "receptor", filename: "receptor_example.pdbqt" });
-
-            // These values should now validate.
-            // let validateVars = [
-            //     "receptor", "ligand", "center_x", "center_y", "center_z",
-            //     "size_x", "size_y", "size_z"
-            // ];
-            // const validateVarsLen = validateVars.length;
-            // for (let i = 0; i < validateVarsLen; i++) {
-            //     const validateVar = validateVars[i];
-            //     this.$store.commit("setValidationParam", {
-            //         name: validateVar,
-            //         val: true
-            //     });
-            // }
         }, 100);
     },
 
@@ -188,7 +174,7 @@ export let loadModelMethodsFunctions = {
             filename: convertInfo.filename,
         });
 
-        let ext = getExt(convertInfo.filename);
+        // let ext = getExt(convertInfo.filename);
 
         // this.getModelFileContents(val).then((text: string) => {
             // this.$store.commit("openConvertFileModal", {

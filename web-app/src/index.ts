@@ -14,7 +14,7 @@ console.log("Prot2Prot Web App " + VERSION);
 
 // Create/load the database.
 createFileSystemDatabase(
-    ["receptor", "ligand", "crystal", "output"],
+    ["receptor"], // , "ligand", "crystal", "output"],
     // delete previous database if "nextLigand" not in url
     !hasNextLigandUrlParam()
 )

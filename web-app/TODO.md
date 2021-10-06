@@ -14,6 +14,8 @@ Add more descriptions to model names (where to use, eg.). Also, wanring with 102
 
 Lots of Webina cruft
 
+Search for: the "Download" button(s) in the "Output" tab.
+
 Figur eout if memoty lleaks:
   console.log(tf.memory());
   tf.profile

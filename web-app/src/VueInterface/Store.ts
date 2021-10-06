@@ -3,7 +3,7 @@
 // details. Copyright 2020 Jacob D. Durrant.
 
 
-import * as Utils from "../Utils";
+// import * as Utils from "../Utils";
 // import * as ThreeDMol from "../UI/ThreeDMol.ts.old";
 
 // @ts-ignore
@@ -55,42 +55,39 @@ interface IInputFileNames {
 
 export const store = new Vuex.Store({
     "state": {
-        // "vinaParams": {},
-        // "validation": {},
-        hideDockingBoxParams: false,
         "tabIdx": 0,
         "receptorFileName": "",
-        "ligandFileName": "",
+        // "ligandFileName": "",
         "receptorContents": "",
         // "receptorContentsExample": ExampleReceptorPDBQT,
         "showKeepProteinOnlyLink": true,
-        "ligandContents": "",
+        // "ligandContents": "",
         // "ligandContentsExample": ExampleLigandPDBQT,
-        "crystalContents": "",
+        // "crystalContents": "",
         // "crystalContentsExample": ExampleLigandPDBQT,
-        "outputContents": "",
+        // "outputContents": "",
         // "outputContentsExample": ExampleOutputPDBQT,
-        "dockedContents": "",
-        "parametersTabDisabled": false,
+        // "dockedContents": "",
+        // "parametersTabDisabled": false,
         // "existingVinaOutputTabDisabled": false,
-        "runningTabDisabled": true,
-        "startOverTabDisabled": true,
-        "outputTabDisabled": true,
-        "pdbOutputFrames": [],
-        "stdOut": "",
+        // "runningTabDisabled": true,
+        // "startOverTabDis abled": true,
+        // "outputTabDisabled": true,
+        // "pdbOutputFrames": [],
+        // "stdOut": "",
         // "convertFileModalShow": false,
-        "convertFileExt": "PDB",
-        "convertFileType": "receptor",
-        "convertFile": null,
+        // "convertFileExt": "PDB",
+        // "convertFileType": "receptor",
+        // "convertFile": null,
         "onConvertCancel": undefined,
         "onConvertDone": undefined,
-        "receptorForceValidate": false,
-        "ligandForceValidate": false,
+        // "receptorForceValidate": false,
+        // "ligandForceValidate": false,
         // "drawSmilesModalShow": false,
         "modalShow": false,
         "modalTitle": "Title",
         "modalBody": "Some text here...",
-        "vinaParamsValidates": false,
+        // "vinaParamsValidates": false,
         "time": 0,  // Used to keep track of execution time.
         "protDist": 150,
         "leftRightOffset": 0,
@@ -122,45 +119,45 @@ export const store = new Vuex.Store({
          *                               about what to set.
          * @returns void
          */
-        "setValidationParam"(state: any, payload: iVueXParam): void {
-            // By redefining the whole variable, it becomes reactive. Directly
-            // changing individual properties is not reactive.
-            state["validation"] = Utils.getNewObjWithUpdate(
-                state["validation"],
-                payload.name,
-                payload.val
-            );
-        },
+        // "setValidationParam"(state: any, payload: iVueXParam): void {
+        //     // By redefining the whole variable, it becomes reactive. Directly
+        //     // changing individual properties is not reactive.
+        //     state["validation"] = Utils.getNewObjWithUpdate(
+        //         state["validation"],
+        //         payload.name,
+        //         payload.val
+        //     );
+        // },
 
-        /**
-         * Disable or enable tabs.
-         * @param  {any} state    The VueX stste.
-         * @param  {any} payload  An object containing information about which
-         *                        tabs should be enabled or disabled.
-         * @returns void
-         */
-        "disableTabs"(state: any, payload: any): void {
-            const tabDisableVarNames = Object.keys(payload);
-            const tabDisableVarNamesLen = tabDisableVarNames.length;
-            for (let i = 0; i < tabDisableVarNamesLen; i++) {
-                const tabDisableVarName = tabDisableVarNames[i];
-                let val = payload[tabDisableVarName];
-                val = val === undefined ? true : val;
-                state[tabDisableVarName] = val;
-            }
+        // /**
+        //  * Disable or enable tabs.
+        //  * @param  {any} state    The VueX stste.
+        //  * @param  {any} payload  An object containing information about which
+        //  *                        tabs should be enabled or disabled.
+        //  * @returns void
+        //  */
+        // "disableTabs"(state: any, payload: any): void {
+        //     const tabDisableVarNames = Object.keys(payload);
+        //     const tabDisableVarNamesLen = tabDisableVarNames.length;
+        //     for (let i = 0; i < tabDisableVarNamesLen; i++) {
+        //         const tabDisableVarName = tabDisableVarNames[i];
+        //         let val = payload[tabDisableVarName];
+        //         val = val === undefined ? true : val;
+        //         state[tabDisableVarName] = val;
+        //     }
 
-            // If the output tab has been enabled, you should also warn the
-            // user about closing the website.
-            if (payload["outputTabDisabled"] === false) {
-                window.addEventListener("beforeunload", (event) => {
-                    event.preventDefault();
+        //     // If the output tab has been enabled, you should also warn the
+        //     // user about closing the website.
+        //     if (payload["outputTabDisabled"] === false) {
+        //         window.addEventListener("beforeunload", (event) => {
+        //             event.preventDefault();
 
-                    // No modern browser respects the returnValue anymore. See
-                    // https://stackoverflow.com/questions/45088861/whats-the-point-of-beforeunload-returnvalue-if-the-message-does-not-get-set
-                    event.returnValue = "";
-                });
-            }
-        },
+        //             // No modern browser respects the returnValue anymore. See
+        //             // https://stackoverflow.com/questions/45088861/whats-the-point-of-beforeunload-returnvalue-if-the-message-does-not-get-set
+        //             event.returnValue = "";
+        //         });
+        //     }
+        // },
 
         /**
          * Extract and save relevant data about the poses from the Vina

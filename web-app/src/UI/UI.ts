@@ -9,8 +9,6 @@ import { VERSION } from "../Version";
 
 declare var Vue;
 
-
-
 /**
  * Setup the main Vue app.
  * @returns void
@@ -22,8 +20,6 @@ export function setup(): void {
         "template": /* html */ `
             <div class="container-fluid">
                 <open-modal></open-modal>
-                <!-- <convert-file-modal></convert-file-modal> -->
-                <!-- <draw-smiles-modal></draw-smiles-modal> -->
                 <div id="no-mobile">
                     <b-jumbotron class="jumbo" header="Prot2Prot ${VERSION}" lead="Advanced protein rendering in the browser">
                         <p>Prot2Prot ${VERSION} is not designed to work on mobile phones. Please use a device with a larger screen.</p>
@@ -37,22 +33,12 @@ export function setup(): void {
 
                 <b-card no-body class="mb-3">
                     <b-tabs v-model="tabIdx" card fill pills vertical content-class="mt-3"> <!-- vertical -->
-                        <b-tab title="Input Parameters" active :disabled="parametersTabDisabled">
+                        <b-tab title="Input Parameters" active>
                             <b-card-text>
                                 <prot2prot-params></prot2prot-params>
                             </b-card-text>
                         </b-tab>
-                        <b-tab title="Running Prot2Prot" :disabled="runningTabDisabled">
-                            <b-card-text>
-                                <prot2prot-running></prot2prot-running>
-                            </b-card-text>
-                        </b-tab>
-                        <b-tab title="Output" :disabled="outputTabDisabled">
-                            <b-card-text>
-                                <prot2prot-output></prot2prot-output>
-                            </b-card-text>
-                        </b-tab>
-                        <b-tab title="Start Over" :disabled="startOverTabDisabled">
+                        <b-tab title="Start Over">
                             <b-card-text>
                                 <start-over></start-over>
                             </b-card-text>
@@ -69,7 +55,6 @@ export function setup(): void {
         "data"() {
             return {
                 "receptorFile": false,
-                "ligandFile": false
             }
         },
         "computed": {
@@ -91,25 +76,25 @@ export function setup(): void {
              * Determine whether the parameters tab is disabled.
              * @returns boolean  True if it is disabled, false otherwise.
              */
-            "parametersTabDisabled"(): boolean {
-                return this.$store.state["parametersTabDisabled"];
-            },
+            // "parametersTabDisabled"(): boolean {
+            //     return this.$store.state["parametersTabDisabled"];
+            // },
 
             /**
              * Determine whether the running tab is disabled.
              * @returns boolean  True if it is disabled, false otherwise.
              */
-            "runningTabDisabled"(): boolean {
-                return this.$store.state["runningTabDisabled"];
-            },
+            // "runningTabDisabled"(): boolean {
+            //     return this.$store.state["runningTabDisabled"];
+            // },
 
             /**
              * Determine whether the output tab is disabled.
              * @returns boolean  True if it is disabled, false otherwise.
              */
-            "outputTabDisabled"(): boolean {
-                return this.$store.state["outputTabDisabled"];
-            },
+            // "outputTabDisabled"(): boolean {
+            //     return this.$store.state["outputTabDisabled"];
+            // },
 
             /**
              * Determine whether the existing vina output tab is disabled.
@@ -123,9 +108,9 @@ export function setup(): void {
              * Determine whether the start over tab is disabled.
              * @returns boolean  True if it is disabled, false otherwise.
              */
-            "startOverTabDisabled"(): boolean {
-                return this.$store.state["startOverTabDisabled"];
-            }
+            // "startOverTabDisabled"(): boolean {
+            //     return this.$store.state["startOverTabDisabled"];
+            // }
         },
 
         "methods": {},
