@@ -221,3 +221,22 @@ div.col small {
     transition: height 0.4s linear;
     height: auto;
 }
+
+
+@media (max-width: 695px) {
+    /* #no-mobile {
+        display: none;
+    } */
+
+    .display-3 {
+        font-size:3rem;
+    }
+
+    .jumbotron {
+        padding:16px;
+    }
+
+    .tabs .col-auto {
+        width:100%;
+    }
+}

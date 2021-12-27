@@ -7,7 +7,7 @@ let webWorker;
 
 function setupWebWorker(onmessage: Function): void {
     if (webWorker === undefined) {
-        webWorker = new Worker("renderWebWorker.js?" + Math.random().toString());
+        webWorker = new Worker("./renderWebWorker.js?" + Math.random().toString());
     }
 
     if (typeof(Worker) !== "undefined") {

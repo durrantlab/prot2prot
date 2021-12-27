@@ -1,31 +1,52 @@
 ONGOING
 =======
 
-Save button. (DONE, but make look better.)
-
 If it's trying to render on the webworker, but you move the protein again,
 cancel webworker calculations and don't return image.
 
-Make sure scroll zoom work on phones.
-
-Gray out prot2prot render when rendering.
-
-Add more descriptions to model names (where to use, eg.). Also, wanring with 1024x1024.
-
-Lots of Webina cruft
-
-Search for: the "Download" button(s) in the "Output" tab.
+Add more descriptions to model names (where to use, eg.). Also, wanring with
+1024x1024.
 
 Figur eout if memoty lleaks:
   console.log(tf.memory());
   tf.profile
   https://js.tensorflow.org/api/latest/#memory
 
+Update filenames when strip everything but protein.
 
-Example files should work
+Fileloading should work through all the general functions, even if they aren't
+needed.
 
 Experiments
 ===========
+
+Make sure scroll zoom work on phones. (not zoom yet)
+  https://stackoverflow.com/questions/11183174/simplest-way-to-detect-a-pinch
+
+Works on firefox?
+  https://stackoverflow.com/questions/63475815/tensorflowjs-initialization-of-backend-webgl-failed-on-firefox-and-safari-with
+
+Report file sizes. Maybe also on progress bar.
+
+Warn that first render takes longer.
+
+Make sure css generally looks alright on phones. Some touchups needed.
+
+Can you detect GPU memory and give warning? Probably not.
+
+Does "protein only atoms" do anything?
+
+Search for: the "Download" button(s) in the "Output" tab.
+
+When load protein, scroll down.
+
+Example files should work
+
+Gray out prot2prot render when rendering.
+
+Save button. (DONE, but make look better.)
+
+Lots of Webina cruft
 
 Some subpanels only show up if molecule loaded.
 

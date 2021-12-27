@@ -19,11 +19,11 @@ export function setup(): void {
         "template": /* html */ `
             <div class="container-fluid">
                 <open-modal></open-modal>
-                <div id="no-mobile">
+                <!-- <div id="no-mobile">
                     <b-jumbotron class="jumbo" header="Prot2Prot ${VERSION}" lead="Advanced protein rendering in the browser">
                         <p>Prot2Prot ${VERSION} is not designed to work on mobile phones. Please use a device with a larger screen.</p>
                     </b-jumbotron>
-                </div>
+                </div> -->
 
                 <b-jumbotron class="jumbo" style="background-image:url(${Utils.curPath()}webina_logo.jpg);" header="Prot2Prot ${VERSION}" lead="Advanced protein rendering in the browser">
                     <p>Brought to you by the <a target="_blank" href="http://durrantlab.com">Durrant Lab</a>.</p>
@@ -32,7 +32,7 @@ export function setup(): void {
 
                 <b-card no-body class="mb-3">
                     <b-tabs v-model="tabIdx" card fill pills vertical content-class="mt-3"> <!-- vertical -->
-                        <b-tab title="Input Parameters" active>
+                        <b-tab title="Prot2Prot" active>
                             <b-card-text>
                                 <prot2prot-params></prot2prot-params>
                             </b-card-text>

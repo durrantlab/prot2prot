@@ -3,7 +3,7 @@
 // details. Copyright 2021 Jacob D. Durrant.
 
 // @ts-ignore
-// import ExampleReceptorPDBQT from "../example/1xdn.pdbqt";
+import ExampleReceptorPDBQT from "../example/5iy4.pdb";
 
 // @ts-ignore
 // import ExampleLigandPDBQT from "../example/ATP.pdbqt";
@@ -51,7 +51,8 @@ export const store = new Vuex.Store({
     "state": {
         "tabIdx": 0,
         "receptorFileName": "",
-        "receptorContents": "",
+        // "receptorContents": "",
+        "receptorContentsExample": ExampleReceptorPDBQT,
         "showKeepProteinOnlyLink": true,
         "onConvertCancel": undefined,
         "onConvertDone": undefined,

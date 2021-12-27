@@ -2,7 +2,7 @@
 import neuralRenderersInfo from "../../../models/info.json";
 
 export let pickNeuralRendererTemplate = /* html */ `
-<sub-section title="Pick Prot2Prot Renderer" v-if="showFileInputs">
+<sub-section id="pick-panel" title="Pick Prot2Prot Renderer">
     <form-select
         label="Renderer"
         :options="neuralRendererOptions"
@@ -71,6 +71,7 @@ export let pickNeuralRendererComputedFunctions = {
         let options = Object.keys(neuralRenderersInfo).map((r) => {
             return {value: r, text: neuralRenderersInfo[r]["name"]}
         });
+
         if (this.$store.state["selectedNeuralRenderer"] === "") {
             this.$store.commit("setVar", {
                 name: "selectedNeuralRenderer",
@@ -90,7 +91,13 @@ export let pickNeuralRendererComputedFunctions = {
         
         let ids = Object.keys(sizeInfo);
         let options = ids.map((s) => {
-            return {value: s, text: `${s}px x ${s}px`};
+            let txt = `${s}px x ${s}px`;
+            let sizeKeys = Object.keys(sizeInfo[s]);
+            txt += (sizeKeys.length === 1) 
+                ? " (" + sizeInfo[s][sizeKeys[0]] + ")" 
+                : "";
+
+            return {value: s, text: txt};
         });
 
         if (

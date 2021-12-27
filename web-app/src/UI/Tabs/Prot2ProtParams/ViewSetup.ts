@@ -28,10 +28,23 @@ export let viewSetupTemplate = /* html */ `
 
         <b-row style="margin-bottom:16px;">
             <b-col>
-                <b-form-radio @change="drawImg" style="margin:auto; display:table;" v-model="preModeSelected" name="some-radios" value="fast">Preview</b-form-radio>
+                <b-form-radio
+                    @change="drawImg"
+                    style="margin:auto; display:table;"
+                    v-model="preModeSelected"
+                    name="some-radios"
+                    value="fast"
+                >Preview</b-form-radio>
             </b-col>
             <b-col>
-                <b-form-radio @change="drawImg" style="margin:auto; display:table;" v-model="preModeSelected" name="some-radios" value="neural">Prot2Prot</b-form-radio>
+                <b-form-radio
+                    @change="drawImg"
+                    style="margin:auto; display:table;"
+                    v-model="preModeSelected"
+                    name="some-radios"
+                    value="neural"
+                    :disabled="neuralCheckBoxDisabled"
+                >Prot2Prot</b-form-radio>
             </b-col>
         </b-row>
 
@@ -73,6 +86,7 @@ export let viewSetupMethodsFunctions = {
     "drawImg"(): void {
         let startDrawImgTime = new Date().getTime();
         let isFast = (this["preModeSelected"] === "fast");
+
         makeImg(
             this["selectedDimensions"], 
             isFast
@@ -89,6 +103,8 @@ export let viewSetupMethodsFunctions = {
             if (isFast) {
                 drawImageDataOnCanvas(imageData, canvas);
             } else {
+                this["neuralCheckBoxDisabled"] = true;
+
                 let filename: string;
                 filename = `./models/${this.$store.state["selectedNeuralRenderer"]}/${this.$store.state["selectedDimensions"]}/${this.$store.state["selectedQuality"]}/model.json`;
                 // console.log(filename);
@@ -103,6 +119,8 @@ export let viewSetupMethodsFunctions = {
                             val: `Render time: ${deltaTime.toFixed(1)} seconds`
                         });
                     }
+
+                    this["neuralCheckBoxDisabled"] = false;
                 });
             }
         });
@@ -110,7 +128,8 @@ export let viewSetupMethodsFunctions = {
 }
 
 export let viewSetupData = {
-    "preModeSelected": "fast"
+    "preModeSelected": "fast",
+    "neuralCheckBoxDisabled": false
 }
 
 export let viewSetupComputedFunctions = {

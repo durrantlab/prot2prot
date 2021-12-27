@@ -25,9 +25,9 @@ export function setup(): void {
         "template": `
             <div class="text-center">
                 <b-alert show variant="warning">
-                    If you start over, your existing data will be deleted.
-                    Proceed only if you have already saved your data using
-                    the "Download" button(s) in the "Output" tab.
+                    If you start over, your existing image will be deleted.
+                    Proceed only if you have already saved your image using
+                    the "Download" button in the "Prot2Prot" tab.
                 </b-alert>
                 <form-button @click.native="onSubmitClick" variant="primary">
                     Start Over

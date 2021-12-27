@@ -36,14 +36,13 @@ export function replaceExt(filename: string, newExt: string): string {
  * @param  {string} pdbTxt  The original PDB text.
  * @returns string  the PDB text containing only the protein atoms.
  */
-export function keepOnlyProteinAtoms(pdbTxt: string): string {
+export function keepOnlyProteinAtoms(lines: string[]): string {
     let proteinResidues = [
         "ALA", "ARG", "ASH", "ASN", "ASP", "ASX", "CYM", "CYS", "CYX",
         "GLH", "GLN", "GLU", "GLX", "GLY", "HID", "HIE", "HIP", "HIS",
         "HSD", "HSE", "HSP", "ILE", "LEU", "LYN", "LYS", "MET", "MSE",
         "PHE", "PRO", "SER", "THR", "TRP", "TYR", "VAL"
     ];
-    let lines: string[] = pdbTxt.split("\n");
     let l = lines.length;
     let linesToKeep = "";
     for (let i = 0; i < l; i++) {
@@ -58,4 +57,33 @@ export function keepOnlyProteinAtoms(pdbTxt: string): string {
     }
 
     return linesToKeep;
+}
+
+export function scrollIt(elementID: string) {
+    let startPos = window.scrollY;
+    let startTime = new Date().getTime();
+    let duration = 500;
+    let targetPos = document.getElementById(elementID).getBoundingClientRect().top
+                    + window.pageYOffset
+                    - 20;
+    let deltaPos = targetPos - startPos;
+
+    function scrollStep() {
+        let ratio = (new Date().getTime() - startTime) / duration;
+        let curPos = startPos + ratio * deltaPos;
+        // console.log(ratio, startPos, curPos, targetPos);
+        window.scroll(0, curPos);
+        if (ratio < 1.0) {
+            requestAnimationFrame(() => {
+                scrollStep();
+            });
+        } else {
+            // Finalize
+            window.scroll(0, targetPos);
+        }
+    }
+
+    requestAnimationFrame(() => {
+        scrollStep();
+    });
 }

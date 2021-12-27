@@ -58,6 +58,10 @@ module.exports = {
             {
                 from: 'src/models',
                 to: 'models'
+            },
+            {
+                from: "src/tfjs",
+                to: "tfjs"
             }
             // {
             //     from: 'src/Pix2Pix',
@@ -95,6 +99,10 @@ module.exports = {
             },
             {
                 test: /\.pdbqt$/i,
+                use: 'raw-loader',
+            },
+            {
+                test: /\.pdb$/i,
                 use: 'raw-loader',
             },
             {

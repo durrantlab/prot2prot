@@ -1,6 +1,6 @@
 import { initializeVars } from "../../../Pix2Pix/InputImage/MakeImage";
-import { parsePDB } from "../../../Pix2Pix/InputImage/PDBParser";
-import { keepOnlyProteinAtoms, replaceExt } from "../../../Utils";
+import { parsePDB, pdbLines } from "../../../Pix2Pix/InputImage/PDBParser";
+import { keepOnlyProteinAtoms, replaceExt, scrollIt } from "../../../Utils";
 import { IConvert, IFileLoaded, IFileLoadError } from "../../Forms/FileLoader/Common/Interfaces";
 import { getExt } from "../../Forms/FileLoader/Common/Utils";
 
@@ -27,7 +27,10 @@ export let loadModelTemplate = /* html */ `
         </template>
     </file-loader>
 
-    <form-button @click.native="useExampleProt2ProtInputFiles" cls="float-right">Use Example Files</form-button>  <!-- variant="default" -->
+    <form-button
+        @click.native="useExampleProt2ProtInputFiles"
+        cls="float-right"
+    >Use Example Files</form-button>  <!-- variant="default" -->
 </sub-section>
 `;
 
@@ -53,6 +56,15 @@ export let loadModelMethodsFunctions = {
                 name: "pdbLoaded",
                 val: true
             });
+
+            setTimeout(() => {
+                scrollIt("pick-panel");
+                // document.getElementById("pick-panel").scrollTo({
+                //     top: 0,
+                //     left: 0,
+                //     behavior: 'smooth'
+                // });
+            }, 1000);
         });
 
         return;
@@ -85,18 +97,25 @@ export let loadModelMethodsFunctions = {
      * @returns void
      */
      "onShowKeepProteinOnlyClick"(e: any): void {
-        let linesToKeep = keepOnlyProteinAtoms(this.$store.state["receptorContents"]);
+        let linesToKeep = keepOnlyProteinAtoms(pdbLines);
 
-        this.$store.commit("setVar", {
-            name: "receptorContents",
-            val: linesToKeep
-        });
+        // Update some values.
+        this["onFileLoaded"]({
+            fileContents: linesToKeep,
+            filename: "5iy4.pdb",
+            id: "receptor"
+        });    
+
+        // Also update file names so example vina command line is valid.
+        // this.$store.commit("updateFileName", { type: "receptor", filename: "receptor_example.pdbqt" });
+
+        // return
 
         this.$store.commit("updateFileName", {
             type: "receptor",
             filename: replaceExt(
                 this.$store.state["receptorFileName"],
-                "protein.pdbqt"
+                "protein.pdb"
             )
         });
 
@@ -116,10 +135,11 @@ export let loadModelMethodsFunctions = {
 
         setTimeout(() => {  // Vue.nextTick doesn't work...
             // Update some values.
-            this.$store.commit("setVar", {
-                name: "receptorContents",
-                val: this.$store.state["receptorContentsExample"]
-            });
+            this["onFileLoaded"]({
+                fileContents: this.$store.state["receptorContentsExample"],
+                filename: "5iy4.pdb",
+                id: "receptor"
+            });    
 
             // Also update file names so example vina command line is valid.
             this.$store.commit("updateFileName", { type: "receptor", filename: "receptor_example.pdbqt" });

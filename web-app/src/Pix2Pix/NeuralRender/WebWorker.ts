@@ -1,5 +1,19 @@
-import { loadGraphModel, tidy, browser, expandDims, squeeze, div, sub, mul, add } from '@tensorflow/tfjs';
+// importScripts("https://cdn.jsdelivr.net/npm/@tensorflow/tfjs");
+importScripts("./tfjs/tfjs.js");
+importScripts("./tfjs/tf-backend-wasm.js");
+
+declare var tf;
+
+tf["wasm"]["setWasmPaths"]({
+    'tfjs-backend-wasm.wasm': './tfjs/tfjs-backend-wasm.wasm',
+    'tfjs-backend-wasm-simd.wasm': './tfjs/tfjs-backend-wasm-simd.wasm',
+    'tfjs-backend-wasm-threaded-simd.wasm': './tfjs/tfjs-backend-wasm-threaded-simd.wasm'
+});
+
+// import { loadGraphModel, tf.tidy, tf.browser, tf.expandDims, tf.squeeze, tf.div, tf.sub, tf.mul, tf.add } from '@tensorflow/tfjs';
 // import { memory, tensor, profile } from '@tensorflow/tfjs';
+
+// debugger
 
 const ctx: Worker = self as any;
 declare var WorkerGlobalScope: any;
@@ -8,6 +22,7 @@ let storedModel = {
     model: undefined
 };
 let out;
+let firstRender = true;
 
 // @ts-ignore : A strange shim to avoid bootstrap errors in the webworker.
 self["document"] = {
@@ -23,6 +38,7 @@ let inWebWorker = false;
 if (typeof WorkerGlobalScope !== "undefined" && ctx instanceof WorkerGlobalScope) {
     inWebWorker = true;
 }
+
 
 // Get the data from the main thread, if webworker.
 if (inWebWorker) {
@@ -52,51 +68,67 @@ function sendMsg(msg: string): void {
 }
 
 function neuralRender(modelPath: string, imageData: ImageData) {
-    let loadModelPromise = (modelPath !== storedModel.path) 
-        // ? loadLayersModel(modelPath)
-        ? new Promise((resolve, reject) => {
-            if (storedModel.model) {
-                storedModel.model.dispose();
-            }
 
-            resolve(
-                loadGraphModel(modelPath, {
+    let loadModelPromise: Promise<any>;
+    if (modelPath !== storedModel.path) {
+        if (storedModel.model) {
+            storedModel.model.dispose();
+        }
+
+        loadModelPromise = tf.ready()
+            .then(() => {
+                // ? loadLayersModel(modelPath)
+                let loadGraph = tf.loadGraphModel(modelPath, {
                     "onProgress"(v) {
                         sendMsg(`Loading Prot2Prot model (${Math.round(100 * v).toString()}%)...`);
                     }
-                })
-            );
-        })
-        : Promise.resolve(storedModel.model);
+                });
+                return Promise.resolve(loadGraph);
+            });
+    } else {
+        loadModelPromise = Promise.resolve(storedModel.model);
+    }
 
-    // console.log("1 MEMORY", memory());
     return loadModelPromise.then((model: any) => {
         storedModel.model = model;
         storedModel.path = modelPath;
 
         // tf.setBackend('cpu');
-        // console.log(tf.getBackend());
 
-        sendMsg("Rendering image...");
+        let renderMsg = "Rendering image...";
+    
+        if (firstRender) {
+            renderMsg += " First render takes longer.";
+            firstRender = false;
+        }
 
-        out = tidy(() => {
-            let data = browser
+        let backend = tf.getBackend();
+        console.log("TFJS WebWorker backend: " + backend);
+
+        if (backend.indexOf("webgl") === -1) {
+            renderMsg += " Render faster with Chrome, Edge, or Opera.";
+        }
+
+        sendMsg(renderMsg);
+
+        out = tf.tidy(() => {
+            let data = tf.browser
                 .fromPixels(imageData, 3);
     
             const processed = normalize(data);
             const channelFirst = processed.transpose([2, 0, 1])
     
             // Convert to shape [1, 256, 256, 3]
-            let batch = expandDims(channelFirst)
+            let batch = tf.expandDims(channelFirst)
     
             let pred = model.predict(batch);  //  as tf.Tensor<tf.Rank> | tf.TensorLike;
 
             pred = pred.transpose([0, 2, 3, 1]);
 
             // Convert to shape [256, 256, 3] and unnormalize
-            let out = unnormalize(squeeze(pred, [0]));  // was just 0
+            let out = unnormalize(tf.squeeze(pred, [0]));  // was just 0
             
-            return div(out, 255);
+            return tf.div(out, 255);
         });
 
         return out.data();
@@ -109,9 +141,9 @@ function neuralRender(modelPath: string, imageData: ImageData) {
 }
 
 function normalize(t) {
-    return sub(div(t, 127.5), 1)
+    return tf.sub(tf.div(t, 127.5), 1)
 }
 
 function unnormalize(t) {
-    return mul(add(t, 1), 127.5)
+    return tf.mul(tf.add(t, 1), 127.5)
 }
