@@ -1,4 +1,7 @@
-# Argument must be directory with PDB and input.png file.
+# Argument #1: directory with PDB and input.png file. 
+# Renders a single image.
+
+. which_style.sh
 
 export FILE="${1}/target.png"
 if test -f "$FILE"; then
@@ -7,7 +10,7 @@ if test -f "$FILE"; then
 fi
 
 # Copy files to the directory where rendering will take place.
-cp ../blender/base.blend ../blender/blender.py ../blender/paths.sh ../blender/vis.template.vmd ${1}/
+cp ../blender/${style}/base.blend ../blender/${style}/blender.py ../blender/paths.sh ../blender/${style}/vis.template.vmd ${1}/
 
 # Change to that directory
 cd ${1}/

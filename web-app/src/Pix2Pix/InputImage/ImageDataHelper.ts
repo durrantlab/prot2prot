@@ -1,15 +1,18 @@
-var createCanvas: Function = function(size: number): any { 
+var createCanvas: Function = function(sizeX: number, sizeY: number): any { 
     let canvas = document.createElement('canvas');
-    canvas.width = size;
-    canvas.height = size;
+    canvas.width = sizeX;
+    canvas.height = sizeY;
     return canvas;
 }
 
 // Use offscreen canvas if available.
-if (HTMLCanvasElement.prototype.transferControlToOffscreen) {
-    createCanvas = function(size: number): any {
-        const offscreenCanvas = new OffscreenCanvas(size, size);
-        return offscreenCanvas;
+if (typeof window !== 'undefined') {
+    // So assume running in browser, not nodejs.
+    if (HTMLCanvasElement.prototype.transferControlToOffscreen) {
+        createCanvas = function(sizeX: number, sizeY: number): any {
+            const offscreenCanvas = new OffscreenCanvas(sizeX, sizeY);
+            return offscreenCanvas;
+        }
     }
 }
 
@@ -47,7 +50,7 @@ export function getImageDataFromCanvasContext(context: CanvasRenderingContext2D)
 }
 
 export function makeInMemoryCanvas(imgSize: number, id: string): HTMLCanvasElement {
-    let canvas = createCanvas(imgSize);
+    let canvas = createCanvas(imgSize, imgSize);
     canvas.id = id;
     return canvas;
 }

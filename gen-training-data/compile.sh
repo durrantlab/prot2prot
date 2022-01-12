@@ -4,6 +4,8 @@ rm -rf dist
 
 # Copy files here
 cp -r ../web-app/src/Pix2Pix ./src/
+rm -rf src/Pix2Pix/NeuralRender
+# cp -r ../web-app/src/tfjs ./src/Pix2Pix/NeuralRender/
 
 # Compile
 tsc --project ./

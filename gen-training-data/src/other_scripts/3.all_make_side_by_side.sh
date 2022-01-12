@@ -1,6 +1,8 @@
+. which_style.sh
+
 rm tmp
 rm tmp2
-for filename in ../output/*/target.png; do
+for filename in ../output.${style}/*/target.png; do
    dirname=`dirname $filename`
    basename=`basename $filename`
    echo "Processing $dirname"
@@ -9,10 +11,10 @@ for filename in ../output/*/target.png; do
    if test -f "${dirname}/target.fixed.png"; then
        echo "    target.fixed.png exists."
    else
-       echo "cd ${dirname}; convert target.png -level 0%,78% target.fixed.png; cd -" >> tmp
+       echo "cd ${dirname}; convert target.png -level ${lower_level}%,${upper_level}% target.fixed.png; cd -" >> tmp
    fi
 
-   id=`echo $dirname | sed "s/...output.//g"`
+   id=`echo $dirname | sed "s/...output.${style}.//g"`
 
    if test -f "${dirname}/${id}.png"; then
        echo "    ${id}.png exists."

@@ -71,3 +71,4 @@ test/data/legacy_serialized.pt
 *~
 .idea
 web-app/*/models
+gen-training-data/src/Pix2Pix

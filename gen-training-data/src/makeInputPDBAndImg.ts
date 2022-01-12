@@ -1,3 +1,5 @@
+// For node.js
+
 const fs = require("fs");
 import { makeImg, updateRotMat, updateOffsetVec, getCoorsTransformed, rotMat, offsetVec, initializeVars } from './Pix2Pix/InputImage/MakeImage';
 import { parsePDB, getPDBTextUpdatedCoors, removeAllOfElement, replaceElement, elements, mergeAtomTypes } from './Pix2Pix/InputImage/PDBParser';
@@ -14,6 +16,9 @@ let removeWatersIfPresent = Math.random() < 0.5;
 // Load the PDB file
 let pdbFile = process.argv[2];
 let pdbTxt = fs.readFileSync(pdbFile).toString();
+
+// Also get the id
+let id = process.argv[3];
 
 if (removeWatersIfPresent) {
     let lines = pdbTxt.split(/\n/g);
@@ -73,9 +78,9 @@ parsePDB(pdbTxt).then(() => {
         let xRot = Math.random() * 360;
         let yRot = Math.random() * 360;
         let zRot = Math.random() * 360;
-        updateRotMat("X", xRot);
-        updateRotMat("Y", yRot);
-        updateRotMat("Z", zRot);
+        updateRotMat([1, 0, 0], xRot);
+        updateRotMat([0, 1, 0], yRot);
+        updateRotMat([0, 0, 1], zRot);
         
         // Distance from camera to protein COG.
         let pdbDist = (150 - closestAllowedDist) * Math.random() + closestAllowedDist;
@@ -83,16 +88,18 @@ parsePDB(pdbTxt).then(() => {
     }
     transformPDBCoors();
 
-    function saveTextOutput() {
+    function saveTextOutput(id) {
+        let dir = "../output." + id + "/";
+
         // Make sure output directory exists.
-        if (!fs.existsSync("../output/")){
-            fs.mkdirSync("../output/");
+        if (!fs.existsSync(dir)){
+            fs.mkdirSync(dir);
         }
         
         // Pick an ID for this calculation
-        let id = "../output/model." + Math.random().toString().replace(/\./g, "") + "/";
-        if (!fs.existsSync(id)){
-            fs.mkdirSync(id);
+        let fileId = dir + "model." + Math.random().toString().replace(/\./g, "") + "/";
+        if (!fs.existsSync(fileId)){
+            fs.mkdirSync(fileId);
         }
 
         // Get the updated coordinates.
@@ -100,18 +107,18 @@ parsePDB(pdbTxt).then(() => {
         let pdbTxt = getPDBTextUpdatedCoors(coors);
 
         // Save the transformed PDB file.
-        fs.writeFileSync(id + "model.no_atom_merge.pdb", pdbTxt);
+        fs.writeFileSync(fileId + "model.no_atom_merge.pdb", pdbTxt);
 
         // Merge the rare atoms into single type and save that too.
         mergeAtomTypes(true);
         coors = getCoorsTransformed();
         pdbTxt = getPDBTextUpdatedCoors(coors);
-        fs.writeFileSync(id + "model.pdb", pdbTxt);
+        fs.writeFileSync(fileId + "model.pdb", pdbTxt);
 
         // Save info
-        fs.writeFileSync(id + "info.json", JSON.stringify({
+        fs.writeFileSync(fileId + "info.json", JSON.stringify({
             "sourceFile": pdbFile,
-            "id": id,
+            "id": fileId,
             "rotMatrix": rotMat.arraySync(),
             "offsetVector": offsetVec.arraySync(),
             "keptHydrogens": keptHydrogens,
@@ -119,9 +126,9 @@ parsePDB(pdbTxt).then(() => {
             "removeWatersIfPresent": removeWatersIfPresent
         }, null, 4));
 
-        return id;
+        return fileId;
     }
-    let id = saveTextOutput();
+    let fileId = saveTextOutput(id);
 
     // Use the node.js-compatible canvas
     updateCreateCanvasFunc(createCanvas);
@@ -133,7 +140,7 @@ parsePDB(pdbTxt).then(() => {
         drawImageDataOnCanvas(imgData, newCanvas);
         
         // Save that canvas image
-        const out = fs.createWriteStream(id + 'input.png');
+        const out = fs.createWriteStream(fileId + 'input.png');
         const stream = (newCanvas as any).createPNGStream()
         stream.pipe(out)
     });
