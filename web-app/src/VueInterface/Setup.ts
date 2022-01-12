@@ -2,8 +2,8 @@
 // LICENSE.md or go to https://opensource.org/licenses/Apache-2.0 for full
 // details. Copyright 2021 Jacob D. Durrant.
 
-import * as FileInputSetup from "../UI/Forms/FileLoader/Setup";
-import * as FileInputMain from "../UI/Forms/FileLoaderMain.Vue";
+// import * as FileInputSetup from "../UI/Forms/FileLoader/Setup";
+// import * as FileInputMain from "../UI/Forms/FileLoaderMain.Vue";
 import * as Prot2ProtParams from "../UI/Tabs/Prot2ProtParams";
 import * as StartOver from "../UI/Tabs/StartOver";
 import * as FormGroup from "../UI/Forms/FormGroup";
@@ -11,9 +11,12 @@ import * as OpenModal from "../UI/Modal/OpenModal";
 import * as SubSection from "../UI/SubSection";
 import * as FormButton from "../UI/Forms/FormButton";
 import * as FormSelect  from "../UI/Forms/FormSelect";
+import { setupMolLoader } from '../UI/Forms/FileLoaderSystem/MolLoader.Vue/index';
+import { setupVueXStore } from "./Store";
+// @ts-ignore
+import ExampleReceptorPDBQT from "../example/5iy4.pdb";
 
 declare var Vue;
-declare var Vuex;
 
 declare var BootstrapVue;
 
@@ -23,15 +26,14 @@ declare var BootstrapVue;
  */
 export function setup(): void {
     Vue.use(BootstrapVue)
-    Vue.use(Vuex)
+    setupVueXStore(ExampleReceptorPDBQT);
 
     SubSection.setup();
     FormButton.setup();
     FormSelect.setup();
     OpenModal.setup();
     FormGroup.setup();
-    FileInputSetup.setupFileLoader();
-    FileInputMain.setup();
+    setupMolLoader();
     Prot2ProtParams.setup();
     StartOver.setup();
 }

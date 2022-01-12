@@ -1,31 +1,25 @@
 import { initializeVars } from "../../../Pix2Pix/InputImage/MakeImage";
 import { parsePDB, pdbLines } from "../../../Pix2Pix/InputImage/PDBParser";
 import { keepOnlyProteinAtoms, replaceExt, scrollIt } from "../../../Utils";
-import { IConvert, IFileLoaded, IFileLoadError } from "../../Forms/FileLoader/Common/Interfaces";
-import { getExt } from "../../Forms/FileLoader/Common/Utils";
+import { IConvert, IFileInfo, IFileLoadError } from '../../Forms/FileLoaderSystem/Common/Interfaces';
 
 export let loadModelTemplate = /* html */ `
 <sub-section title="Input PDB File" v-if="showFileInputs">
-    <file-loader
-        id="receptor"
-        description="Format: PDB"
-        accept=".pdb,.ent" 
-        :required="true"
-        :allowUrlInput="false"
+    <mol-loader
+        :allowDeleteHeteroAtoms="true"
+        :allowExtractHeteroAtoms="true"
         :multipleFiles="false"
-        :countDownToNextInput="-1"
-        @onError="showFileLoaderError"
-        @onFileLoaded="onFileLoaded"
-    >
-        <template v-slot:extraDescription>
-            <span v-if="showKeepProteinOnlyLink">
-                <a href='' @click="onShowKeepProteinOnlyClick($event);">Automatically remove all non-protein atoms?</a>
-            </span>
-            <span v-else>
-                <b>(Removed all non-protein atoms!)</b>
-            </span>
-        </template>
-    </file-loader>
+        :fileLoaderPlugins="['pdb-id-input', 'file-loader-input']"
+        label="Receptor"
+        description="Format: PDB"
+        extraDescription=""
+        accept=".pdb,.ent"
+        convert=""
+        :required="true"
+        @onError="onError"
+        @onFileReady="onFileReady"
+    ></mol-loader>
+    <!-- @onExtractAtoms="onExtractReceptorAtomsToLigand" -->
 
     <form-button
         @click.native="useExampleProt2ProtInputFiles"
@@ -35,14 +29,14 @@ export let loadModelTemplate = /* html */ `
 `;
 
 export let loadModelMethodsFunctions = {
-    "showFileLoaderError"(error: IFileLoadError): void {
+    "onError"(error: IFileLoadError): void {
         this.onError(
             error.title,
             error.body
         );
     },
 
-    "onFileLoaded"(fileInfo: IFileLoaded): void {
+    "onFileReady"(fileInfo: IFileInfo): void {
         if (fileInfo.fileContents === "") {
             // Not really loaded
             return;
@@ -100,7 +94,7 @@ export let loadModelMethodsFunctions = {
         let linesToKeep = keepOnlyProteinAtoms(pdbLines);
 
         // Update some values.
-        this["onFileLoaded"]({
+        this["onFileReady"]({
             fileContents: linesToKeep,
             filename: "5iy4.pdb",
             id: "receptor"
@@ -135,7 +129,7 @@ export let loadModelMethodsFunctions = {
 
         setTimeout(() => {  // Vue.nextTick doesn't work...
             // Update some values.
-            this["onFileLoaded"]({
+            this["onFileReady"]({
                 fileContents: this.$store.state["receptorContentsExample"],
                 filename: "5iy4.pdb",
                 id: "receptor"
@@ -146,30 +140,30 @@ export let loadModelMethodsFunctions = {
         }, 100);
     },
 
-    "onConvertNeeded"(convertInfo: IConvert): void {
-        // Set the filename.
-        this.$store.commit("updateFileName", {
-            type: convertInfo.id,
-            filename: convertInfo.filename,
-        });
+    // "onConvertNeeded"(convertInfo: IConvert): void {
+    //     // Set the filename.
+    //     this.$store.commit("updateFileName", {
+    //         type: convertInfo.id,
+    //         filename: convertInfo.filename,
+    //     });
 
-        // let ext = getExt(convertInfo.filename);
+    //     // let ext = getExt(convertInfo.filename);
 
-        // this.getModelFileContents(val).then((text: string) => {
-            // this.$store.commit("openConvertFileModal", {
-            //     ext: ext,
-            //     type: convertInfo.id,
-            //     file: convertInfo.fileContents,
-            //     onConvertCancel: convertInfo.onConvertCancel,
-            //     onConvertDone: convertInfo.onConvertDone,
-            // });
-        // });
+    //     // this.getModelFileContents(val).then((text: string) => {
+    //         // this.$store.commit("openConvertFileModal", {
+    //         //     ext: ext,
+    //         //     type: convertInfo.id,
+    //         //     file: convertInfo.fileContents,
+    //         //     onConvertCancel: convertInfo.onConvertCancel,
+    //         //     onConvertDone: convertInfo.onConvertDone,
+    //         // });
+    //     // });
 
-        alert("");
-        // Handle below!!!
-        // convertInfo.onConvertCancel
-        // convertInfo.onConvertDone
-    },
+    //     alert("");
+    //     // Handle below!!!
+    //     // convertInfo.onConvertCancel
+    //     // convertInfo.onConvertDone
+    // },
 }
 
 export let loadModelComputedFunctions = {

@@ -7,24 +7,23 @@ import * as UI from "./UI/UI";
 import * as VueSetup from "./VueInterface/Setup";
 import { VERSION } from "./Version";
 import { hasNextLigandUrlParam } from './URLParams';
-import { createFileSystemDatabase } from "./UI/Forms/FileLoader/DataBase";
 declare var ga;
 
 console.log("Prot2Prot Web App " + VERSION);
 
 // Create/load the database.
-createFileSystemDatabase(
-    ["receptor"], // , "ligand", "crystal", "output"],
-    // delete previous database if "nextLigand" not in url
-    !hasNextLigandUrlParam()
-)
-.then(() => {
+// createFileSystemDatabase(
+//     ["receptor"], // , "ligand", "crystal", "output"],
+//     // delete previous database if "nextLigand" not in url
+//     !hasNextLigandUrlParam()
+// )
+// .then(() => {
     // Setup Vue
     VueSetup.setup();
 
     // Setup UI
     UI.setup();
-});
+// });
 
 // If the url has "durrantlab" in it, contact google analytics. Logging all
 // usage would be ideal for grant reporting, but some users may wish to run

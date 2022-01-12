@@ -1,11 +1,14 @@
 import { store } from '../../VueInterface/Store';
 import { makeInMemoryCanvas, getImageDataFromCanvas } from '../InputImage/ImageDataHelper';
 import { loadTfjs, tf } from '../LoadTF';
+import Worker from 'web-worker';
+import { neuralRenderInWorker } from './WebWorkerSupport';
 
 let inferenceRunning = false;
 let webWorker;
 
-function setupWebWorker(onmessage: Function): void {
+let runWebWorker = function(modelPath, imageData, resolveFunc) {
+    // Uses a web worker (default).
     if (webWorker === undefined) {
         webWorker = new Worker("./renderWebWorker.js?" + Math.random().toString());
     }
@@ -13,12 +16,43 @@ function setupWebWorker(onmessage: Function): void {
     if (typeof(Worker) !== "undefined") {
         webWorker.onmessage = (event: MessageEvent) => {
             let data = event.data;
-            onmessage(data);
+
+            switch (data["cmd"]) {
+                case "inference":
+                    inferenceRunning = false;
+                    resolveFunc(data["out"] as Float32Array);
+                    break;
+                case "message":
+                    store.commit("setVar", {
+                        name: "webWorkerInfo",
+                        val: data["msg"]
+                    });
+            }
         };
     }
+
+    webWorker.postMessage({
+        "cmd": "inference",
+        "data": {
+            "modelPath": modelPath,
+            "imageData": imageData
+        }
+    });
+}
+
+export function avoidWorkers() {
+    // Run inference without using web workers (for use in nodejs).
+    runWebWorker = function(modelPath, imageData, resolveFunc) {
+        neuralRenderInWorker(modelPath, imageData, tf)
+        .then((outTypedArray) => {
+            resolveFunc(outTypedArray);
+        });
+    };
 }
 
 export function neuralRender(modelPath: string, imageData: ImageData): Promise<ImageData> {
+    // avoidWorkers()
+
     if (inferenceRunning) {
         console.warn("Already running inference...");
         return Promise.resolve(undefined);
@@ -31,33 +65,14 @@ export function neuralRender(modelPath: string, imageData: ImageData): Promise<I
     return loadTfjs()
         .then(() => {
             return new Promise((resolve, reject) => {
-                setupWebWorker((data) => {
-                    switch (data["cmd"]) {
-                        case "inference":
-                            inferenceRunning = false;
-                            resolve(data["out"] as Float32Array);
-                            break;
-                        case "message":
-                            store.commit("setVar", {
-                                name: "webWorkerInfo",
-                                val: data["msg"]
-                            });
-                    }
-                });
-
+                
                 store.commit("setVar", {
                     name: "webWorkerInfo",
                     val: "Sending data to worker thread..."
                 });
-
-                webWorker.postMessage({
-                    "cmd": "inference",
-                    "data": {
-                        "modelPath": modelPath,
-                        "imageData": imageData
-                    }
-                });
-            });
+                
+                runWebWorker(modelPath, imageData, resolve);
+            })
         })
         .then((imageDataArray) => {
             // Convert back to tensor.

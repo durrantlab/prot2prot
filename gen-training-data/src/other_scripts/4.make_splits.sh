@@ -13,7 +13,7 @@ mkdir -p ../output_splits_${style}/1024/train
 mkdir -p ../output_splits_${style}/1024/val
 
 # Make splits
-ls ../output/*/model*png > t
+ls ../output.${style}/*/model*png > t
 head -n 150 t > t2
 tail -n 150 t > t3
 cat t t2 t3 | sort | uniq -c | grep " 1 " | awk '{print $2}' > t4
