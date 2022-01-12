@@ -21,10 +21,11 @@ export function loadTfjs(): Promise<any> {
         });
     } else {
         // Assume nodejs.
+        // '@tensorflow/tfjs'
         return import(
             /* webpackChunkName: "tf" */ 
             /* webpackMode: "lazy" */
-            '@tensorflow/tfjs'
+            "@tensorflow/tfjs-node"
         ).then((tfMod) => {
             tf = tfMod;
             return Promise.resolve(tf);

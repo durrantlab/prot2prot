@@ -20,7 +20,6 @@ export function neuralRenderInWorker(modelPath: string, imageData: ImageData, tf
         loadModelPromise = tf.ready()
             .then(() => {
                 // ? loadLayersModel(modelPath)
-                console.log("ggg", modelPath)
                 let loadGraph = tf.loadGraphModel(modelPath, {
                     "onProgress"(v) {
                         if (sendMsgFunc) {
@@ -35,7 +34,6 @@ export function neuralRenderInWorker(modelPath: string, imageData: ImageData, tf
     }
 
     return loadModelPromise.then((model: any) => {
-        console.log("hhh2");
         storedModel.model = model;
         storedModel.path = modelPath;
 
@@ -60,15 +58,15 @@ export function neuralRenderInWorker(modelPath: string, imageData: ImageData, tf
         }
 
         out = tf.tidy(() => {
-            let data = tf.browser
-                .fromPixels(imageData, 3);
+            console.log(Object.keys(imageData));
+            let data = tf.browser.fromPixels(imageData, 3);
     
             const processed = normalize(data, tf);
             const channelFirst = processed.transpose([2, 0, 1])
     
             // Convert to shape [1, 256, 256, 3]
             let batch = tf.expandDims(channelFirst)
-    
+
             let pred = model.predict(batch);  //  as tf.Tensor<tf.Rank> | tf.TensorLike;
 
             pred = pred.transpose([0, 2, 3, 1]);

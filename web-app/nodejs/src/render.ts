@@ -12,8 +12,8 @@ import { avoidWorkers, neuralRender } from '../../src/Pix2Pix/NeuralRender/index
 import { setupFakeVueXStore } from '../../src/VueInterface/Store';
 const { createCanvas } = require('canvas')
 var path = require('path')
-const tf = require("@tensorflow/tfjs-node");
-console.log(tf)
+// const tf = require("@tensorflow/tfjs-node");
+// console.log(tf)
 
 function getParameters() {
     function myParseInt(value, _) {
@@ -192,12 +192,25 @@ parsePDB(fs.readFileSync(params.pdb).toString())
 
         // Feed the image data into the neural network.
 
-        let filename = `../../dist/models/simple_surf/1024/uint8/model.json`;
+        // let filename = `../../dist/models/simple_surf/1024/uint8/model.json`;
+        let filename = `models/simple_surf/1024/uint8/model.json`;
 
         // console.log(filename);
         // filename = "./models/simple_surf/256/uint8/model.json";
         // filename = "./models/simple_surf/256/full/model.json";
-        neuralRender(path.resolve(filename), imgData).then((imgOutData: ImageData) => {
+        // neuralRender("file://" + path.resolve(filename), imgData).then((imgOutData: ImageData) => {
+        
+        // You need to redo imgData to get it to work with tensorflowjs in node.
+        console.log("FAILS. BUT SEE https://stackoverflow.com/questions/69063145/how-to-pass-image-from-image-url-to-tensorflow-tf-frompixels-method")
+        let imgData2 = {
+            "data": new Uint32Array(imgData["data"].buffer),
+            "height": params.reso,
+            "width": params.reso
+        }
+
+        console.log(imgData2);
+
+        neuralRender("file://" + filename, imgData2).then((imgOutData: ImageData) => {
             if (imgOutData !== undefined) {
                 drawImageDataOnCanvas(imgOutData, newCanvas);
                 // let deltaTime = (new Date().getTime() - startDrawImgTime) / 1000;
