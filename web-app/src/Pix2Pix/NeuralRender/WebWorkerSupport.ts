@@ -8,7 +8,7 @@ let storedModel = {
 let out;
 let firstRender = true;
 
-export function neuralRenderInWorker(modelPath: string, imageData: ImageData, tf, sendMsgFunc=undefined): Promise<any> {
+export function neuralRenderInWorker(modelPath: string, imageData: ImageData | Uint8Array, tf, sendMsgFunc=undefined): Promise<any> {
     console.log(modelPath);
 
     let loadModelPromise: Promise<any>;
@@ -47,7 +47,7 @@ export function neuralRenderInWorker(modelPath: string, imageData: ImageData, tf
         }
 
         let backend = tf.getBackend();
-        console.log("TFJS WebWorker backend: " + backend);
+        console.log("TFJS backend: " + backend);
 
         if (backend.indexOf("webgl") === -1) {
             renderMsg += " Render faster with Chrome, Edge, or Opera.";
@@ -58,9 +58,15 @@ export function neuralRenderInWorker(modelPath: string, imageData: ImageData, tf
         }
 
         out = tf.tidy(() => {
-            console.log(Object.keys(imageData));
-            let data = tf.browser.fromPixels(imageData, 3);
-    
+            let data;
+            if (imageData instanceof Uint8Array) {
+                // Probably running in node, not the browser.
+                data = tf.node.decodePng(imageData, 3);
+            } else {
+                // Probably running in the browser, using ImageData.
+                data = tf.browser.fromPixels(imageData, 3);
+            }
+
             const processed = normalize(data, tf);
             const channelFirst = processed.transpose([2, 0, 1])
     

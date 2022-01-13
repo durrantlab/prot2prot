@@ -10,7 +10,8 @@ cp -r nodejs/src/* ./
 rm -rf nodejs
 find . -name "*.d.ts" -exec rm '{}' \;
 mv src modules
-cat render.js  | sed "s|../../src/|./modules/|g" > t; mv t render.js 
+ls *.js | awk '{print "cat " $1 " | sed \"s|../../src/|./modules/|g\" > t; mv t " $1}' | bash
+# cat render.js  | sed "s|../../src/|./modules/|g" > t; mv t render.js 
 
 # Below is temp
 ln -s ../models ./
