@@ -1,4 +1,5 @@
 import { loadTfjs, tf } from '../../LoadTF';
+import { initializeVars } from '../MakeImage';
 import { mergeAtomsData } from './MergedAtoms';
 import { vdwRadii } from './VDWRadii';
 
@@ -10,6 +11,9 @@ export let vdw: any;  // tf.Tensor<tf.Rank>;
 export let pdbLines: string[];
 
 export function parsePDB(pdbText: string): Promise<any> {
+    // Reset the rotation and offset vectors, in case reloading PDB.
+    initializeVars(true);
+
     // Update radii for merged atom types
     for (let atomType in mergeAtomsData) {
         vdwRadii[atomType] = mergeAtomsData[atomType][2];

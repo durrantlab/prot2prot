@@ -9,8 +9,6 @@ let out;
 let firstRender = true;
 
 export function neuralRenderInWorker(modelPath: string, imageData: ImageData | Uint8Array, tf, sendMsgFunc=undefined): Promise<any> {
-    console.log(modelPath);
-
     let loadModelPromise: Promise<any>;
     if (modelPath !== storedModel.path) {
         if (storedModel.model) {
@@ -47,11 +45,12 @@ export function neuralRenderInWorker(modelPath: string, imageData: ImageData | U
         }
 
         let backend = tf.getBackend();
-        console.log("TFJS backend: " + backend);
-
+        
         if (backend.indexOf("webgl") === -1) {
             renderMsg += " Render faster with Chrome, Edge, or Opera.";
         }
+        
+        renderMsg += "\n\nTFJS backend: " + backend + ".";
 
         if (sendMsgFunc) {
             sendMsgFunc(renderMsg);

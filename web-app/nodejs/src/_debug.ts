@@ -12,12 +12,12 @@ export function saveDebugTextFiles(params, rotMat, offsetVec) {
     let pdbTxt = getPDBTextUpdatedCoors(coors);
 
     // Save the transformed PDB file.
-    fs.writeFileSync(params.out + ".transformed.pdb", pdbTxt);
+    fs.writeFileSync(params.out_to_use + ".transformed.pdb", pdbTxt);
 
     // Save info
-    fs.writeFileSync(params.out + ".info.json", JSON.stringify({
+    fs.writeFileSync(params.out_to_use + ".info.json", JSON.stringify({
         "sourceFile": params.pdb,
-        "outFile": params.out,
+        "outFile": params.out_to_use,
         "rotMatrix": rotMat.arraySync(),
         "offsetVector": offsetVec.arraySync()
     }, null, 4));

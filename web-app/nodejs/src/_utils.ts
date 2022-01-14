@@ -14,17 +14,10 @@ export function setNodeMode() {
     runningInNode();    
 }
 
-export function processIntermediateImage(params, imgData, newCanvas): Uint8Array {
+export function processIntermediateImage(params, imgData, newCanvas): Promise<Uint8Array> {
     // Put that image data on a canvas
     drawImageDataOnCanvas(imgData, newCanvas);
     
-    // Save that canvas image if needed.
-    if (params.debug || params.intermediate) {
-        const out = fs.createWriteStream(params.out + '.intermediate.png');
-        const stream = (newCanvas as any).createPNGStream()
-        stream.pipe(out)
-    }
-
     // Convert the image into a PNG-encoded image in an Uint8Array. See
     // https://js.tensorflow.org/api_node/3.12.0/#node.decodePng 
     let uint8View = new Uint8Array(
@@ -32,5 +25,19 @@ export function processIntermediateImage(params, imgData, newCanvas): Uint8Array
         newCanvas.toBuffer('image/png').buffer
     );
 
-    return uint8View;
+    // Save that canvas image if needed.
+    if (["intermediate", "both"].indexOf(params.mode) !== -1) {
+        const out = fs.createWriteStream(params.out_to_use + '.intermediate.png');
+        const stream = (newCanvas as any).createPNGStream()
+        let p = stream.pipe(out)
+
+        return new Promise((resolve, reject) => {
+            p.on('finish', function() {
+                console.log("    Saved " + params.out_to_use + '.intermediate.png');
+                resolve(uint8View);
+            });
+        })
+    }
+
+    return Promise.resolve(uint8View);
 }

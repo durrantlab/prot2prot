@@ -22,9 +22,14 @@ export function getCoorsTransformed(): any {  // tf.Tensor<tf.Rank>
     });
 }
 
-export function initializeVars() {
+export function initializeVars(reset = false) {
+    if (tf === undefined) {
+        // Not ready yet.
+        return;
+    }
+
     // Set initial values if needed.
-    if (rotMat === undefined) {
+    if ((rotMat === undefined) || reset) {
         rotMat = tf.tensor(
             [
                 [1, 0, 0],

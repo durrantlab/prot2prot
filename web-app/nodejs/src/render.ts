@@ -10,6 +10,7 @@ const Canvas = require('canvas')
 import { getParameters } from "./_params";
 import { saveDebugTextFiles } from './_debug';
 import { processIntermediateImage, setNodeMode } from './_utils';
+import { get_rotation_angles } from './_rots';
 
 // Get commandline parameters.
 let params = getParameters();
@@ -20,90 +21,93 @@ setNodeMode();
 // Get PDB text.
 let pdbTxt = fs.readFileSync(params.pdb).toString();
 
-function transformPDBCoors(z_rot?: number) {
-    if (z_rot === undefined) {
-        z_rot = params.z_rot;
+function transformPDBCoors(rotDist?: number[]) {
+    if (rotDist === undefined) {
+        rotDist = [params.x_rot, params.y_rot, params.z_rot, params.dist];
     }
 
     // Decide on how to position the PDB
     initializeVars();
-    updateRotMat([1, 0, 0], params.x_rot);
-    updateRotMat([0, 1, 0], params.y_rot);
-    updateRotMat([0, 0, 1], z_rot);
+    updateRotMat([1, 0, 0], rotDist[0]);
+    updateRotMat([0, 1, 0], rotDist[1]);
+    updateRotMat([0, 0, 1], rotDist[2]);
     
     // Distance from camera to protein COG.
-    updateOffsetVec(0, 0, params.dist);
+    updateOffsetVec(0, 0, rotDist[3]);
 }
 
-function main(z_rots?: number[], frame?: number) {
-    if (z_rots === undefined) {
-        z_rots = [params.z_rot];
+console.log("\n");
+
+function main(rotDists?: number[][], frame?: number) {
+    if (rotDists === undefined) {
+        rotDists = [[params.x_rot, params.y_rot, params.z_rot, params.dist]];
     }
 
-    if (z_rots.length == 0) {
+    if (rotDists.length == 0) {
         return;
     }
 
-    let z_rot = z_rots.shift();
+    if (frame) {
+        console.log("Rendering frame " + frame.toString() + "...")
+    }
 
     parsePDB(pdbTxt)
     .then(() => {
-        transformPDBCoors(z_rot);
+        // coorsTensor.print();
+
+        transformPDBCoors(rotDists.shift());
         saveDebugTextFiles(params, rotMat, offsetVec)
-    
+
         // Make the input imagedata.
+        let newCanvas;
+        let startDrawImgTime = new Date().getTime();
         makeImg(params.reso, new InputColorScheme())
         .then((imgData) => {
-            let newCanvas = makeInMemoryCanvas(params.reso, "tmp");
-            let uint8View = processIntermediateImage(params, imgData, newCanvas);
-    
+            params.out_to_use = frame 
+                ? params.out + "." + ("00000" + frame.toString()).slice(-5) + ".png"
+                : params.out;
+
+            newCanvas = makeInMemoryCanvas(params.reso, "tmp");
+            return processIntermediateImage(params, imgData, newCanvas);
+        })
+        .then((uint8View: Uint8Array) => {
+            if (["render", "both"].indexOf(params.mode) === -1) {
+                // Skip the rendering step.
+                return Promise.resolve();
+            }
+
             // Feed the image data into the neural network.
-    
             // let filename = `../../dist/models/simple_surf/1024/uint8/model.json`;
-            let filename = `models/simple_surf/1024/uint8/model.json`;
-    
-            let startDrawImgTime = new Date().getTime();
-            neuralRender("file://" + filename, uint8View, Canvas.Image)
+            return neuralRender("file://" + params.model_js, uint8View, Canvas.Image)
             .then((imgOutData: ImageData) => {
                 // if (imgOutData !== undefined) {
                 drawImageDataOnCanvas(imgOutData, newCanvas);
                 
                 // Save the image
-                let outFileName = frame 
-                    ? params.out + "." + frame.toString() + ".png"
-                    : params.out;
-                console.log(outFileName);
-                const out = fs.createWriteStream(outFileName);
-                const stream = (newCanvas as any).createPNGStream()
-                let p = stream.pipe(out)
+                const out = fs.createWriteStream(params.out_to_use);
+                const stream = (newCanvas as any).createPNGStream();
+                let p = stream.pipe(out);
                 
                 return new Promise((resolve, reject) => {
                     p.on('finish', function() {
+                        console.log("    Saved " + params.out_to_use);
                         resolve(undefined);
                     });
                 })
                 // }
-            })
-            .then(() => {
-                let deltaTime = (new Date().getTime() - startDrawImgTime) / 1000;
-                console.log("Render time: " + deltaTime.toString() + " secs");
+            });
+        })
+        .then(() => {
+            let deltaTime = (new Date().getTime() - startDrawImgTime) / 1000;
+            console.log("    Render time: " + deltaTime.toString() + " secs\n");
 
-                // Done rendering. Move to next frame if there is one.
-                main(z_rots, frame ? frame + 1 : undefined);
-            })
-        });
+            // Done rendering. Move to next frame if there is one.
+            main(rotDists, frame ? frame + 1 : undefined);
+        })
     });
 }
 
-let z_rots: number[] = undefined;
-let frame: number = undefined;
-if (params.turn_table) {
-    z_rots = [];
-    for (let i = 0; i < 360; i = i + 1) {
-        z_rots.push(i);
-    }
-    frame = 1;
-}
+let [frame, rots] = get_rotation_angles(params);
 
-main(z_rots, frame);
+main(rots, frame);
 
