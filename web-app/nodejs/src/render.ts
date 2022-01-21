@@ -33,7 +33,9 @@ function transformPDBCoors(rotDist?: number[]) {
     updateRotMat([0, 0, 1], rotDist[2]);
     
     // Distance from camera to protein COG.
-    updateOffsetVec(0, 0, rotDist[3]);
+    if (params.dist !== 9999) {
+        updateOffsetVec(0, 0, rotDist[3]);
+    }
 }
 
 console.log("\n");
@@ -51,10 +53,13 @@ function main(rotDists?: number[][], frame?: number): void {
         console.log("Rendering frame " + frame.toString() + "...")
     }
 
-    parsePDB(pdbTxt, params.radius_scale, params.atom_names)
+    parsePDB(pdbTxt, params.dist !== 9999, params.radius_scale, params.atom_names)
     .then(() => {
-        console.log("hi");
         // coorsTensor.print();
+
+        params.out_to_use = frame 
+        ? params.out + "." + ("00000" + frame.toString()).slice(-5) + ".png"
+        : params.out;
 
         transformPDBCoors(rotDists.shift());
         saveDebugTextFiles(params, rotMat, offsetVec)
@@ -64,10 +69,6 @@ function main(rotDists?: number[][], frame?: number): void {
         let startDrawImgTime = new Date().getTime();
         makeImg(params.reso, new InputColorScheme())
         .then((imgData) => {
-            params.out_to_use = frame 
-                ? params.out + "." + ("00000" + frame.toString()).slice(-5) + ".png"
-                : params.out;
-
             newCanvas = makeInMemoryCanvas(params.reso, "tmp");
             return processIntermediateImage(params, imgData, newCanvas);
         })

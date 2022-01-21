@@ -10,7 +10,7 @@ export let elements: string[];
 export let vdw: any;  // tf.Tensor<tf.Rank>;
 export let pdbLines: string[];
 
-export function parsePDB(pdbText: string, radiusScale = 1.0, atomNamesToKeep: string[] = undefined): Promise<any> {
+export function parsePDB(pdbText: string, recenter = true, radiusScale = 1.0, atomNamesToKeep: string[] = undefined): Promise<any> {
     // Reset the rotation and offset vectors, in case reloading PDB.
     initializeVars(true);
 
@@ -61,7 +61,9 @@ export function parsePDB(pdbText: string, radiusScale = 1.0, atomNamesToKeep: st
         coorsTensor = tf.tensor(coors)
     
         // Center at origin
-        coorsTensor = coorsTensor.sub(coorsTensor.mean(0));
+        if (recenter) {
+            coorsTensor = coorsTensor.sub(coorsTensor.mean(0));
+        }
 
         return Promise.resolve(undefined);
     });

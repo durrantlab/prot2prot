@@ -129,7 +129,7 @@ export function getParameters() {
         .addOption(
             new commander.Option(
                 "-d, --dist <number>", 
-                "The distance from the camera."
+                "The distance from the camera. If 9999, the distance is unchanged from the PDB."
             )
             .default(150)
             .argParser(myParseFloat)

@@ -13,6 +13,7 @@ export function saveDebugTextFiles(params, rotMat, offsetVec) {
 
     // Save the transformed PDB file.
     fs.writeFileSync(params.out_to_use + ".transformed.pdb", pdbTxt);
+    console.log("    Saved " + params.out_to_use + ".transformed.pdb");
 
     // Save info
     fs.writeFileSync(params.out_to_use + ".info.json", JSON.stringify({
@@ -21,4 +22,5 @@ export function saveDebugTextFiles(params, rotMat, offsetVec) {
         "rotMatrix": rotMat.arraySync(),
         "offsetVector": offsetVec.arraySync()
     }, null, 4));
+    console.log("    Saved " + params.out_to_use + ".info.json");
 }
