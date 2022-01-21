@@ -1,7 +1,6 @@
 export let tf;
 let alreadyLoaded = false;
 
-
 export function loadTfjs(): Promise<any> {
     if (alreadyLoaded) {
         return Promise.resolve(tf);
@@ -20,6 +19,8 @@ export function loadTfjs(): Promise<any> {
             document.head.appendChild(script);
         });
     } else {
+        /// #if USE_TFJS_NODE
+
         // Assume nodejs.
         // '@tensorflow/tfjs'
         return import(
@@ -30,6 +31,8 @@ export function loadTfjs(): Promise<any> {
             tf = tfMod;
             return Promise.resolve(tf);
         })
+
+        /// #endif
     }
 
 }

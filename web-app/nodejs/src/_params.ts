@@ -51,6 +51,10 @@ function myFileCanWrite(value, _) {
     return value;
 }
 
+export function commaSeparatedList(value, _) {
+    return value.split(',');
+}
+
 export function getParameters() {
 
     // Get the parameters
@@ -129,6 +133,22 @@ export function getParameters() {
             )
             .default(150)
             .argParser(myParseFloat)
+        )
+        .addOption(
+            new commander.Option(
+                "-rs, --radius_scale <number>", 
+                "The relative size of the atoms."
+            )
+            .default(1.0)
+            .argParser(myParseFloat)
+        )
+        .addOption(
+            new commander.Option(
+                "-an, --atom_names <number>", 
+                "A common separated list containins the names of the atoms you want to keep."
+            )
+            .default(undefined)
+            // .argParser(commaSeparatedList)
         )
         .addOption(
             new commander.Option(

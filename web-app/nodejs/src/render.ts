@@ -38,7 +38,7 @@ function transformPDBCoors(rotDist?: number[]) {
 
 console.log("\n");
 
-function main(rotDists?: number[][], frame?: number) {
+function main(rotDists?: number[][], frame?: number): void {
     if (rotDists === undefined) {
         rotDists = [[params.x_rot, params.y_rot, params.z_rot, params.dist]];
     }
@@ -51,8 +51,9 @@ function main(rotDists?: number[][], frame?: number) {
         console.log("Rendering frame " + frame.toString() + "...")
     }
 
-    parsePDB(pdbTxt)
+    parsePDB(pdbTxt, params.radius_scale, params.atom_names)
     .then(() => {
+        console.log("hi");
         // coorsTensor.print();
 
         transformPDBCoors(rotDists.shift());
@@ -107,7 +108,7 @@ function main(rotDists?: number[][], frame?: number) {
     });
 }
 
-let [frame, rots] = get_rotation_angles(params);
+let [frameNum, rots] = get_rotation_angles(params);
 
-main(rots, frame);
+main(rots, frameNum);
 

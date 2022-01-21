@@ -14,7 +14,7 @@ ls *.js | awk '{print "cat " $1 " | sed \"s|../../src/|./modules/|g\" > t; mv t 
 # cat render.js  | sed "s|../../src/|./modules/|g" > t; mv t render.js 
 
 # Below is temp
-ln -s ../models ./
+ln -s ../../src/models ./
 
 # Copy some extra files over.
 # cd ..

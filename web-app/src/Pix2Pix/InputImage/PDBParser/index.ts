@@ -10,7 +10,7 @@ export let elements: string[];
 export let vdw: any;  // tf.Tensor<tf.Rank>;
 export let pdbLines: string[];
 
-export function parsePDB(pdbText: string): Promise<any> {
+export function parsePDB(pdbText: string, radiusScale = 1.0, atomNamesToKeep: string[] = undefined): Promise<any> {
     // Reset the rotation and offset vectors, in case reloading PDB.
     initializeVars(true);
 
@@ -25,23 +25,36 @@ export function parsePDB(pdbText: string): Promise<any> {
     return loadTfjs().then(() => {
         pdbLines = pdbText.split("\n");
         pdbLines = pdbLines.filter(l => l.startsWith("ATOM") || l.startsWith("HETATM"));
+
+        // atomNamesToKeep = ["C", "CA", "N"];
+        // radiusScale = 0.5;
+        if (atomNamesToKeep) {
+            pdbLines = pdbLines.filter(
+                l => atomNamesToKeep.indexOf(
+                    l.substring(11, 16).trim()
+                ) !== -1
+            );
+        }
+
         let coors = pdbLines.map((l) => {
-            let x = parseFloat(l.substr(30, 8));
-            let y = parseFloat(l.substr(38, 8));
-            let z = parseFloat(l.substr(46, 8));
+            let x = parseFloat(l.substring(30, 38));
+            let y = parseFloat(l.substring(38, 46));
+            let z = parseFloat(l.substring(46, 54));
             return [x, y, z];
         });
         elements = pdbLines.map((l) => {
-            let elem = l.substr(-3).trim();
+            let ln = l.length;
+            let elem = l.substring(ln - 3).trim();
             if (elem === "") {
-                elem = elementFromAtomName(l.substr(12, 4).trim());
+                elem = elementFromAtomName(l.substring(12, 16).trim());
             }
             return elem;
         });
         vdw = tf.tensor(
             elements.map((e) => {
                 // Assume carbon if radii not defined...
-                return vdwRadii[e] !== undefined ? vdwRadii[e] : vdwRadii["C"];
+                return radiusScale * (vdwRadii[e] !== undefined ? vdwRadii[e] : vdwRadii["C"]);
+                // return vdwRadii[e] !== undefined ? vdwRadii[e] : vdwRadii["C"];
             })
         );
     
@@ -56,8 +69,8 @@ export function parsePDB(pdbText: string): Promise<any> {
 
 function elementFromAtomName(atomName: string): string {
     atomName = atomName.replace(/[0-9]/g, "");
-    atomName = atomName.substr(0, 2).toUpperCase();
-    return (twoLetterElements.has(atomName)) ? atomName : atomName.substr(0, 1);
+    atomName = atomName.substring(0, 2).toUpperCase();
+    return (twoLetterElements.has(atomName)) ? atomName : atomName.substring(0, 1);
 }
 
 export function getPDBTextUpdatedCoors(coors: any): string {  // tf.Tensor<tf.Rank>
@@ -65,8 +78,8 @@ export function getPDBTextUpdatedCoors(coors: any): string {  // tf.Tensor<tf.Ra
     let coorsList = coors.arraySync();
     let newPDBLines: string[] = [];
     for (let pdbLine of pdbLines) {
-        let first = pdbLine.slice(0, 30);
-        let last = pdbLine.slice(54);
+        let first = pdbLine.substring(0, 30);
+        let last = pdbLine.substring(54);
         let coors = coorsList[i];
         let coorsStr = coors.map((c) => {
             c = c.toFixed(3);
@@ -149,8 +162,8 @@ export function replaceElement(origElement: string, newElement: string, frequenc
                 pdbLine = pdbLine + " ";
             }
     
-            let first = pdbLine.slice(0, 12);
-            let last = pdbLine.slice(17, 76);
+            let first = pdbLine.substring(0, 12);
+            let last = pdbLine.substring(17, 76);
     
             pdbLines[idx] = first + newElement + "   " + last + newElement;
         }

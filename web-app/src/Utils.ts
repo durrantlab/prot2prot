@@ -46,12 +46,12 @@ export function keepOnlyProteinAtoms(lines: string[]): string {
     let l = lines.length;
     let linesToKeep = "";
     for (let i = 0; i < l; i++) {
-        if ((lines[i].substr(0, 5) !== "ATOM ") && (lines[i].substr(0, 7) !== "HETATM ")) {
+        if ((lines[i].substring(0, 5) !== "ATOM ") && (lines[i].substring(0, 7) !== "HETATM ")) {
             // Not an atom line.
             continue;
         }
 
-        if (proteinResidues.indexOf(lines[i].substr(17,3)) !== -1) {
+        if (proteinResidues.indexOf(lines[i].substring(17,20)) !== -1) {
             linesToKeep += lines[i] + "\n";
         }
     }
