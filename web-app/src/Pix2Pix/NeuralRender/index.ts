@@ -7,13 +7,25 @@ import { neuralRenderInWorker } from './WebWorkerSupport';
 let inferenceRunning = false;
 let webWorker;
 
-let runWebWorker = function(modelPath: string, imageData: ImageData | Uint8Array, resolveFunc: Function) {
+export interface IProteinColoringInfo {
+    imageDataSimpleForColoring : ImageData | Uint8Array;
+    color: string | number[];
+    colorStrength: number;
+    colorBlend: number;
+}
+
+let runWebWorker = function(
+    modelPath: string, imageData: ImageData | Uint8Array, 
+    proteinColoringInf: IProteinColoringInfo,
+    resolveFunc: Function
+) {
     // Uses a web worker (default).
     if (webWorker === undefined) {
         webWorker = new Worker("./renderWebWorker.js?" + Math.random().toString());
     }
 
     if (typeof(Worker) !== "undefined") {
+        // Return messages from webworker
         webWorker.onmessage = (event: MessageEvent) => {
             let data = event.data;
 
@@ -35,15 +47,19 @@ let runWebWorker = function(modelPath: string, imageData: ImageData | Uint8Array
         "cmd": "inference",
         "data": {
             "modelPath": modelPath,
-            "imageData": imageData
+            "imageData": imageData,
+            "proteinColoringInf": proteinColoringInf
         }
     });
 }
 
 export function runningInNode() {
     // Run inference without using web workers (for use in nodejs).
-    runWebWorker = function(modelPath: string, imageData: ImageData | Uint8Array, resolveFunc: Function) {
-        neuralRenderInWorker(modelPath, imageData, tf)
+    runWebWorker = function(
+        modelPath: string, imageData: ImageData | Uint8Array, 
+        proteinColoringInf: IProteinColoringInfo, resolveFunc: Function
+    ) {
+        neuralRenderInWorker(modelPath, imageData, proteinColoringInf, tf)
         .then((outTypedArray) => {
             resolveFunc(outTypedArray);
         });
@@ -58,7 +74,10 @@ function getDimen(imageData: ImageData | Float32Array): number {
     }
 }
 
-export function neuralRender(modelPath: string, inputImageData: ImageData | Uint8Array, ImageClass = undefined): Promise<ImageData> {
+export function neuralRender(
+    modelPath: string, inputImageData: ImageData | Uint8Array,
+    proteinColoringInf?: IProteinColoringInfo
+): Promise<ImageData> {
     // Note that you only need ImageClass if running in node with canvas-node.
     // See
     // https://stackoverflow.com/questions/32666458/node-js-canvas-image-data
@@ -66,6 +85,11 @@ export function neuralRender(modelPath: string, inputImageData: ImageData | Uint
     if (inferenceRunning) {
         console.warn("Already running inference...");
         return Promise.resolve(undefined);
+    }
+
+    // If color is a string, assume HEX.
+    if (proteinColoringInf && typeof(proteinColoringInf.color) === "string") {
+        proteinColoringInf.color = hexToRGB(proteinColoringInf.color as string) as number[];
     }
     
     let outputCanvas;
@@ -81,7 +105,10 @@ export function neuralRender(modelPath: string, inputImageData: ImageData | Uint
                     val: "Sending data to worker thread..."
                 });
                 
-                runWebWorker(modelPath, inputImageData, resolve);
+                // Rendering takes place in web worker.
+                runWebWorker(
+                    modelPath, inputImageData, proteinColoringInf, resolve
+                );
             })
         })
         .then((outputImageDataArray: Float32Array) => {
@@ -90,21 +117,16 @@ export function neuralRender(modelPath: string, inputImageData: ImageData | Uint
             newImageDataTensor = tf.tensor(outputImageDataArray, [dimen, dimen, 3]);
             outputCanvas = makeInMemoryCanvas(dimen, "tmp");
 
-            // console.log(outputCanvas);
-
             if (inputImageData instanceof Uint8Array) {
-                // Probably in node
+                // Probably in nodejs if you get here.
                 newImageDataTensor = newImageDataTensor.mul(255);
                 return tf.node.encodePng(newImageDataTensor).then((png) => {
                     return new Promise((resolve, reject) => {
                         var ctx = outputCanvas.getContext('2d');
-                        const img = new ImageClass()
+                        // @ts-ignore
+                        const img = new ImageClass();
                         img.onload = () => {
                             ctx.drawImage(img, 0, 0);
-
-                            // Debug
-                            // tf.browser.fromPixels(outputCanvas).print();
-
                             resolve(undefined);
                         }
                         img.onerror = err => { throw err }
@@ -113,7 +135,8 @@ export function neuralRender(modelPath: string, inputImageData: ImageData | Uint
                     });
                 })
             } else {
-                // In browser. Render it to an in-memory canvas.
+                // In browser, not nodejs. Simply render it to an in-memory
+                // canvas.
                 return tf.browser.toPixels(newImageDataTensor, outputCanvas);
             }
         })
@@ -130,4 +153,13 @@ export function neuralRender(modelPath: string, inputImageData: ImageData | Uint
             
             return Promise.resolve(imgData);
         });
+}
+
+function hexToRGB(h: string): number[] {
+    // Make with help from codex.
+    var hex = h.replace('#', '');
+    var r = parseInt(hex.substring(0, 2), 16);
+    var g = parseInt(hex.substring(2, 4), 16);
+    var b = parseInt(hex.substring(4, 6), 16);
+    return [r, g, b];
 }

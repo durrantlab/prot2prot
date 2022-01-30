@@ -66,12 +66,12 @@ export function setupVueXStore(ExampleReceptorPDBQT) {
             "protDist": 150,
             "leftRightOffset": 0,
             "upDownOffset": 0,
-    
+            // "doColorize": false,
             "pdbLoaded": false,
             "selectedNeuralRenderer": "",
             "selectedDimensions": "",
             "selectedQuality": "",
-            "webWorkerInfo": `Drag, scroll, and pinch to rotate and resize the protein structure. When ready to render, switch from "Preview" to "Prot2Prot."`
+            "webWorkerInfo": `Drag, scroll, and pinch to rotate and resize the protein structure. When ready to render, switch from "Preview" to "Prot2Prot" in the Render Mode panel below.`
         },
         "mutations": {
             /**

@@ -17,16 +17,23 @@ export function setup(): void {
         "data"(): any {
             return {}
         },
-        "computed": {},
-        "template": `
+        "computed": {
+            "cardTextMargin"(): string {
+                if (this["title"] === "") {
+                    return "";
+                }
+                return "margin-top: 16px;";
+            }
+        },
+        "template": /* html */ `
             <b-card :title="title" class="mb-4">
-                <b-card-text style="margin-top: 16px;">
+                <b-card-text :style="cardTextMargin">
                     <slot></slot>
                 </b-card-text>
             </b-card>
         `,
         "props": {
-            "title": String
+            "title": {"type": String, "default": ""}
         }
     })
 }

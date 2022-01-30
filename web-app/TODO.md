@@ -17,6 +17,8 @@ Update filenames when strip everything but protein.
 Fileloading should work through all the general functions, even if they aren't
 needed.
 
+Check memory leaks. Also in PDB loading/parsing side? Good to keep memory footprint as low as possible. You crashed even your new laptop once. Way to prevent by detecting GPU available?
+
 Experiments
 ===========
 

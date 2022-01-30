@@ -42,7 +42,7 @@ export function initializeVars(reset = false) {
     }
 }
 
-export function makeImg(imgSize: number, colorScheme: ParentColorScheme): Promise<ImageData> {
+export function makeImg(imgSize: number, colorScheme: ParentColorScheme, simplify=false): Promise<ImageData> {
     if (coorsTensor === undefined) {
         // No pdb loaded yet.
         return Promise.resolve(undefined);
@@ -180,11 +180,19 @@ export function makeImg(imgSize: number, colorScheme: ParentColorScheme): Promis
                 context.fillStyle = subCircle.color; //  "rgb(0,0,0)";  // fill_color;
                 context.fill();
                 // context.lineWidth = 1;
-                if (first) {
+                if (first && !simplify) {
+                    // Draw the outline if its the first circle and it's not
+                    // marked simplify.
+
                     // context.strokeStyle = first ? colorsInf.outline : subCircle.color;  // "rgb(0,0,0)" // outline_color;
                     context.strokeStyle = colorsInf.outline;
                     context.stroke();
                     first = false;
+                }
+
+                if (simplify) {
+                    // Give up after first circle (so not roundness to the atoms).
+                    break;
                 }
             }
         }

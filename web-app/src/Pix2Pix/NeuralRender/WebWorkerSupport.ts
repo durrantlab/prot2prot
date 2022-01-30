@@ -1,6 +1,9 @@
 // These functions are in a separate file because sometimes you might want to
 // access them outside a webworker as well (e.g., for use in nodejs).
 
+import { IProteinColoringInfo } from ".";
+import { colorize } from "./Colorize";
+
 let storedModel = {
     path: "",
     model: undefined
@@ -8,7 +11,11 @@ let storedModel = {
 let out;
 let firstRender = true;
 
-export function neuralRenderInWorker(modelPath: string, imageData: ImageData | Uint8Array, tf, sendMsgFunc=undefined): Promise<any> {
+export function neuralRenderInWorker(
+    modelPath: string, imageData: ImageData | Uint8Array, 
+    proteinColoringInf: IProteinColoringInfo,
+    tf, sendMsgFunc=undefined
+): Promise<any> {
     let loadModelPromise: Promise<any>;
     if (modelPath !== storedModel.path) {
         if (storedModel.model) {
@@ -57,28 +64,54 @@ export function neuralRenderInWorker(modelPath: string, imageData: ImageData | U
         }
 
         out = tf.tidy(() => {
-            let data;
+            let inp;
             if (imageData instanceof Uint8Array) {
-                // Probably running in node, not the browser.
-                data = tf.node.decodePng(imageData, 3);
+                // Probably running in nodejs, not the browser.
+                inp = tf.node.decodePng(imageData, 3);
+                // inpSimp = tf.node.decodePng(proteinColoringInf.imageDataSimpleForColoring, 3);
             } else {
                 // Probably running in the browser, using ImageData.
-                data = tf.browser.fromPixels(imageData, 3);
+                inp = tf.browser.fromPixels(imageData, 3);
+                // inpSimp = tf.browser.fromPixels(proteinColoringInf.imageDataSimpleForColoring, 3);
             }
+            
+            // return inpSimp.div(255);
 
-            const processed = normalize(data, tf);
-            const channelFirst = processed.transpose([2, 0, 1])
+            const processed = normalize(inp, tf);
+            const channelFirst = processed.transpose([2, 0, 1]);
+            processed.dispose();
     
-            // Convert to shape [1, 256, 256, 3]
+            // Convert to shape [1, N, N, 3]
             let batch = tf.expandDims(channelFirst)
-
             let pred = model.predict(batch);  //  as tf.Tensor<tf.Rank> | tf.TensorLike;
+            batch.dispose();
 
             pred = pred.transpose([0, 2, 3, 1]);
 
-            // Convert to shape [256, 256, 3] and unnormalize
+            // Convert to shape [N, N, 3] and unnormalize
             let out = unnormalize(tf.squeeze(pred, [0]), tf);  // was just 0
-            
+            pred.dispose();
+
+            // TESTING
+            // let [r, g, b] = out.unstack(2);
+            // let outGrayscaleBW = r.add(g).add(b).div(3);
+            // let outGrayscaleRGB = tf.stack([outGrayscaleBW, outGrayscaleBW, outGrayscaleBW])
+            //     .transpose([1, 2, 0]);
+
+            let inpSimpForColoring;
+            if (proteinColoringInf && (proteinColoringInf.imageDataSimpleForColoring !== null) && (proteinColoringInf.imageDataSimpleForColoring !== undefined)) {
+
+                if (proteinColoringInf.imageDataSimpleForColoring instanceof Uint8Array) {
+                    // Probably running in nodejs, not the browser.
+                    inpSimpForColoring = tf.node.decodePng(proteinColoringInf.imageDataSimpleForColoring, 3);
+                } else {
+                    // Probably running in the browser, using ImageData.
+                    inpSimpForColoring = tf.browser.fromPixels(proteinColoringInf.imageDataSimpleForColoring, 3);
+                }
+                out = colorize(inpSimpForColoring, out, tf, proteinColoringInf);
+                return tf.div(out, 255);
+            }
+
             return tf.div(out, 255);
         });
 
@@ -100,3 +133,4 @@ function normalize(t, tf) {
 function unnormalize(t, tf) {
     return tf.mul(tf.add(t, 1), 127.5)
 }
+

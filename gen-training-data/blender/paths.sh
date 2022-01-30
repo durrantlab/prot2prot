@@ -1,5 +1,5 @@
 # Durrant laptop
-export VMD_PATH="/Applications/VMD 1.9.1.app/Contents/vmd/vmd_MACOSXX86"
+export VMD_PATH="/Applications/VMD 1.9.4a55-arm64-Rev11.app/Contents/vmd/vmd_MACOSXARM64"
 export BLENDER_PATH="/Applications/Blender3.app/Contents/MacOS/Blender"
 
 # CRC

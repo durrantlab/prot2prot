@@ -51,14 +51,14 @@ export let loadModelMethodsFunctions = {
                 val: true
             });
 
-            setTimeout(() => {
-                scrollIt("pick-panel");
-                // document.getElementById("pick-panel").scrollTo({
-                //     top: 0,
-                //     left: 0,
-                //     behavior: 'smooth'
-                // });
-            }, 1000);
+            // setTimeout(() => {
+            //     scrollIt("pick-panel");
+            //     // document.getElementById("pick-panel").scrollTo({
+            //     //     top: 0,
+            //     //     left: 0,
+            //     //     behavior: 'smooth'
+            //     // });
+            // }, 1000);
         });
 
         return;

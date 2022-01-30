@@ -40,7 +40,12 @@ if (inWebWorker) {
         const data = e.data["data"];
 
         if (cmd === "inference") {
-            neuralRenderInWorker(data["modelPath"], data["imageData"], tf, sendMsg)
+            // @ts-ignore
+            neuralRenderInWorker(
+                data["modelPath"], data["imageData"], 
+                data["proteinColoringInf"],
+                tf, sendMsg
+            )
             .then((outTypedArray) => {
                 ctx.postMessage({
                     "cmd": "inference",

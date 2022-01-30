@@ -80,7 +80,7 @@ function main(rotDists?: number[][], frame?: number): void {
 
             // Feed the image data into the neural network.
             // let filename = `../../dist/models/simple_surf/1024/uint8/model.json`;
-            return neuralRender("file://" + params.model_js, uint8View, Canvas.Image)
+            return neuralRender("file://" + params.model_js, uint8View, MISSING PARAM HERE, Canvas.Image)
             .then((imgOutData: ImageData) => {
                 // if (imgOutData !== undefined) {
                 drawImageDataOnCanvas(imgOutData, newCanvas);
