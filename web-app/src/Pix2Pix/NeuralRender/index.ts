@@ -76,7 +76,7 @@ function getDimen(imageData: ImageData | Float32Array): number {
 
 export function neuralRender(
     modelPath: string, inputImageData: ImageData | Uint8Array,
-    proteinColoringInf?: IProteinColoringInfo
+    proteinColoringInf?: IProteinColoringInfo, ImageClass?: any
 ): Promise<ImageData> {
     // Note that you only need ImageClass if running in node with canvas-node.
     // See
@@ -97,7 +97,7 @@ export function neuralRender(
     let newImageDataTensor;
 
     return loadTfjs()
-        .then(() => {
+        .then((): Promise<Float32Array> => {
             return new Promise((resolve, reject) => {
                 
                 store.commit("setVar", {

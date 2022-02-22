@@ -1,7 +1,8 @@
 const fs = require("fs");
-import { drawImageDataOnCanvas, makeInMemoryCanvas, updateCreateCanvasFunc } from "../../src/Pix2Pix/InputImage/ImageDataHelper";
-import { runningInNode } from "../../src/Pix2Pix/NeuralRender";
-import { setupFakeVueXStore } from "../../src/VueInterface/Store";
+import { drawImageDataOnCanvas, makeInMemoryCanvas, updateCreateCanvasFunc } from "../../../../src/Pix2Pix/InputImage/ImageDataHelper";
+import { initializeVars, updateOffsetVec, updateRotMat } from "../../../../src/Pix2Pix/InputImage/MakeImage";
+import { runningInNode } from "../../../../src/Pix2Pix/NeuralRender";
+import { setupFakeVueXStore } from "../../../../src/VueInterface/Store";
 
 const Canvas = require('canvas')
 
@@ -40,4 +41,21 @@ export function processIntermediateImage(params, imgData, newCanvas): Promise<Ui
     }
 
     return Promise.resolve(uint8View);
+}
+
+export function transformPDBCoors(params: any, rotDist?: number[]) {
+    if (rotDist === undefined) {
+        rotDist = [params.x_rot, params.y_rot, params.z_rot, params.dist];
+    }
+
+    // Decide on how to position the PDB
+    initializeVars();
+    updateRotMat([1, 0, 0], rotDist[0]);
+    updateRotMat([0, 1, 0], rotDist[1]);
+    updateRotMat([0, 0, 1], rotDist[2]);
+    
+    // Distance from camera to protein COG.
+    if (params.dist !== 9999) {
+        updateOffsetVec(0, 0, rotDist[3]);
+    }
 }

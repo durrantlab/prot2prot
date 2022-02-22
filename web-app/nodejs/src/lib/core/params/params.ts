@@ -1,64 +1,17 @@
+import { IHooks } from "../hooks";
+import { myFileCanWrite, myFilePathExists, myParseFloat, myParseInt, setCommanderInParamUtils } from "./params_utils";
+
 const fs = require("fs");
-var path = require('path')
 
 // @ts-ignore
 const commander = require('commander');
 
-function myParseInt(value, _) {
-    const parsedValue = parseInt(value, 10);
-    if (isNaN(parsedValue)) {
-        throw new commander.InvalidArgumentError('Not a number.');
-    }
-    return parsedValue;
-}
-
-function myParseFloat(value, _) {
-    const parsedValue = parseFloat(value);
-    if (isNaN(parsedValue)) {
-        throw new commander.InvalidArgumentError('Not a number.');
-    }
-    return parsedValue;
-}
-
-function myFilePathExists(value, _) {
-    if (!fs.existsSync(value)) {
-        throw new commander.InvalidArgumentError('File does not exist.');
-    }
-    if (!fs.lstatSync(value).isFile()) {
-        throw new commander.InvalidArgumentError('Path points to a directory, not a file.');
-    }
-    return value;
-}
-
-function myFileCanWrite(value, _) {
-    // Make sure file doesn't already exist
-    if (fs.existsSync(value)) {
-        throw new commander.InvalidArgumentError('File already exists.');
-    }
-
-    // Make sure file ends in png.
-    if (path.extname(value).toLowerCase() !== ".png") {
-        throw new commander.InvalidArgumentError('File name must end in `.png`.');
-    }
-
-    // Try writing a file. To make sure path accessible.
-    try {
-        fs.writeFileSync(value + ".tmp", "");
-        fs.unlinkSync(value + ".tmp");
-    } catch {
-        throw new commander.InvalidArgumentError('Cannot save file at this path.');
-    }
-    return value;
-}
-
-export function commaSeparatedList(value, _) {
-    return value.split(',');
-}
-
-export function getParameters() {
+export function getParameters(hooks: IHooks): any {
+    setCommanderInParamUtils(commander);
 
     // Get the parameters
     const program = new commander.Command();
+
     // program.version('0.0.1');
     program
         .addOption(
@@ -139,8 +92,9 @@ export function getParameters() {
                 "-rs, --radius_scale <number>", 
                 "The relative size of the atoms."
             )
-            .default(1.0)
+            .default(undefined)  // 1.0)
             .argParser(myParseFloat)
+            .hideHelp()
         )
         .addOption(
             new commander.Option(
@@ -148,6 +102,7 @@ export function getParameters() {
                 "A common separated list containins the names of the atoms you want to keep."
             )
             .default(undefined)
+            .hideHelp()
             // .argParser(commaSeparatedList)
         )
         .addOption(
@@ -159,52 +114,31 @@ export function getParameters() {
         )
         .addOption(
             new commander.Option(
-                "-a, --animation <name>", 
-                "Render multiple images to create an animation."
+                "-c, --color <hex>", 
+                "The color tint to apply to the protein. A HEX value, like FF0000."
             )
-            .choices(["turn_table", "rock", "zoom", "none"])
-            .default("none")
+            .default(undefined)
         )
         .addOption(
             new commander.Option(
-                "-ttax, --turn_table_axis <axis>", 
-                "If `--animation` is `turn_table`, the axis of rotation."
+                "-cs, --color_strength <number>", 
+                "The strength of the protein coloring, ranging from 0.0 to 1.0."
             )
-            .choices(["x", "y", "z"])
-            .default("y")
-        )
-        .addOption(
-            new commander.Option(
-                "-rkm, --rock_mag <number>", 
-                "If `--animation` is `rock_mag`, the magnitude of the animation."
-            )
-            .default(20)
+            .default(0.5)
             .argParser(myParseFloat)
         )
         .addOption(
             new commander.Option(
-                "-zmn, --zoom_min_dist <number>", 
-                "If `--animation` is `zoom`, the minimum distance."
+                "-cb, --color_blend <number>", 
+                "The strength of the protein-coloring blending."
             )
-            .default(50)
-            .argParser(myParseFloat)
-        )
-        .addOption(
-            new commander.Option(
-                "-zmx, --zoom_max_dist <number>", 
-                "If `--animation` is `zoom`, the maxmimum distance."
-            )
-            .default(300)
-            .argParser(myParseFloat)
-        )
-        .addOption(
-            new commander.Option(
-                "-f, --frames <number>",
-                "If `--animation` is not `none, the number of frames to render."
-            )
-            .default(24)
+            .default(8)
             .argParser(myParseInt)
         )
+
+    if (hooks.extraParams) {
+        hooks.extraParams(commander, program);
+    }
 
     program.parse(process.argv);
     const options = program.opts();
@@ -214,19 +148,19 @@ export function getParameters() {
 
     // Clean up the parameters a bit.
     let notUsed = "-- NOT USED --";
-    if (options.animation !== "zoom") {
-        options.zoom_min_dist = notUsed;
-        options.zoom_max_dist = notUsed;
-    }
-    if (options.animation !== "rock") {
-        options.rock_mag = notUsed;
-    }
-    if (options.animation !== "turn_table") {
-        options.turn_table_axis = notUsed;
-    }
-    if (options.animation === "none") {
-        options.frames = notUsed;
-    }
+    // if (options.animation !== "zoom") {
+    //     options.zoom_min_dist = notUsed;
+    //     options.zoom_max_dist = notUsed;
+    // }
+    // if (options.animation !== "rock") {
+    //     options.rock_mag = notUsed;
+    // }
+    // if (options.animation !== "turn_table") {
+    //     options.turn_table_axis = notUsed;
+    // }
+    // if (options.animation === "none") {
+    //     options.frames = notUsed;
+    // }
     if (options.mode !== "intermediate") {
         options.reso = notUsed;
     }
@@ -234,8 +168,8 @@ export function getParameters() {
         options.model_js = notUsed;
     }
 
-    // You might need to get the resolution from the model.json file,
-    // because you're going to be rendering.
+    // You might need to get the resolution from the model.json file, because
+    // you're going to be rendering.
     if (options.mode !== "intermediate") {
         let modeljs = JSON.parse(fs.readFileSync(options.model_js).toString());
         options.reso = parseInt(modeljs["signature"]["inputs"]["input.1"]["tensorShape"]["dim"][2]["size"]);
