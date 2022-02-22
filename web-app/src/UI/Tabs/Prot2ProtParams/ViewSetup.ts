@@ -19,11 +19,7 @@ export let viewSetupTemplate = /* html */ `
 <div>
     <sub-section title="Molecular Viewer">
         ${protCanvasTemplate}
-        <b-alert class="slide-height mt-3 mb-0" show variant="info">{{$store.state.webWorkerInfo}}</b-alert>
-    </sub-section>
-    
-    <sub-section>
-        <!-- title="Render Mode" -->
+
         <b-form-radio-group
             id="btn-radios-2"
             v-model="preModeSelected"
@@ -31,103 +27,54 @@ export let viewSetupTemplate = /* html */ `
             button-variant="outline-primary"
             name="some-radios"
             buttons
-            class="d-flex flex-wrap"
+            class="d-flex flex-wrap mt-3"
             @change="drawImg"
             :disabled="allDisabled"
         ></b-form-radio-group>
-        <!-- :aria-describedby="ariaDescribedby" -->
-        <b-alert class="slide-height mt-3 mb-0" show variant="info">
-            <span v-if="preModeSelected==='fast'">
-                Something here about why preview mode is great.
-            </span>
-            <span v-else>
-                Something here about why render mode is great.
-            </span>
-        </b-alert>
-        
-        <!--<b-container fluid>
-            <b-row style="margin-bottom:16px;">
-                <b-col>
-                    <b-form-radio
-                        @change="drawImg"
-                        style="margin:auto; display:table;"
-                        v-model="preModeSelected"
-                        name="some-radios"
-                        value="fast"
-                    >Preview</b-form-radio>
-                </b-col>
-                <b-col>
-                    <b-form-radio
-                        @change="drawImg"
-                        style="margin:auto; display:table;"
-                        v-model="preModeSelected"
-                        name="some-radios"
-                        value="neural"
-                        :disabled="neuralCheckBoxDisabled"
-                    >Prot2Prot</b-form-radio>
-                </b-col>
-            </b-row>
-        </b-container>-->
-    </sub-section>
-    <sub-section v-if="preModeSelected==='neural'">
-        <!-- title="Colorize" -->
-        <b-form-checkbox 
-            v-model="doColorize" name="check-button" switch
-            :disabled="allDisabled" @change="drawImg"
-        >
-            Colorize the Prot2Prot Render
-        </b-form-checkbox>
-        <span v-if="doColorize">
-            <b-form-group
-                description="Let us know your name."
-                label="Protein Color"
-                label-for="protColor"
-                :disabled="allDisabled"
+
+        <span v-if="preModeSelected==='neural'">
+            <!-- title="Colorize" -->
+            <b-form-checkbox 
+                v-model="doColorize" name="check-button" switch
+                :disabled="allDisabled" @change="drawImg" class="mt-3"
             >
-                <input 
-                    type="color" id="protColor" name="protColor"
-                    v-model="protColor"
-                    :disabled="allDisabled"
-                    @change="drawImg"
-                >
-            </b-form-group>
-            <b-form-group
-                description="Let us know your name."
-                label="Color Strength"
-                label-for="colorStrength"
-                :disabled="allDisabled"
-            >
-                <b-form-input 
-                    id="colorStrength" type="range"
-                    min="0" max="1" step="0.05"
-                    v-model="colorStrength"
-                    :disabled="allDisabled"
-                    @change="drawImg"
-                ></b-form-input>
-            </b-form-group>
-            <b-form-group
-                description="Let us know your name."
-                label="Color Blending"
-                label-for="colorBlend"
-                :disabled="allDisabled"
-            >
-                <b-form-input 
-                    id="colorBlend" type="range"
-                    v-model="colorBlend"
-                    min="0" max="25" step="1"
-                    :disabled="allDisabled"
-                    @change="drawImg"
-                ></b-form-input>
-            </b-form-group>
-        </span>
-        <b-alert class="slide-height mt-3 mb-0" show variant="info">
+                Colorize the Prot2Prot Render
+            </b-form-checkbox>
             <span v-if="doColorize">
-                Something here about how to select color, strength, and blending.
+                <b-container fluid class="mt-3">
+                    <b-row>
+                        <b-col sm="2" class="p-0" style="text-align:center;">
+                            <input 
+                                type="color" id="protColor" name="protColor"
+                                v-model="protColor"
+                                :disabled="allDisabled"
+                                @change="drawImg"
+                                style="width:100%;"
+                            >
+                        </b-col>
+                        <b-col sm="8" class="px-3">
+                            <b-form-input 
+                                id="colorStrength" type="range"
+                                min="0" max="1" step="0.05"
+                                v-model="colorStrength"
+                                :disabled="allDisabled"
+                                class="pt-2"
+                                @change="drawImg"
+                            ></b-form-input>
+                        </b-col>
+                        <b-col sm="2" class="p-0" style="text-align:center;">
+                            <b-form-checkbox 
+                                v-model="colorBlend" name="check-button" switch
+                                :disabled="allDisabled" @change="drawImg"
+                            >Blend
+                            </b-form-checkbox>
+                        </b-col>
+                    </b-row>
+                </b-container>
             </span>
-            <span v-else>
-                Something here about what colorize is, and how it's turned off by default.
-            </span>
-        </b-alert>
+        </span>
+
+        <b-alert class="slide-height mt-3 mb-0" show variant="info">{{$store.state.webWorkerInfo}}</b-alert>
     </sub-section>
 </div>`;
 
@@ -221,7 +168,7 @@ export let viewSetupMethodsFunctions = {
                         imageDataSimpleForColoring: imageDataSimpleForColoring, 
                         color: this["protColor"],  // HEX
                         colorStrength: parseFloat(this["colorStrength"]),
-                        colorBlend: parseInt(this["colorBlend"]),
+                        colorBlend: this["colorBlend"] ? 8 : 0
                     } as IProteinColoringInfo
                     : undefined
 
@@ -252,7 +199,7 @@ export let viewSetupData = {
     "doColorize": false,
     "protColor": "#FF0000",
     "colorStrength": 0.5,
-    "colorBlend": 3,
+    "colorBlend": true,
     "allDisabled": false
     // "neuralCheckBoxDisabled": false
 }

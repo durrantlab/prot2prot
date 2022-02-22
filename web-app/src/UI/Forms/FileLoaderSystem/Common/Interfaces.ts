@@ -7,7 +7,7 @@ export interface IVueXVar {
     val: any;
 }
 
-export interface IConvert extends IFileInfo{
+export interface IConvert extends IFileInfo {
     onConvertDone: Function;  // Must return IFileInfo
     onConvertCancel: Function;
 }
@@ -39,7 +39,29 @@ export interface IAllFiles {
     allFiles: {[key: string]: string};  // filename => contents
 }
 
-export interface IResidueInfo {
-    residueId: string[],
-    residuePdbLines: string
+export interface IExtractInfo {
+    selection: ISelection[],
+    pdbLines: string,
+    origFilename: string,
+    suggestedNewFilename: string
+}
+
+export interface ISelection {
+    resname?: string;
+    resid?: string;
+    chain?: string;
+    nonProtein?: boolean;
+}
+
+export function iSelectionToStr(sel: ISelection): string {
+    if (sel["chain"] && !sel["resname"] && !sel["resid"]) {
+        // Only has chain.
+        return "Chain: " + sel["chain"];
+    }
+    
+    let prts = [];
+    if (sel["resname"]) { prts.push(sel["resname"]); }
+    if (sel["resid"]) { prts.push(sel["resid"]); }
+    if (sel["chain"]) { prts.push(sel["chain"]); }
+    return prts.join(":");
 }

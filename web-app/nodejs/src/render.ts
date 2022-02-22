@@ -5,7 +5,7 @@ import { makeImg, updateRotMat, updateOffsetVec, rotMat, offsetVec, initializeVa
 import { parsePDB } from '../../src/Pix2Pix/InputImage/PDBParser';
 import { drawImageDataOnCanvas, makeInMemoryCanvas } from '../../src/Pix2Pix/InputImage/ImageDataHelper';
 import { InputColorScheme } from '../../src/Pix2Pix/InputImage/ColorSchemes/InputColorScheme';
-import { neuralRender } from '../../src/Pix2Pix/NeuralRender/index';
+import { IProteinColoringInfo, neuralRender } from '../../src/Pix2Pix/NeuralRender/index';
 const Canvas = require('canvas')
 import { getParameters } from "./_params";
 import { saveDebugTextFiles } from './_debug';
@@ -80,14 +80,47 @@ function main(rotDists?: number[][], frame?: number): void {
 
             // Feed the image data into the neural network.
             // let filename = `../../dist/models/simple_surf/1024/uint8/model.json`;
-            return neuralRender("file://" + params.model_js, uint8View, MISSING PARAM HERE, Canvas.Image)
+
+            // if (this["doColorize"]) {
+            let colorInfoDonePromise: Promise<any>;
+            if (true) {
+                colorInfoDonePromise = makeImg(
+                    params.reso,
+                    new InputColorScheme(),
+                    true  // simplify
+                )
+                .then((imgData) => {
+                    let newCanvas2 = makeInMemoryCanvas(params.reso, "tmp");
+                    drawImageDataOnCanvas(imgData, newCanvas2);
+                    let uint8View2 = new Uint8Array(
+                        // @ts-ignore
+                        newCanvas2.toBuffer('image/png').buffer
+                    );
+
+                    let proteinColoringInfo: IProteinColoringInfo = {
+                        imageDataSimpleForColoring: uint8View2,
+                        color: "FF0000",  // HEX
+                        colorStrength: 1.0,
+                        colorBlend: 8
+                    }
+
+                    return Promise.resolve(proteinColoringInfo);
+                })
+            } else {
+                colorInfoDonePromise = Promise.resolve(undefined);
+            }
+
+            return colorInfoDonePromise
+            .then((proteinColoringInfo: IProteinColoringInfo) => {
+                return neuralRender("file://" + params.model_js, uint8View, proteinColoringInfo)
+            })
             .then((imgOutData: ImageData) => {
                 // if (imgOutData !== undefined) {
                 drawImageDataOnCanvas(imgOutData, newCanvas);
                 
                 // Save the image
                 const out = fs.createWriteStream(params.out_to_use);
-                const stream = (newCanvas as any).createPNGStream();
+                const stream = (newCanvas).createPNGStream();
                 let p = stream.pipe(out);
                 
                 return new Promise((resolve, reject) => {

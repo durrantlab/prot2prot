@@ -5,14 +5,17 @@
 // FileLoader.ts is meant to be generic. You'll usually want to wrap it in
 // another component to provide app-specific functionality.
 
-import { IConvert, IFileInfo, IFileLoadError, IResidueInfo } from '../Common/Interfaces';
+import { IConvert, IFileInfo, IFileLoadError, IExtractInfo } from '../Common/Interfaces';
 import { deepCopy, slugify } from '../Common/Utils';
-import { setupFileLoader } from '../FileLoader/Setup';
-import { setupFileList } from '../FileList.Vue/index';
-import { setupProteinProcessing } from '../ProteinProcessing.Vue';
-import { setupProteinProcessingDeleteExtract } from '../ProteinProcessing.Vue/ProteinProcessingDeleteExtract';
 import { setupFileLoaderFormGroup } from '../Common/FileLoaderFormGroup.Vue/FileLoaderFormGroup.Vue';
-import { setupDataBaseQueue } from '../DataBaseQueue.Vue';
+import { setupQueueController } from '../Queue/QueueController.Vue';
+import { setupFileLoader } from './FileLoader.Vue';
+import { setupProteinEditing } from './ProteinEditing.Vue';
+// import { setupProteinEditingDeleteExtract } from './ProteinEditing.Vue/ProteinEditing.ts.old';
+import { setupFileList } from './FileList.Vue';
+import { filesObjToLocalForage } from '../Queue/LocalForageWrapper';
+import { setupSmallPillBtn } from '../Common/SmallPillBtn.Vue';
+import { commonMultipleFilesProps, commonProteinEditingProps } from '../Common/CommonProps.VueFuncs';
 
 declare var Vue;
 
@@ -40,7 +43,7 @@ let methodsFunctions = {
         this.$emit("onError", error);
     },
 
-    "onExtractAtoms"(residueInfo: IResidueInfo): void {
+    "onExtractAtoms"(residueInfo: IExtractInfo): void {
         this.$emit("onExtractAtoms", residueInfo);
     },
 
@@ -85,9 +88,10 @@ export function setupMolLoader(): void {
     setupFileLoaderFormGroup();
     setupFileLoader();
     setupFileList();
-    setupProteinProcessing();
-    setupProteinProcessingDeleteExtract();
-    setupDataBaseQueue();
+    setupProteinEditing();
+    // setupProteinEditingDeleteExtract();
+    setupQueueController();
+    setupSmallPillBtn();
 
     Vue.component("mol-loader", {
         /**
@@ -103,9 +107,6 @@ export function setupMolLoader(): void {
         "methods": methodsFunctions,
         "template": /*html*/ `
             <div>
-                <database-queue
-                    :countDownSeconds="5"
-                ></database-queue>
                 <file-loader
                     ref="fileLoader"
                     v-model="files"
@@ -134,32 +135,21 @@ export function setupMolLoader(): void {
                             @onSelectedFilenameChange="onSelectedFilenameChange"
                         ></file-list>
         
-                        <protein-processing 
-                            :allowDeleteHeteroAtoms="allowDeleteHeteroAtoms"
-                            :allowExtractHeteroAtoms="allowExtractHeteroAtoms"
+                        <protein-editing 
                             v-model="files"
                             :selectedFilename="selectedFilename"
+                            :allowAtomExtract="allowAtomExtract"
+                            :allowAtomDelete="allowAtomDelete"
                             @onSelectedFilenameChange="onSelectedFilenameChange"
                             @onExtractAtoms="onExtractAtoms"
-                        ></protein-processing>
+                        ></protein-editing>
                     </template>
                 </file-loader>
-
             </div>
         `,
         "props": {
-            "multipleFiles": {
-                "type": Boolean,
-                "default": true
-            },
-            "allowDeleteHeteroAtoms": {
-                "type": Boolean,
-                "default": false
-            },
-            "allowExtractHeteroAtoms": {
-                "type": Boolean,
-                "default": false
-            },
+            ...commonMultipleFilesProps,
+            ...commonProteinEditingProps,
             "label": {
                 "type": String,
                 "default": "Molecule"
@@ -178,7 +168,7 @@ export function setupMolLoader(): void {
             },
             "convert": {
                 "type": String,
-                "default": ".pdbqt, .ent, .xyz, .pqr, .mcif, .mmcif"
+                "default": "" // ".pdbqt, .ent, .xyz, .pqr, .mcif, .mmcif"
             },
             "required": {
                 "type": Boolean,
@@ -193,6 +183,15 @@ export function setupMolLoader(): void {
         "watch": {
             "currentPdbFile"(newValue: string, oldValue: string): void {
                 this.$emit("onFileReady", newValue);
+            },
+            "files"(newValue: any, oldValue: any): void {
+                if (
+                    // (this["multipleFiles"] !== false) && 
+                    (this["saveMultipleFilesToDatabase"] !== false)
+                ) {
+                    // You are supposed to save the files to the database.
+                    filesObjToLocalForage(this["idToUse"], newValue);
+                }
             }
         },
 

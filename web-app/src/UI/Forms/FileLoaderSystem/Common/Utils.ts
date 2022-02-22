@@ -14,13 +14,33 @@ export function extsStrToList(exts: string): string[] {
         );
 }
 
-export function getExt(filename: string): string {
+export function getBasename(filename: string, extensive = true): string {
+    let ext = getExt(filename, extensive);
+    return filename.substring(0, filename.length - ext.length - 1);
+}
+
+export function getExt(filename: string, extensive = true): string {
     if (filename === undefined) {
         return "";
     }
     
     let fileNameParts = filename.toLowerCase().split(/\./g);
     let ext = fileNameParts[fileNameParts.length - 1];
+
+    if (extensive) {
+        for (let i = fileNameParts.length - 2; i > 0; i--) {
+            // Note that because length -2 and i > 0 (not i > -1), doesn't get
+            // last (always included) or first (never included) parts. Assuming
+            // here that if any part has more than four characters, no longer
+            // extension. This is an arbitrary choice.
+            let prt = fileNameParts[i];
+            if (prt.length > 4) {
+                break;
+            }
+            ext = prt + "." + ext;
+        }
+    }
+
     return ext;
 }
 
@@ -113,5 +133,6 @@ export function addCSS(css: string): void {
 export function slugify(complexString: string): string {
     // With help from codex
     var slug = complexString.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    slug = slug.replace(/\-\-/g, "-");
     return slug;
 }

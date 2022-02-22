@@ -19,6 +19,14 @@ needed.
 
 Check memory leaks. Also in PDB loading/parsing side? Good to keep memory footprint as low as possible. You crashed even your new laptop once. Way to prevent by detecting GPU available?
 
+Pure white (no shadow) looks bad. Retrain. Checked earlier versions, and doesn't
+look good. Need to start from scratch I think.
+
+* What about PDB frames for videos (from command line only)
+
+* What about downloading models from web automatically? Or could prepackage. For
+CLi version.
+
 Experiments
 ===========
 
@@ -101,6 +109,12 @@ True. Black screen even from python otherwise.
 
 DONE
 ====
+
+Get rid of ribbon ones (don't work).
+
+Add chalk white without shadow.
+
+Update file system so you can remove certain chains.
 
 IF YOU NEED TO REDO IMAGE:
 
