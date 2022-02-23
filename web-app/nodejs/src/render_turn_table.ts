@@ -7,7 +7,9 @@ import { turnTableGetRotationAngles } from './lib/turn_table/rots';
 
 let hooks: IHooks = {
     extraParams: turnTableExtraParams,
-    rotationAngles: turnTableGetRotationAngles
+    rotationAngles: turnTableGetRotationAngles,
+    numFramesDefault: 24,
+    description: "Renders a protein with the turn-table animation."
 }
 
 main(hooks);

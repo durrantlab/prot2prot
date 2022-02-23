@@ -59,3 +59,15 @@ export function transformPDBCoors(params: any, rotDist?: number[]) {
         updateOffsetVec(0, 0, rotDist[3]);
     }
 }
+
+export function extendFrames(arr: string[], numFrames: number): string[] {
+    if (arr.length > numFrames) {
+        return arr.slice(0, numFrames);
+    }
+
+    while (arr.length < numFrames) {
+        arr.push(arr[arr.length - 1]);
+    }
+
+    return arr;
+}

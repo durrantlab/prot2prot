@@ -135,6 +135,14 @@ export function getParameters(hooks: IHooks): any {
             .default(8)
             .argParser(myParseInt)
         )
+        .addOption(
+            new commander.Option(
+                "-f, --frames <number>",
+                "The number of frames to render."
+            )
+            .default(hooks.numFramesDefault)
+            .argParser(myParseInt)
+        )
 
     if (hooks.extraParams) {
         hooks.extraParams(commander, program);
@@ -174,8 +182,6 @@ export function getParameters(hooks: IHooks): any {
         let modeljs = JSON.parse(fs.readFileSync(options.model_js).toString());
         options.reso = parseInt(modeljs["signature"]["inputs"]["input.1"]["tensorShape"]["dim"][2]["size"]);
     }
-
-    console.log(options);
 
     return options;
 }

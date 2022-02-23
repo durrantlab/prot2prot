@@ -1,4 +1,3 @@
-import { animParams } from "../core/params/anim_params";
 import { myParseFloat } from "../core/params/params_utils";
 
 export function zoomExtraParams(commander, program) {
@@ -21,6 +20,4 @@ export function zoomExtraParams(commander, program) {
         .default(300)
         .argParser(myParseFloat)
     )
-
-    animParams(commander, program);
 }

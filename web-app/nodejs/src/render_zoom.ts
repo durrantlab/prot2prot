@@ -7,7 +7,9 @@ import { zoomGetRotationAngles } from './lib/zoom/rots';
 
 let hooks: IHooks = {
     extraParams: zoomExtraParams,
-    rotationAngles: zoomGetRotationAngles
+    rotationAngles: zoomGetRotationAngles,
+    numFramesDefault: 24,
+    description: "Renders a protein with the zoom-in-and-out animation."
 }
 
 main(hooks);

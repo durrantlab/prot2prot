@@ -1,5 +1,3 @@
-import { animParams } from "../core/params/anim_params";
-
 export function turnTableExtraParams(commander, program) {
     program
     .addOption(
@@ -11,6 +9,4 @@ export function turnTableExtraParams(commander, program) {
         .choices(["x", "y", "z"])
         .default("y")
     )
-
-    animParams(commander, program);
 }

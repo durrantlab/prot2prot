@@ -1,6 +1,8 @@
-export function rockGetRotationAngles(params: any): any[] {
+import { extendFrames } from "../core/utils";
+
+export function rockGetRotationAngles(params: any, frames: string[]): any[] {
     let rots: number[][] = [];
-    let frame = 1;
+    let currentFrameIdx = 1;
     let deltaAnglePerFrame = 360 / (params.frames - 1);
     
     // Rock animation
@@ -12,5 +14,7 @@ export function rockGetRotationAngles(params: any): any[] {
         rots.push([x, y, z, params.dist]);
     }
 
-    return [frame, rots];
+    frames = extendFrames(frames, rots.length);
+
+    return [currentFrameIdx, rots, frames];
 }

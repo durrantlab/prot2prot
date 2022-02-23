@@ -12,22 +12,15 @@ Figur eout if memoty lleaks:
   tf.profile
   https://js.tensorflow.org/api/latest/#memory
 
-Update filenames when strip everything but protein.
-
-Fileloading should work through all the general functions, even if they aren't
-needed.
-
-Check memory leaks. Also in PDB loading/parsing side? Good to keep memory footprint as low as possible. You crashed even your new laptop once. Way to prevent by detecting GPU available?
+Check memory leaks. Also in PDB loading/parsing side? Good to keep memory
+footprint as low as possible. You crashed even your new laptop once. Way to
+prevent by detecting GPU available?
 
 Pure white (no shadow) looks bad. Retrain. Checked earlier versions, and doesn't
 look good. Need to start from scratch I think.
 
-What about PDB frames for videos (from command line only)
-
 What about downloading models from web automatically? Or could prepackage. For
 CLi version.
-
-On nodejs versions, description at start of every program.
 
 Experiments
 ===========
@@ -111,6 +104,17 @@ True. Black screen even from python otherwise.
 
 DONE
 ====
+
+On nodejs versions, description at start of every program.
+
+Images not saved until end of rendering. Why?
+
+Update filenames when strip everything but protein.
+
+Fileloading should work through all the general functions, even if they aren't
+needed.
+
+What about PDB frames for videos (from command line only)
 
 Get rid of ribbon ones (don't work).
 

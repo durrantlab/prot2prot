@@ -7,7 +7,9 @@ import { rockGetRotationAngles } from './lib/rock/rots';
 
 let hooks: IHooks = {
     extraParams: rockExtraParams,
-    rotationAngles: rockGetRotationAngles
+    rotationAngles: rockGetRotationAngles,
+    numFramesDefault: 24,
+    description: "Renders a protein with the rock animation."
 }
 
 main(hooks);

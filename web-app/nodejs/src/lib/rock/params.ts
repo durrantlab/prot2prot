@@ -1,4 +1,3 @@
-import { animParams } from "../core/params/anim_params";
 import { myParseFloat } from "../core/params/params_utils";
 
 export function rockExtraParams(commander, program) {
@@ -12,6 +11,4 @@ export function rockExtraParams(commander, program) {
         .default(20)
         .argParser(myParseFloat)
     )
-
-    animParams(commander, program);
 }

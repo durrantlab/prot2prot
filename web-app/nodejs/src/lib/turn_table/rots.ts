@@ -1,6 +1,8 @@
-export function turnTableGetRotationAngles(params: any): any[] {
+import { extendFrames } from "../core/utils";
+
+export function turnTableGetRotationAngles(params: any, frames: string[]): any[] {
     let rots: number[][] = [];
-    let frame = 1;
+    let currentFrameIdx = 1;
     let deltaAnglePerFrame = 360 / (params.frames - 1);
     
     // Turntable animation about specified axis.
@@ -18,5 +20,7 @@ export function turnTableGetRotationAngles(params: any): any[] {
         }
     }
 
-    return [frame, rots];
+    frames = extendFrames(frames, rots.length);
+
+    return [currentFrameIdx, rots, frames];
 }

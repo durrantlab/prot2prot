@@ -1,6 +1,8 @@
-export function zoomGetRotationAngles(params: any): any[] {
+import { extendFrames } from "../core/utils";
+
+export function zoomGetRotationAngles(params: any, frames: string[]): any[] {
     let rots: number[][] = [];
-    let frame = 1;
+    let currentFrameIdx = 1;
     // let deltaAnglePerFrame = 360 / (params.frames - 1);
     
     // zoom in and out
@@ -12,5 +14,7 @@ export function zoomGetRotationAngles(params: any): any[] {
         rots.push([params.x_rot, params.y_rot, params.z_rot, dist]);
     }
 
-    return [frame, rots];
+    frames = extendFrames(frames, rots.length);
+
+    return [currentFrameIdx, rots, frames];
 }
