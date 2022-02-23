@@ -22,10 +22,12 @@ Check memory leaks. Also in PDB loading/parsing side? Good to keep memory footpr
 Pure white (no shadow) looks bad. Retrain. Checked earlier versions, and doesn't
 look good. Need to start from scratch I think.
 
-* What about PDB frames for videos (from command line only)
+What about PDB frames for videos (from command line only)
 
-* What about downloading models from web automatically? Or could prepackage. For
+What about downloading models from web automatically? Or could prepackage. For
 CLi version.
+
+On nodejs versions, description at start of every program.
 
 Experiments
 ===========
