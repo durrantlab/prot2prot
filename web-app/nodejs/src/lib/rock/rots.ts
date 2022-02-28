@@ -1,4 +1,4 @@
-import { extendFrames } from "../core/utils";
+import { extendFrames, scaleFrames } from "../core/utils";
 
 export function rockGetRotationAngles(params: any, frames: string[]): any[] {
     let rots: number[][] = [];
@@ -14,7 +14,7 @@ export function rockGetRotationAngles(params: any, frames: string[]): any[] {
         rots.push([x, y, z, params.dist]);
     }
 
-    frames = extendFrames(frames, rots.length);
+    frames = scaleFrames(frames, rots.length);
 
     return [currentFrameIdx, rots, frames];
 }

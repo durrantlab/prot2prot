@@ -1,4 +1,4 @@
-import { extendFrames } from "../core/utils";
+import { extendFrames, scaleFrames } from "../core/utils";
 
 export function turnTableGetRotationAngles(params: any, frames: string[]): any[] {
     let rots: number[][] = [];
@@ -20,7 +20,7 @@ export function turnTableGetRotationAngles(params: any, frames: string[]): any[]
         }
     }
 
-    frames = extendFrames(frames, rots.length);
+    frames = scaleFrames(frames, rots.length);
 
     return [currentFrameIdx, rots, frames];
 }

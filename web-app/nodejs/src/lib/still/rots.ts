@@ -1,4 +1,4 @@
-import { extendFrames } from "../core/utils";
+import { extendFrames, scaleFrames } from "../core/utils";
 
 export function stillGetRotationAngles(params: any, frames: string[]): any[] {
     let rots: number[][] = [];
@@ -11,7 +11,7 @@ export function stillGetRotationAngles(params: any, frames: string[]): any[] {
         rots.push([params.x_rot, params.y_rot, params.z_rot, params.dist]);
     }
 
-    frames = extendFrames(frames, rots.length);
+    frames = scaleFrames(frames, rots.length);
 
     return [currentFrameIdx, rots, frames];
 }

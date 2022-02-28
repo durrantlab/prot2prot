@@ -60,14 +60,26 @@ export function transformPDBCoors(params: any, rotDist?: number[]) {
     }
 }
 
-export function extendFrames(arr: string[], numFrames: number): string[] {
-    if (arr.length > numFrames) {
-        return arr.slice(0, numFrames);
+export function extendFrames(frames: string[], numFrames: number): string[] {
+    if (frames.length > numFrames) {
+        return frames.slice(0, numFrames);
     }
 
-    while (arr.length < numFrames) {
-        arr.push(arr[arr.length - 1]);
+    while (frames.length < numFrames) {
+        frames.push(frames[frames.length - 1]);
     }
 
-    return arr;
+    return frames;
+}
+
+export function scaleFrames(frames: string[], targetNumFrames: number): string[] {
+    let currentNumFrames = frames.length;
+    let newFrames: string[] = [];
+
+    for (let newFramesIdx = 0; newFramesIdx < targetNumFrames; newFramesIdx++) {
+        let framesIdx = Math.round((currentNumFrames - 1) * newFramesIdx / (targetNumFrames - 1));
+        newFrames[newFramesIdx] = frames[framesIdx];
+    }
+
+    return newFrames;
 }
