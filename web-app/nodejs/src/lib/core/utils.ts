@@ -78,6 +78,10 @@ export function scaleFrames(frames: string[], targetNumFrames: number): string[]
 
     for (let newFramesIdx = 0; newFramesIdx < targetNumFrames; newFramesIdx++) {
         let framesIdx = Math.round((currentNumFrames - 1) * newFramesIdx / (targetNumFrames - 1));
+        if (isNaN(framesIdx)) {
+            // Happens if --frames = 1, for example.
+            framesIdx = 0;
+        }
         newFrames[newFramesIdx] = frames[framesIdx];
     }
 
