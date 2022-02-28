@@ -8,6 +8,14 @@ export const closestAllowedDist = 15.0;
 export let rotMat: any;
 export let offsetVec: any;
 
+export function getRotMatAsArray(): any {
+    return rotMat ? rotMat.arraySync() : undefined;
+}
+
+export function setRotMatFromArray(arr: any): void {
+    rotMat = tf.tensor(arr);
+}
+
 export function getCoorsTransformed(): any {  // tf.Tensor<tf.Rank>
     // Apply rotation and offset, return new coors
     
@@ -231,7 +239,7 @@ function column(tensor: any, idx: number): any {
     return tf.gather(tensor, [idx], 1);
 }
 
-export function updateRotMat(axis: number[], degrees: number): void {
+export function updateRotMat(axis: number[], degrees: number) {
     if (tf === undefined) {
         return;
     }

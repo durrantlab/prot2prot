@@ -1,12 +1,16 @@
 import { IProteinColoringInfo } from ".";
 
-export function colorize(inp, out, tf, proteinColoringInf: IProteinColoringInfo) {
+export function colorize(inp, out, tf, proteinColoringInf: IProteinColoringInfo): any {
     let compositeMask = makeMask(inp, out, proteinColoringInf.colorStrength);
 
     if (proteinColoringInf.colorBlend > 0) {
         let blurResoAdjusted = Math.ceil(compositeMask.shape[0] * proteinColoringInf.colorBlend / 1024.0);
         compositeMask = gaussianBlurMask(compositeMask, blurResoAdjusted, tf);
     }
+
+    // return stackColorChannels(
+    //     compositeMask, compositeMask, compositeMask, tf
+    // ).mul(255)
 
     // let debugMaskRGB = stackColorChannels(compositeMask, compositeMask, compositeMask, tf)
     //     .mul(255);
@@ -55,6 +59,7 @@ function makeMask(inp, out, strength: number) {
     // Mask where protein is grayscale masked, everything else black
     // (won't change).
     let compositeMask = outMask.mul(inpMask).mul(strength).mul(inpDist);
+    // compositeMask = inpDist // inpDist.onesLike(inpDist).mul(strength);
 
     outMask.dispose();
     inpMask.dispose();

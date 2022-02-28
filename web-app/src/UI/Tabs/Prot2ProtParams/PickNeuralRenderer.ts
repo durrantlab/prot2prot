@@ -2,12 +2,13 @@
 import neuralRenderersInfo from "../../../models/info.json";
 
 export let pickNeuralRendererTemplate = /* html */ `
-<sub-section id="pick-panel" title="Pick Prot2Prot Renderer">
+<sub-section id="pick-panel" title="Prot2Prot Renderer">
     <form-select
-        label="Renderer"
+        label="Render Style"
         :options="neuralRendererOptions"
         storeVarName="selectedNeuralRenderer"
         @change="updateAssociatedInfo"
+        :required="true"
     ></form-select>
 
     <form-select
@@ -16,6 +17,7 @@ export let pickNeuralRendererTemplate = /* html */ `
         :options="dimensionsOptions"
         storeVarName="selectedDimensions"
         @change="updateAssociatedInfo"
+        :required="true"
     ></form-select>
 
     <form-select

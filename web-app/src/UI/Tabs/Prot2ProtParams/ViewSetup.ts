@@ -4,7 +4,7 @@ import { neuralRender, IProteinColoringInfo } from "../../../Pix2Pix/NeuralRende
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { faArrowUp, faArrowDown, faArrowLeft, faArrowRight, faUndo, faRedo, faArrowsAltV, faArrowsAltH, faExpandAlt } from '@fortawesome/free-solid-svg-icons'
 import { StandardColorScheme } from "../../../Pix2Pix/InputImage/ColorSchemes/StandardColorScheme";
-import { makeImg, updateOffsetVec, updateRotMat } from "../../../Pix2Pix/InputImage/MakeImage";
+import { getRotMatAsArray, makeImg, setRotMatFromArray, updateOffsetVec, updateRotMat } from "../../../Pix2Pix/InputImage/MakeImage";
 import { protCanvasTemplate } from "./ProtCanvas";
 
 // @ts-ignore
@@ -29,6 +29,7 @@ export let viewSetupTemplate = /* html */ `
             buttons
             class="d-flex flex-wrap mt-3"
             @change="drawImg"
+            @click.native="saveLastPreModeSelected"
             :disabled="allDisabled"
         ></b-form-radio-group>
 
@@ -74,6 +75,21 @@ export let viewSetupTemplate = /* html */ `
             </span>
         </span>
 
+        <form-group
+            label="Viewport"
+            id="angle-dist-text"
+            style=""
+            class="mt-3"
+            description=""
+            title="Copy and paste to restore viewport"
+        >
+            <b-form-input
+                style="border-top-left-radius:4px; border-bottom-left-radius:4px;"
+                placeholder="Copy and paste to restore viewport"
+                v-model="viewPortInf"
+            ></b-form-input>
+        </form-group>
+
         <b-alert class="slide-height mt-3 mb-0" show variant="info">{{$store.state.webWorkerInfo}}</b-alert>
     </sub-section>
 </div>`;
@@ -94,6 +110,7 @@ export let viewSetupMethodsFunctions = {
     "tilt"(axis: number[], degrees: number): void {
         updateRotMat(axis, degrees);
         this["drawImg"]();
+        this.rotMat = getRotMatAsArray();
     },
 
     "offset"(): void {
@@ -109,7 +126,20 @@ export let viewSetupMethodsFunctions = {
         this["drawImg"]();
     },
 
+    "saveLastPreModeSelected"(): void {
+        if (this["preModeSelected"] === "save") {
+            return;
+        }
+        this["previousPreModeSelected"] = this["preModeSelected"];
+    },
+
     "drawImg"(): void {
+        if (this["preModeSelected"] === "save") {
+            this["preModeSelected"] = this["previousPreModeSelected"];
+            this.downloadImg();
+            return;
+        }
+
         let startDrawImgTime = new Date().getTime();
         let isFast = (this["preModeSelected"] === "fast");
 
@@ -192,15 +222,18 @@ export let viewSetupMethodsFunctions = {
 
 export let viewSetupData = {
     "preModeSelected": "fast",
+    "previousPreModeSelected": "fast",
     "options": [
         { "text": 'Preview', "value": 'fast' },
-        { "text": 'Prot2Prot', "value": 'neural' }
+        { "text": 'Prot2Prot', "value": 'neural' },
+        { "text": 'Save', "value": 'save' },
     ],
     "doColorize": false,
     "protColor": "#FF0000",
     "colorStrength": 0.5,
     "colorBlend": true,
-    "allDisabled": false
+    "allDisabled": false,
+    rotMat: undefined
     // "neuralCheckBoxDisabled": false
 }
 
@@ -217,7 +250,6 @@ export let viewSetupComputedFunctions = {
         }
     },
 
-
     "protDist": {
         get(): number {
             return this.$store.state["protDist"];
@@ -229,6 +261,35 @@ export let viewSetupComputedFunctions = {
             });
         }
     },
+
+    "viewPortInf": {
+        get(): string {
+            return JSON.stringify({
+                "dist": this["protDist"],
+                "rotation": this.rotMat
+            });
+        },
+        set(val: string) {
+            let data;
+            try {
+                data = JSON.parse(val);
+            } catch(e) {
+                this["viewPortInf"] = JSON.stringify({
+                    "dist": this["protDist"]
+                });
+                return;
+            }
+            if (data["dist"]) {
+                this["protDist"] = data["dist"];
+                this["offset"]();        
+            }
+            if (data["rotation"]) {
+                // console.log(data);
+                setRotMatFromArray(data["rotation"]);
+            }
+            this["drawImg"]();
+        }
+    }
 
     // "doColorize": {
     //     get(): boolean {

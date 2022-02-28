@@ -30,7 +30,7 @@ let computedFunctions = {
         if ((this["required"] !== true) && (this["default"] === undefined)) {
             toAdd = " (Leave blank to use default value.)";
         }
-        return this["description"] + toAdd;
+        return this["description"] ? this["description"] + toAdd : toAdd.trim();
     },
 }
 

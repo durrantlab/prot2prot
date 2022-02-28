@@ -16,7 +16,7 @@ export let protCanvasTemplate = /*html*/ `
         @mousemove="onCanvasMouseMove"
 
         @wheel.prevent="onCanvasWheel"
-        ></canvas>
+    ></canvas>
     `;
 
 export let protCanvasWatchFunctions = {
@@ -106,10 +106,8 @@ export let protCanvasMethodsFunctions = {
         let offsetX: number;
         let offsetY: number;
 
-        // debugger;
         // @ts-ignore
         if (e.touches) {
-            // debugger;
             let e2 = e as TouchEvent;
 
             if (e2.touches.length === 1) {
@@ -119,11 +117,6 @@ export let protCanvasMethodsFunctions = {
                 offsetX = e2.targetTouches[0].clientX - rect.left;
                 offsetY = e2.targetTouches[0].clientY - rect.top;
     
-                // @ts-ignore
-                // offsetX = e.touches[0].pageX;
-                // @ts-ignore
-                // offsetY = e.touches[0].pageY;
-
                 this.rotateProtein(offsetX, offsetY);
             } else if (e2.touches.length > 1) {
                 // Two touches, so pinch/zoom. Fun fact: this code written with

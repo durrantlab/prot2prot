@@ -91,7 +91,7 @@ export function setup(): void {
                     >
                         ${viewSetupTemplate}
 
-                        ${saveImageTemplate}
+                        <!-- ${saveImageTemplate} -->
                     </div>
                 </b-form>
             </div>

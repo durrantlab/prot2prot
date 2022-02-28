@@ -46,7 +46,7 @@ export function setup(): void {
         },
         "computed": computedFunctions,
         "template": `
-            <span>
+            <div>
                 <b-form-group
                     v-if="formGroupWrapper"
                     :label-cols="labelCols" :label-cols-lg="labelColsLg"
@@ -69,7 +69,7 @@ export function setup(): void {
                 <div v-else>
                     <slot></slot>
                 </div>
-            </span>
+            </div>
         `,
         "props": {
             "label": String,

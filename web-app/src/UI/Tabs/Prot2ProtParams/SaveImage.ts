@@ -1,7 +1,7 @@
 export let saveImageTemplate = /* html */ `
-<sub-section title="Download Full Image">
+<<sub-section title="Save Full Image">
     <form-button @click.native="downloadImg" variant="primary">
-        Download
+        Save
     </form-button>
 </sub-section>`;
 

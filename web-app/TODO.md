@@ -22,6 +22,18 @@ look good. Need to start from scratch I think.
 What about downloading models from web automatically? Or could prepackage. For
 CLi version.
 
+Catch errors. Try 4V7Q to get one.
+
+Option to remove hydrogen atoms from protein.
+
+Option to specify max atoms. Don't emit if exceeds.
+
+What about showing only limited atoms in viewport (stride)? That way, won't ever
+be too many. But use all atoms to visualize the protein in the end.
+
+Resize length of multi-frame PDB to match specified frames. Throw warning if not
+the same. Make sure first and last match always.
+
 Experiments
 ===========
 
