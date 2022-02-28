@@ -74,6 +74,11 @@ export function extendFrames(frames: string[], numFrames: number): string[] {
 
 export function scaleFrames(frames: string[], targetNumFrames: number): string[] {
     let currentNumFrames = frames.length;
+
+    if (targetNumFrames !== currentNumFrames) {
+        console.log(`WARNING: You have requested ${targetNumFrames} output frame(s), but your PDB file has ${currentNumFrames} frame(s). I will duplicate or stride the PDB frames to produce your requested ${targetNumFrames} output frame(s).\n`)
+    }
+
     let newFrames: string[] = [];
 
     for (let newFramesIdx = 0; newFramesIdx < targetNumFrames; newFramesIdx++) {
