@@ -1,39 +1,5 @@
-import { ISelection } from "../../Common/Interfaces";
-import { getAtomLines, getPDBLineInfo } from "./PDBUtils";
-
-export let proteinResnames = [
-    "ALA",
-    "ARG",
-    "ASN",
-    "ASP",
-    "ASH",
-    "ASX",
-    "CYS",
-    "CYM",
-    "CYX",
-    "GLN",
-    "GLU",
-    "GLH",
-    "GLX",
-    "GLY",
-    "HIS",
-    "HID",
-    "HIE",
-    "HIP",
-    "ILE",
-    "LEU",
-    "LYS",
-    "LYN",
-    "MET",
-    "MSE",
-    "PHE",
-    "PRO",
-    "SER",
-    "THR",
-    "TRP",
-    "TYR",
-    "VAL",
-];
+import { ISelection } from "../../Mols/ParentMol";
+import { PDBMol } from "../../Mols/PDBMol";
 
 /** An object containing the vue-component computed functions. */
 export let computedFunctions = {
@@ -45,18 +11,8 @@ export let computedFunctions = {
         let pdbTxt: string = this.currentPDB;
         if (pdbTxt === undefined) { return []; }
 
-        let pdbLines = getAtomLines(pdbTxt);
-        let resname, resid, chain;
-        let chains = new Set([]);
-        for (let l of pdbLines) {
-            [resname, resid, chain] = getPDBLineInfo(l);
-            if (["", undefined].indexOf(chain) === -1) {
-                chains.add(chain);
-            }
-        }
-        let chainArr = Array.from(chains);
-        chainArr.sort()
-        return chainArr;
+        let pdb = new PDBMol(pdbTxt);
+        return pdb.listChains();
     },
 
     nonProteinResiduesData(): any {
@@ -66,27 +22,42 @@ export let computedFunctions = {
             return {};
         }
 
-        let pdbLines = getAtomLines(pdbTxt);
-
         let data = {};
-        let resname: string;
-        let resid: string;
-        let chain: string;
-        for (let l of pdbLines) {
-            // let resname = l.slice(17,20).trim();
-            // let resid = l.slice(22,26).trim();
-            // let chain = l.slice(21,22).trim();
-            [resname, resid, chain] = getPDBLineInfo(l);
-            let key = resname;
-            key += ":" + resid;
-            key += ":" + chain;
-            if (proteinResnames.indexOf(resname) === -1) {
-                if (!data[resname]) {
-                    data[resname] = new Set([]);
+        let pdb = new PDBMol(pdbTxt);
+        let nonProteinMol = pdb.getNonProteinMol();
+        for (let frame of nonProteinMol.frames) {
+            for (let atom of frame.atoms) {
+                let key = atom.resn;
+                key += ":" + atom.resi;
+                key += ":" + atom.chain;
+                if (!data[atom.resn]) {
+                    data[atom.resn] = new Set([]);
                 }
-                data[resname].add(key);
+                data[atom.resn].add(key);
             }
         }
+
+        // let pdbLines = getAtomLines(pdbTxt);
+
+        // let data = {};
+        // let resname: string;
+        // let resid: string;
+        // let chain: string;
+        // for (let l of pdbLines) {
+        //     // let resname = l.slice(17,20).trim();
+        //     // let resid = l.slice(22,26).trim();
+        //     // let chain = l.slice(21,22).trim();
+        //     [resname, resid, chain] = getPDBLineInfo(l);
+        //     let key = resname;
+        //     key += ":" + resid;
+        //     key += ":" + chain;
+        //     if (proteinResnames.indexOf(resname) === -1) {
+        //         if (!data[resname]) {
+        //             data[resname] = new Set([]);
+        //         }
+        //         data[resname].add(key);
+        //     }
+        // }
 
         return data;
     },

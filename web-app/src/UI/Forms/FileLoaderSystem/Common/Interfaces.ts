@@ -2,6 +2,8 @@
 // https://opensource.org/licenses/Apache-2.0 for full details. Copyright 2021
 // Jacob D. Durrant.
 
+import { ISelection } from "../Mols/ParentMol";
+
 export interface IVueXVar {
     name: string;
     val: any;
@@ -44,13 +46,6 @@ export interface IExtractInfo {
     pdbLines: string,
     origFilename: string,
     suggestedNewFilename: string
-}
-
-export interface ISelection {
-    resname?: string;
-    resid?: string;
-    chain?: string;
-    nonProtein?: boolean;
 }
 
 export function iSelectionToStr(sel: ISelection): string {

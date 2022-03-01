@@ -2,33 +2,38 @@
 // https://opensource.org/licenses/Apache-2.0 for full details. Copyright 2021
 // Jacob D. Durrant.
 
-import { IExtractInfo, ISelection, iSelectionToStr } from '../../Common/Interfaces';
+import { IExtractInfo, iSelectionToStr } from '../../Common/Interfaces';
 import { deepCopy } from '../../Common/Utils';
-import { deleteResidues, extractResidues, filterResidues } from './PDBUtils';
+import { ISelection } from '../../Mols/ParentMol';
+import { PDBMol } from '../../Mols/PDBMol';
+import { deleteResidues, extractResidues } from './PDBUtils';
 
 /** An object containing the vue-component methods functions. */
 export let proteinProcessingMethodsFunctions = {
-    "filterResidues": filterResidues,
+    "filterResidues"(pdbTxt: string, sel: ISelection): string[] {
+        let pdb = new PDBMol(pdbTxt);
+        let [pdbSel, pdbInvert] = pdb.partitionBySelection(sel);
+        return [pdbSel.toText(), pdbInvert.toText()];
+    },
     // "extractResidues": extractResidues,
     "onExtractAtoms"(residueInfo: IExtractInfo): void {
         this.$emit("onExtractAtoms", residueInfo);
     },
     "deleteAllNonProteinResidues"(removeResiduesSelections) {
         let pdbTxt = this["value"][this["selectedFilename"]];
-        let deletedAtomsTxt: string;
 
         // Keep only the non-protein selections.
         removeResiduesSelections = removeResiduesSelections.filter(r => r["nonProtein"] === true);
 
+        let pdb = new PDBMol(pdbTxt);
+        let _;
+
         for (let removeResidueSel of removeResiduesSelections) {
-            [pdbTxt, deletedAtomsTxt] = this["filterResidues"](
-                pdbTxt,
-                removeResidueSel
-            );
+            [_, pdb] = pdb.partitionBySelection(removeResidueSel);
         }
         
         let files = deepCopy(this["value"]);
-        files[this["selectedFilename"]] = pdbTxt
+        files[this["selectedFilename"]] = pdb.toText();
         this.$emit("input", files);
     },
     "deleteOrExtractResidues"(sel: ISelection) {

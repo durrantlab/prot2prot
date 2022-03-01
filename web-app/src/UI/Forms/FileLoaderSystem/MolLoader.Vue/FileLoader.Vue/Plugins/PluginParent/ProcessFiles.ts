@@ -4,7 +4,7 @@
 
 import { IFileInfo, IFileLoadError } from "../../../../Common/Interfaces";
 import { extsStrToList, getExt } from "../../../../Common/Utils";
-import { getAtomLines } from "../../../ProteinEditing.Vue/PDBUtils";
+import { PDBMol } from "../../../../Mols/PDBMol";
 
 export function processFiles(filesInfo: IFileInfo[]): boolean {
     // In this function, this is a vue component.
@@ -132,18 +132,27 @@ function splitPDBLikeFile(fileInfo: IFileInfo, multipleFiles: boolean): IFileInf
     let pdbTxt = fileInfo.fileContents;
     if (pdbTxt.match(/^(ATOM|HETATM)/gm) != null) {
         // Let's assume it's a pdb. Thanks codex.
-        let pdbTxtModels = pdbTxt.split(/^(MODEL\s+?\d+?\s+?|^ENDMDL\s+?)/gm);
+
+        let pdb = new PDBMol(pdbTxt);
         let fileInfos: IFileInfo[] = [];
-        for (let pdbTxtModel of pdbTxtModels) {
-            let atomLines = getAtomLines(pdbTxtModel);
-            if (atomLines.length > 0) {
-                pdbTxtModel = atomLines.join("\n");
-                fileInfos.push({
-                    filename: fileInfo.filename,
-                    fileContents: pdbTxtModel
-                });
-            }
+        for (let frameIdx in pdb.frames) {
+            fileInfos.push({
+                filename: fileInfo.filename,
+                fileContents: pdb.frameToText(parseInt(frameIdx))
+            });
         }
+
+        // let pdbTxtModels = pdbTxt.split(/^(MODEL\s+?\d+?\s+?|^ENDMDL\s+?)/gm);
+        // for (let pdbTxtModel of pdbTxtModels) {
+        //     let atomLines = getAtomLines(pdbTxtModel);
+        //     if (atomLines.length > 0) {
+        //         pdbTxtModel = atomLines.join("\n");
+        //         fileInfos.push({
+        //             filename: fileInfo.filename,
+        //             fileContents: pdbTxtModel
+        //         });
+        //     }
+        // }
 
         // Rename files if more than one.
         if (fileInfos.length > 1) {
