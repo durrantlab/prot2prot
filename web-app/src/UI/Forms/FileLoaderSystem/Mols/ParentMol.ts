@@ -227,6 +227,30 @@ export abstract class ParentMol {
         while (s.length < size) { s = " " + s; }
         return s;
     }
+
+    scaleFrames(targetNumFrames: number): this {
+        let currentNumFrames = this.frames.length;
+    
+        if (targetNumFrames !== currentNumFrames) {
+            console.log(`WARNING: You have requested ${targetNumFrames} output frame(s), but your PDB file has ${currentNumFrames} frame(s). I will duplicate or stride the PDB frames to produce your requested ${targetNumFrames} output frame(s).\n`)
+        }
+    
+        let newFrames: Frame[] = [];
+    
+        for (let newFramesIdx = 0; newFramesIdx < targetNumFrames; newFramesIdx++) {
+            let framesIdx = Math.round((currentNumFrames - 1) * newFramesIdx / (targetNumFrames - 1));
+            if (isNaN(framesIdx)) {
+                // Happens if --frames = 1, for example.
+                framesIdx = 0;
+            }
+            newFrames.push(this.frames[framesIdx].clone());
+        }
+
+        let newMol = this.newMolOfThisType();
+        newMol.frames = newFrames;
+    
+        return newMol;
+    }
 }
 
 class Frame {
