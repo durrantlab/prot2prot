@@ -251,6 +251,10 @@ export abstract class ParentMol {
     
         return newMol;
     }
+
+    updateCoords(frameIdx: number, coors: any) {
+        
+    }
 }
 
 export class Frame {
@@ -346,6 +350,15 @@ export class Frame {
         return false;
     }
 
+    hasNonAtomLine(): boolean {
+        for (let atom of this.atoms) {
+            if (atom.nonAtomLine) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     numAtoms(): number {
         return this.atoms.filter(a => !a.nonAtomLine).length;
     }
@@ -366,5 +379,19 @@ export class Frame {
         let frame = new Frame();
         frame.atoms = this.atoms.filter((_, i) => this.isProtein(i));
         return frame;
+    }
+
+    updateCoords(coors: any) {
+        if (this.hasNonAtomLine()) {
+            console.log("Can't set coordinates because frame contains non-atom lines!");
+        }
+        
+        for (let idx in coors) {
+            let coor = coors[idx];
+            let [x, y, z] = coor;
+            this.atoms[idx].x = x;
+            this.atoms[idx].y = y;
+            this.atoms[idx].z = z;
+        }
     }
 }
