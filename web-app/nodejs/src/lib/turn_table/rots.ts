@@ -1,6 +1,7 @@
+import { ParentMol } from "../../../../src/UI/Forms/FileLoaderSystem/Mols/ParentMol";
 import { extendFrames, scaleFrames } from "../core/utils";
 
-export function turnTableGetRotationAngles(params: any, frames: string[]): any[] {
+export function turnTableGetRotationAngles(params: any, mol: ParentMol): any[] {
     let rots: number[][] = [];
     let currentFrameIdx = 1;
     let deltaAnglePerFrame = 360 / (params.frames - 1);
@@ -20,7 +21,7 @@ export function turnTableGetRotationAngles(params: any, frames: string[]): any[]
         }
     }
 
-    frames = scaleFrames(frames, rots.length);
+    mol = scaleFrames(mol, rots.length);
 
-    return [currentFrameIdx, rots, frames];
+    return [currentFrameIdx, rots, mol];
 }
