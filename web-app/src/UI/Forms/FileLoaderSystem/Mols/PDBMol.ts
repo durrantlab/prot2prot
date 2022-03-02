@@ -51,7 +51,7 @@ export class PDBMol extends ParentMol {
     toText(): string {
         let txt = "";
         for (let frameIdx in this.frames) {
-            txt += "MODEL " + this.padStr((parseInt(frameIdx) + 1).toString(), 9) + "\n";
+            txt += "MODEL " + this.padStr((parseInt(frameIdx) + 1).toString(), 8) + "\n";
             txt += this.frameToText(parseInt(frameIdx));
             txt += "ENDMDL\n"
         }
