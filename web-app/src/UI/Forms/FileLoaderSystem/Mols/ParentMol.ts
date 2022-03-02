@@ -253,7 +253,7 @@ export abstract class ParentMol {
     }
 
     updateCoords(frameIdx: number, coors: any) {
-        
+        this.frames[frameIdx].updateCoords(coors);
     }
 }
 
