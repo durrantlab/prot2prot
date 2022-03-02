@@ -3,8 +3,6 @@
 // Jacob D. Durrant.
 
 import { IConvert, IFileInfo, IFileLoadError } from "../../Common/Interfaces";
-import { filesObjToLocalForage } from "../../Queue/LocalForageWrapper";
-import { deepCopy } from "../../Common/Utils";
 
 // Note that plugin emits (with same name) are present in PluginParent.ts. These
 // emit from the encapsulating FileLoader itself.
@@ -31,11 +29,11 @@ export let fileLoaderEmitFunctions = {
         
         // If multiple not files allowed, copy current files.
         if (this["multipleFiles"] !== false) {
-            files = deepCopy(this["value"]);
+            files = Object.assign({}, this["value"]);
         }
 
         // Add this file to the object containing all files
-        files[val.filename] = val.fileContents;
+        files[val.filename] = val.mol;
         // this["selectedFilename"] = val.filename;
 
         // Send all the data up the chain (via v-bind).

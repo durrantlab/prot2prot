@@ -1,7 +1,8 @@
 import { initializeVars } from "../../../Pix2Pix/InputImage/MakeImage";
 import { parsePDB, pdbLines } from "../../../Pix2Pix/InputImage/PDBParser";
-import { keepOnlyProteinAtoms, replaceExt, scrollIt } from "../../../Utils";
-import { IConvert, IFileInfo, IFileLoadError } from '../../Forms/FileLoaderSystem/Common/Interfaces';
+import { keepOnlyProteinAtoms, replaceExt } from "../../../Utils";
+import { IFileInfo, IFileLoadError } from '../../Forms/FileLoaderSystem/Common/Interfaces';
+import { PDBMol } from "../../Forms/FileLoaderSystem/Mols/PDBMol";
 
 export let loadModelTemplate = /* html */ `
 <sub-section title="Input PDB File" v-if="showFileInputs">
@@ -37,12 +38,12 @@ export let loadModelMethodsFunctions = {
     },
 
     "onFileReady"(fileInfo: IFileInfo): void {
-        if (fileInfo.fileContents === "") {
+        if (fileInfo.mol === undefined) {
             // Not really loaded
             return;
         }
 
-        parsePDB(fileInfo.fileContents).then(() => {
+        parsePDB(fileInfo.mol).then(() => {
             initializeVars();
             this["offset"]();
 

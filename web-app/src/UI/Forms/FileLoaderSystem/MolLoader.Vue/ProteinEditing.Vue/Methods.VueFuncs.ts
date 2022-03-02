@@ -3,38 +3,40 @@
 // Jacob D. Durrant.
 
 import { IExtractInfo, iSelectionToStr } from '../../Common/Interfaces';
-import { deepCopy } from '../../Common/Utils';
 import { ISelection } from '../../Mols/ParentMol';
 import { PDBMol } from '../../Mols/PDBMol';
 import { deleteResidues, extractResidues } from './PDBUtils';
 
 /** An object containing the vue-component methods functions. */
 export let proteinProcessingMethodsFunctions = {
-    "filterResidues"(pdbTxt: string, sel: ISelection): string[] {
-        let pdb = new PDBMol(pdbTxt);
-        let [pdbSel, pdbInvert] = pdb.partitionBySelection(sel);
-        return [pdbSel.toText(), pdbInvert.toText()];
-    },
+    // "filterResidues"(pdb: PDBMol, sel: ISelection): string[] {
+    //     // let pdb = new PDBMol(pdbTxt);
+    //     let [pdbSel, pdbInvert] = pdb.partitionBySelection(sel);
+    //     return [pdbSel.toText(), pdbInvert.toText()];
+    // },
     // "extractResidues": extractResidues,
     "onExtractAtoms"(residueInfo: IExtractInfo): void {
         this.$emit("onExtractAtoms", residueInfo);
     },
     "deleteAllNonProteinResidues"(removeResiduesSelections) {
-        let pdbTxt = this["value"][this["selectedFilename"]];
+        // let pdbTxt = this["value"][this["selectedFilename"]];
 
         // Keep only the non-protein selections.
         removeResiduesSelections = removeResiduesSelections.filter(r => r["nonProtein"] === true);
 
-        let pdb = new PDBMol(pdbTxt);
-        let _;
+        // let pdb = new PDBMol(pdbTxt);
+        let pdb = this["value"][this["selectedFilename"]];
 
         for (let removeResidueSel of removeResiduesSelections) {
-            [_, pdb] = pdb.partitionBySelection(removeResidueSel);
+            pdb = pdb.deleteSelection(removeResidueSel);
         }
         
-        let files = deepCopy(this["value"]);
-        files[this["selectedFilename"]] = pdb.toText();
+        let files = Object.assign({}, this["value"]);
+        files[this["selectedFilename"]] = pdb;  // .toText();
         this.$emit("input", files);
+    },
+    "deleteHydrogens"() {
+        this["deleteOrExtractResidues"]({elems: ["H"]} as ISelection);
     },
     "deleteOrExtractResidues"(sel: ISelection) {
         if (this["editAction"] === "delete") {

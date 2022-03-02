@@ -129,16 +129,15 @@ function checkInvalidFiles(invalidFiles: IFileInfo[], exts: string[], acceptable
 function splitPDBLikeFile(fileInfo: IFileInfo, multipleFiles: boolean): IFileInfo[] {
     // Some files are PDB like and might have multiple frames. Good to split
     // those. For example, 2M30.
-    let pdbTxt = fileInfo.fileContents;
-    if (pdbTxt.match(/^(ATOM|HETATM)/gm) != null) {
+    // let pdbTxt = fileInfo.mol;
+    // if (pdbTxt.match(/^(ATOM|HETATM)/gm) != null) {
         // Let's assume it's a pdb. Thanks codex.
 
-        let pdb = new PDBMol(pdbTxt);
         let fileInfos: IFileInfo[] = [];
-        for (let frameIdx in pdb.frames) {
+        for (let frameIdx in fileInfo.mol.frames) {
             fileInfos.push({
                 filename: fileInfo.filename,
-                fileContents: pdb.frameToText(parseInt(frameIdx))
+                mol: fileInfo.mol.frameToMol(parseInt(frameIdx))
             });
         }
 
@@ -169,7 +168,7 @@ function splitPDBLikeFile(fileInfo: IFileInfo, multipleFiles: boolean): IFileInf
         }
 
         return fileInfos;
-    }
+    // }
 
     // Just return in a list if not pdb.
     return [fileInfo];

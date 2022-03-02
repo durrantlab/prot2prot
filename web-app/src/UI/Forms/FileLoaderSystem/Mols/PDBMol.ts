@@ -12,7 +12,6 @@ export class PDBMol extends ParentMol {
         if (fileTxt !== undefined) {
             this.load(fileTxt, mseToMet);
         }
-
     }
 
     load(pdbTxt: string, mseToMet = true): void {

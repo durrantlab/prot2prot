@@ -2,7 +2,7 @@
 // https://opensource.org/licenses/Apache-2.0 for full details. Copyright 2021
 // Jacob D. Durrant.
 
-import { ISelection } from "../Mols/ParentMol";
+import { ISelection, ParentMol } from "../Mols/ParentMol";
 
 export interface IVueXVar {
     name: string;
@@ -16,7 +16,7 @@ export interface IConvert extends IFileInfo {
 
 export interface IFileInfo {
     filename: string;
-    fileContents: string;
+    mol: ParentMol;
     // onConvertDone: IConvert;
     // convertedResolveFunc?: Function;
     // convertedRejectFunc?: Function;
@@ -49,14 +49,14 @@ export interface IExtractInfo {
 }
 
 export function iSelectionToStr(sel: ISelection): string {
-    if (sel["chain"] && !sel["resname"] && !sel["resid"]) {
+    if (sel["chains"] && !sel["resnames"] && !sel["resids"]) {
         // Only has chain.
-        return "Chain: " + sel["chain"];
+        return "Chain: " + sel["chains"];
     }
     
     let prts = [];
-    if (sel["resname"]) { prts.push(sel["resname"]); }
-    if (sel["resid"]) { prts.push(sel["resid"]); }
-    if (sel["chain"]) { prts.push(sel["chain"]); }
+    if (sel["resnames"]) { prts.push(sel["resnames"]); }
+    if (sel["resids"]) { prts.push(sel["resids"]); }
+    if (sel["chains"]) { prts.push(sel["chains"]); }
     return prts.join(":");
 }

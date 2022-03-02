@@ -2,6 +2,8 @@
 // https://opensource.org/licenses/Apache-2.0 for full details. Copyright 2021
 // Jacob D. Durrant.
 
+import { getMol } from "../Mols";
+import { PDBMol } from "../Mols/PDBMol";
 import { IFileInfo, IFileLoadError } from "./Interfaces";
 
 export function extsStrToList(exts: string): string[] {
@@ -50,7 +52,7 @@ export function getExt(filename: string, extensive = true): string {
  * @param  {*} fileObj  The file object.
  * @returns Promise
  */
-export function getFileObjContents(fileObj): Promise<any> {
+export function getFileObjContents(fileObj): Promise<string> {
     return new Promise((resolve, reject) => {
         var fr = new FileReader();
         fr.onload = () => {
@@ -101,7 +103,7 @@ export function loadRemote(url: string, vueComp: any): Promise<boolean> {
     
                 let filesInfo: IFileInfo[] = [{
                     filename: flnm,
-                    fileContents: text
+                    mol: getMol(flnm, text)
                 } as IFileInfo]
                 
                 let allFilesLoaded = vueComp.onFilesLoaded(filesInfo);
@@ -119,9 +121,9 @@ export function loadRemote(url: string, vueComp: any): Promise<boolean> {
     })
 }
 
-export function deepCopy(obj: any): any {
-    return JSON.parse(JSON.stringify(obj));
-}
+// export function deepCopy(obj: any): any {
+//     return JSON.parse(JSON.stringify(obj));
+// }
 
 export function addCSS(css: string): void {
     document.head.appendChild(Object.assign(

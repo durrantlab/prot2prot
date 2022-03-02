@@ -4,6 +4,8 @@
 
 import { IFileInfo } from "../../../../Common/Interfaces";
 import { getFileObjContents } from "../../../../Common/Utils";
+import { getMol } from "../../../../Mols";
+import { PDBMol } from "../../../../Mols/PDBMol";
 
 /** An object containing the vue-component computed functions. */
 export let fileLoaderInputComputedFunctions = {
@@ -28,13 +30,14 @@ export let fileLoaderInputComputedFunctions = {
             }
 
             // Get all the information about the files.
-            let contentsPromises = vals.map(v => getFileObjContents(v));
-            Promise.all(contentsPromises).then((contents) => {
+            let contentsPromises: Promise<string>[] = vals.map(v => getFileObjContents(v));
+            Promise.all(contentsPromises).then((contents: string[]) => {
                 let filesInfo: IFileInfo[] = vals.map((v, i) => {
                     return {
                         filename: vals[i]["name"],
-                        fileContents: contents[i]
+                        mol: getMol(vals[i]["name"], contents[i])
                     } as IFileInfo
+
                 });
 
                 let allFilesLoaded = this.onFilesLoaded(filesInfo);

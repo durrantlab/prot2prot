@@ -6,7 +6,7 @@
 // another component to provide app-specific functionality.
 
 import { IConvert, IFileInfo, IFileLoadError, IExtractInfo } from '../Common/Interfaces';
-import { deepCopy, slugify } from '../Common/Utils';
+import { slugify } from '../Common/Utils';
 import { setupFileLoaderFormGroup } from '../Common/FileLoaderFormGroup.Vue/FileLoaderFormGroup.Vue';
 import { setupQueueController } from '../Queue/QueueController.Vue';
 import { setupFileLoader } from './FileLoader.Vue';
@@ -16,6 +16,8 @@ import { setupFileList } from './FileList.Vue';
 import { filesObjToLocalForage } from '../Queue/LocalForageWrapper';
 import { setupSmallPillBtn } from '../Common/SmallPillBtn.Vue';
 import { commonMultipleFilesProps, commonProteinEditingProps } from '../Common/CommonProps.VueFuncs';
+import { PDBMol } from '../Mols/PDBMol';
+import { getMol } from '../Mols';
 
 declare var Vue;
 
@@ -24,7 +26,7 @@ let computedFunctions = {
     "currentPdbFile"(): IFileInfo {
         return {
             filename: this["selectedFilename"],
-            fileContents: this["files"][this["selectedFilename"]]
+            mol: this["files"][this["selectedFilename"]]
         }
     },
 
@@ -68,7 +70,7 @@ let methodsFunctions = {
         this.$refs["fileLoader"].$refs["fileLoaderPlugin1"].onFilesLoaded([
             {
                 filename: filename,
-                fileContents: pdbContents
+                mol: getMol(filename, pdbContents)
             } as IFileInfo
         ]);
     }

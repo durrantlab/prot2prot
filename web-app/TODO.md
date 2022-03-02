@@ -16,22 +16,18 @@ Check memory leaks. Also in PDB loading/parsing side? Good to keep memory
 footprint as low as possible. You crashed even your new laptop once. Way to
 prevent by detecting GPU available?
 
-Pure white (no shadow) looks bad. Retrain. Checked earlier versions, and doesn't
-look good. Need to start from scratch I think.
-
-What about downloading models from web automatically? Or could prepackage. For
-CLi version.
+What about downloading prot2prot models from web automatically? Or could
+prepackage. For CLi version.
 
 Catch errors. Try 4V7Q to get one.
-
-Option to remove hydrogen atoms from protein.
 
 Good to automatically remove rotamers. See 6MDW.pdb for example.
 
 Option to specify max atoms. Don't emit if exceeds.
 
 What about showing only limited atoms in viewport (stride)? That way, won't ever
-be too many. But use all atoms to visualize the protein in the end.
+be too many. But use all atoms to visualize the protein in the end. I think I
+have the code for this, but haven't tested it.
 
 Experiments
 ===========
@@ -115,6 +111,14 @@ True. Black screen even from python otherwise.
 
 DONE
 ====
+
+Need unified function for trying to parse format, based on extension, perhaps
+contents, etc. Currently assuming PDBMol in too many places.
+
+Pure white (no shadow) looks bad. Retrain. Checked earlier versions, and doesn't
+look good. Need to start from scratch I think.
+
+Option to remove hydrogen atoms from protein.
 
 Resize length of multi-frame PDB to match specified frames. Throw warning if not
 the same. Make sure first and last match always.

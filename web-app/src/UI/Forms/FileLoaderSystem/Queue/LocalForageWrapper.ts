@@ -1,6 +1,7 @@
 // import localforage from "localforage";
 
 import { IFileInfo } from "../Common/Interfaces";
+import { ParentMol } from "../Mols/ParentMol";
 
 let localforage: any;
 
@@ -91,9 +92,9 @@ export function numLeftInQueue(ids: string[]): Promise<number> {
     });
 }
 
-function getContents(ids: string[]): Promise<string[]> {
+function getContents(ids: string[]): Promise<ParentMol[]> {
     // Each one contains only one element.
-    let contentsPromises: Promise<string>[] = ids.map(
+    let contentsPromises: Promise<ParentMol>[] = ids.map(
         id => localforage.getItem(id)
     );
     return Promise.all(contentsPromises);
@@ -110,7 +111,7 @@ export function popQueue(ids: string[]): Promise<IFileInfo[]> {
             //     return Promise.resolve(ids.map(id => ""));
             case 0:
                 let emptyFiles = ids.map((id) => {
-                    return {filename: "", fileContents: ""} as IFileInfo
+                    return {filename: "", mol: undefined} as IFileInfo
                 });
                 return Promise.resolve(emptyFiles);
             case 1:
@@ -133,12 +134,12 @@ export function popQueue(ids: string[]): Promise<IFileInfo[]> {
             // Each one contains only one element.
             let keys = infosPerId.map(info => info.firstKey);
             return getContents(keys)
-            .then((fileContents: string[]) => {
+            .then((mols: ParentMol[]) => {
                 keys = keys.map(k => k.split(delim)[1])
-                let files: IFileInfo[] = fileContents.map((c, i) => {
+                let files: IFileInfo[] = mols.map((c, i) => {
                     return {
                         filename: keys[i],
-                        fileContents: c
+                        mol: c
                     } as IFileInfo;
                 });
 
@@ -229,7 +230,7 @@ export function endQueueAndDownloadFilesIfAvailable(zipFilename = "output.zip"):
         if (ids.length > 0) {
             // There are files to download.
             return getContents(ids)
-            .then((contents: string[]) => {
+            .then((mols: ParentMol[]) => {
                 let files = {};
                 ids.forEach((id: string, idx: number) => {
                     let [dirname, filename] = id.split(delim).slice(1);
@@ -239,10 +240,10 @@ export function endQueueAndDownloadFilesIfAvailable(zipFilename = "output.zip"):
                         files[dirname] = (!files[dirname]) 
                             ? {} 
                             : files[dirname];
-                        files[dirname][filename] = contents[idx];
+                        files[dirname][filename] = mols[idx];
                     } else {
                         // Just a file,.
-                        files[filename] = contents[idx];
+                        files[filename] = mols[idx];
                     }
                 });
                 return generateZIPDownload(files, zipFilename);

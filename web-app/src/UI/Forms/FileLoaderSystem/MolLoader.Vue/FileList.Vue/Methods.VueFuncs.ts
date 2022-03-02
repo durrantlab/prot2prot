@@ -2,13 +2,11 @@
 // https://opensource.org/licenses/Apache-2.0 for full details. Copyright 2021
 // Jacob D. Durrant.
 
-import { deepCopy } from "../../Common/Utils";
-
 /** An object containing the vue-component methods functions. */
 export let fileLoaderFileListMethodsFunctions = {
     "fileDismissed"(filename) {
         // removeFileFromDatabase(this["id"], filename, this["associatedFileLoaderComponent"])
-        let files = deepCopy(this["value"]);
+        let files = Object.assign({}, this["value"]);
         let keys = Object.keys(files);
         let idx = keys.indexOf(filename);
         let newIdx = (idx === 0) ? idx + 1 : idx - 1;

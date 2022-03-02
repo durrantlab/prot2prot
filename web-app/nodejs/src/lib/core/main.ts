@@ -3,6 +3,7 @@ const Canvas = require('canvas')
 import { offsetVec, rotMat } from "../../../../src/Pix2Pix/InputImage/MakeImage";
 import { parsePDB } from "../../../../src/Pix2Pix/InputImage/PDBParser";
 import { IProteinColoringInfo, neuralRender } from "../../../../src/Pix2Pix/NeuralRender";
+import { ParentMol } from "../../../../src/UI/Forms/FileLoaderSystem/Mols/ParentMol";
 import { saveDebugTextFiles } from "./debug";
 import { IHooks } from "./hooks";
 import { getPDBFrames } from "./load_pdb";
@@ -31,8 +32,8 @@ export function main(hooks: IHooks) {
     renderFrame(params, frames, rots, currentFrameIdx);
 }
 
-export function renderFrame(params: any, frames: string[], rotDists?: number[][], currentFrameIdx?: number): void {
-    let pdbTxt = frames.shift();
+export function renderFrame(params: any, frames: ParentMol[], rotDists?: number[][], currentFrameIdx?: number): void {
+    let pdb = frames.shift();
 
     if (rotDists === undefined) {
         rotDists = [[params.x_rot, params.y_rot, params.z_rot, params.dist]];
@@ -46,7 +47,7 @@ export function renderFrame(params: any, frames: string[], rotDists?: number[][]
         console.log("Rendering frame " + currentFrameIdx.toString() + "...")
     }
 
-    parsePDB(pdbTxt, params.dist !== 9999, params.radius_scale, params.atom_names)
+    parsePDB(pdb, params.dist !== 9999, params.radius_scale, params.atom_names)
     .then(() => {
         // coorsTensor.print();
 

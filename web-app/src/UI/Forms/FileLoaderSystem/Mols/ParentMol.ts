@@ -14,10 +14,21 @@ export interface IAtom {
 }
 
 export interface ISelection {
-    resname?: string;
-    resid?: string;
-    chain?: string;
+    atomNames?: string[];
+    resnames?: string[];
+    resids?: string[];
+    chains?: string[];
+    elems?: string[];
     nonProtein?: boolean;
+}
+
+export interface IPruneParams {
+    targetNumAtoms: number;
+    removeHydrogens?: boolean;
+    removeSidechains?: boolean;
+    keepOnlyFirstFrame?: boolean;
+    removeRegularlySpacedAtoms?: boolean;
+    keepOnlyProtein?: boolean;
 }
 
 export const PROTEIN_RESNAMES = [
@@ -73,6 +84,12 @@ export abstract class ParentMol {
 
     abstract frameToText(frameIdx: number): string;
 
+    frameToMol(frameIdx: number): this {
+        let newMol = this.newMolOfThisType();
+        newMol.frames = [this.frames[frameIdx].clone()];
+        return newMol;
+    }
+
     startNewFrame(): void {
         this.frames.push(new Frame());
     }
@@ -104,6 +121,22 @@ export abstract class ParentMol {
         return [newMol, newMolInvert];
     }
 
+    deleteSelection(sel: ISelection): this {
+        let [_, invertSel] = this.partitionBySelection(sel);
+        return invertSel;
+    }
+
+    keepSelection(sel: ISelection): this {
+        let [matchSel, _] = this.partitionBySelection(sel);
+        return matchSel;
+    }
+
+    keepOnlyProtein(): this {
+        let newMol = this.clone();
+        newMol.frames = newMol.frames.map(f => f.keepOnlyProtein());
+        return newMol;
+    }
+
     getNonProteinMol(): this {
         let nonProtMol = this.newMolOfThisType();
         for (let frame of this.frames) {
@@ -117,16 +150,71 @@ export abstract class ParentMol {
         return nonProtMol;
     }
 
-    listChains(): string[] {
+    getChains(): string[] {
         let chains = new Set([]);
         for (let frame of this.frames) {
-            for (let chain of frame.listChains()) {
+            for (let chain of frame.getChains()) {
                 chains.add(chain);
             }
         }
         let chainArr = Array.from(chains);
         chainArr.sort()
         return chainArr;
+    }
+
+    getCoords(): number[][][] {
+        return this.frames.map(f => f.getCoords());
+    }
+
+    getElements(): string[][] {
+        return this.frames.map(f => f.getElements());
+    }
+
+    hasHydrogens(onlyFirstFrame = true): boolean {
+        for (let frame of this.frames) {
+            if (frame.hasHydrogens()) { return true; }
+            if (onlyFirstFrame) { break; }
+        }
+        return false;
+    }
+
+    numAtomsAcrossAllFrames(): number {
+        let numAtoms = 0;
+        for (let frame of this.frames) {
+            numAtoms += frame.numAtoms();
+        }
+        return numAtoms;
+    }
+
+    pruneAtoms(params: IPruneParams): this {
+        debugger;
+        let newMol = this.clone();
+        if (this.numAtomsAcrossAllFrames() < params.targetNumAtoms) { return newMol; }
+
+        // Keep first frame
+        if (params.keepOnlyFirstFrame) { newMol.frames = [newMol.frames[0]]; }
+        if (this.numAtomsAcrossAllFrames() < params.targetNumAtoms) { return newMol; }
+
+        // Keep only protein atoms.
+        if (params.keepOnlyProtein) { newMol = newMol.keepOnlyProtein(); }
+        if (this.numAtomsAcrossAllFrames() < params.targetNumAtoms) { return newMol; }
+
+        // Remove hydrogen atoms
+        if (params.removeHydrogens) { newMol = newMol.deleteSelection({elems: ["H"]}); }
+        if (this.numAtomsAcrossAllFrames() < params.targetNumAtoms) { return newMol; }
+
+        // Keep only backbone atoms.
+        if (params.removeSidechains) { newMol = newMol.keepSelection({atomNames: ["C", "N", "CA", "O"]}); }
+        if (this.numAtomsAcrossAllFrames() < params.targetNumAtoms) { return newMol; }
+
+        // Stride the atoms to reduce counts.
+        let stride = this.numAtomsAcrossAllFrames() / params.targetNumAtoms;
+        for (let frame of this.frames) {
+            frame.strideAtoms(stride);
+        }
+        // if (this.numAtomsAcrossAllFrames() < params.targetNumAtoms) { return newMol; }
+        
+        return newMol;
     }
 
     protected padStr(s: string, size: number, justLeft = false): string {
@@ -158,24 +246,33 @@ class Frame {
         let newFrame = new Frame();
         let newFrameInvert = new Frame();
         for (let atom of this.atoms) {
-            if (sel["resname"] && (sel["resname"] !== atom.resn)) {
+            if (sel.resnames && (sel.resnames.indexOf(atom.resn) === -1)) {
                 newFrameInvert.addAtom(atom);
                 continue
             }
-            if (sel["resid"] && (sel["resid"] !== atom.resi)) {
+            if (sel.resids && (sel.resids.indexOf(atom.resi) === -1)) {
                 newFrameInvert.addAtom(atom);
                 continue
             }
-            if (sel["chain"] && (sel["chain"] !== atom.chain)) {
+            if (sel.chains && (sel.chains.indexOf(atom.chain) === -1)) {
                 newFrameInvert.addAtom(atom);
                 continue
             }
+            if (sel.atomNames && (sel.atomNames.indexOf(atom.atom) === -1)) {
+                newFrameInvert.addAtom(atom);
+                continue
+            }
+            if (sel.elems && (sel.elems.indexOf(atom.elem) === -1)) {
+                newFrameInvert.addAtom(atom);
+                continue
+            }
+
             newFrame.addAtom(atom);
         }
         return [newFrame, newFrameInvert];
     }
 
-    listChains(): string[] {
+    getChains(): string[] {
         let chains = new Set([]);
         for (let atom of this.atoms) {
             if (["", undefined].indexOf(atom.chain) === -1) {
@@ -185,13 +282,65 @@ class Frame {
         return Array.from(chains);
     }
 
+    isProtein(atomIdx: number): boolean {
+        let atom = this.atoms[atomIdx];
+        if (atom.nonAtomLine !== undefined) { return false; }
+        if (PROTEIN_RESNAMES.indexOf(atom.resn) === -1) {
+            return false;
+        }
+        return true;
+    }
+
     addNonProteinAtomsToMol(mol: ParentMol): void {
         mol.startNewFrame();
-        for (let atom of this.atoms) {
-            if (atom.nonAtomLine !== undefined) { continue; }
-            if (PROTEIN_RESNAMES.indexOf(atom.resn) === -1) {
-                mol.addAtomToCurrentFrame(atom);
+        for (let atomIdx in this.atoms) {
+            if (!this.isProtein(parseInt(atomIdx))) {
+                mol.addAtomToCurrentFrame(this.atoms[atomIdx]);
             }
         }
+
+        // for (let atom of this.atoms) {
+        //     if (atom.nonAtomLine !== undefined) { continue; }
+        //     if (PROTEIN_RESNAMES.indexOf(atom.resn) === -1) {
+        //         mol.addAtomToCurrentFrame(atom);
+        //     }
+        // }
+    }
+
+    getCoords(): number[][] {
+        return this.atoms.filter(a => !a.nonAtomLine).map(a => [a.x, a.y, a.z]);
+    }
+
+    getElements(): string[] {
+        return this.atoms.filter(a => !a.nonAtomLine).map(a => a.elem);
+    }
+
+    hasHydrogens(): boolean {
+        for (let atom of this.atoms) {
+            if (atom.elem === "H") { return true; }
+        }
+        return false;
+    }
+
+    numAtoms(): number {
+        return this.atoms.filter(a => !a.nonAtomLine).length;
+    }
+
+    strideAtoms(stride: number): void {
+        // TODO: Should not be in place.
+        let curAtomIdx = 0;
+        let origNumAtoms = this.atoms.length;
+        let newAtoms: IAtom[] = [];
+        while (curAtomIdx < origNumAtoms) {
+            newAtoms.push(this.atoms[Math.floor(curAtomIdx)]);
+            curAtomIdx += stride;
+        }
+        this.atoms = newAtoms;
+    }
+
+    keepOnlyProtein(): Frame {
+        let frame = new Frame();
+        frame.atoms = this.atoms.filter((_, i) => this.isProtein(i));
+        return frame;
     }
 }

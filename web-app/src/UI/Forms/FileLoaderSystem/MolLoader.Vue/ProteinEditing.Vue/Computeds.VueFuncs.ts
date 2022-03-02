@@ -1,29 +1,32 @@
-import { ISelection } from "../../Mols/ParentMol";
+import { ISelection, ParentMol } from "../../Mols/ParentMol";
 import { PDBMol } from "../../Mols/PDBMol";
 
 /** An object containing the vue-component computed functions. */
 export let computedFunctions = {
-    currentPDB(): string {
+    currentMol(): ParentMol {
         return this["value"][this["selectedFilename"]];
     },
 
     chainsList(): string[] {
-        let pdbTxt: string = this.currentPDB;
-        if (pdbTxt === undefined) { return []; }
+        let pdb: ParentMol = this.currentMol;
+        if (pdb === undefined) { return []; }
+        return pdb.getChains();
+    },
 
-        let pdb = new PDBMol(pdbTxt);
-        return pdb.listChains();
+    hasHydrogens(): boolean {
+        let pdb: ParentMol = this.currentMol;
+        if (pdb === undefined) { return false; }
+        return pdb.hasHydrogens();
     },
 
     nonProteinResiduesData(): any {
-        let pdbTxt: string = this.currentPDB;
+        let pdb: ParentMol = this.currentMol;
 
-        if (pdbTxt === undefined) {
+        if (pdb === undefined) {
             return {};
         }
 
         let data = {};
-        let pdb = new PDBMol(pdbTxt);
         let nonProteinMol = pdb.getNonProteinMol();
         for (let frame of nonProteinMol.frames) {
             for (let atom of frame.atoms) {
@@ -77,7 +80,7 @@ export let computedFunctions = {
                 // If more than ten residues, consider it a single thing. Like
                 // "waters."
                 results1.push({
-                    "resname": resname,
+                    "resnames": [resname],
                     "nonProtein": true
                 } as ISelection);
                 // html += "Group: " + resname + ". ";
@@ -97,9 +100,9 @@ export let computedFunctions = {
                     // html += "Single: " + single + ". ";
                     let prts = single.split(":");
                     results2.push({
-                        "resname": prts[0],
-                        "resid": prts[1],
-                        "chain": prts[2],
+                        "resnames": [prts[0]],
+                        "resids": [prts[1]],
+                        "chains": [prts[2]],
                         "nonProtein": true
                     } as ISelection);
                 }
@@ -110,7 +113,7 @@ export let computedFunctions = {
         if (chainsList.length > 1) {
             for (let chain of chainsList) {
                 results3.push({
-                    "chain": chain,
+                    "chains": [chain],
                     "nonProtein": false
                 } as ISelection)
             }
@@ -119,12 +122,12 @@ export let computedFunctions = {
         let toReturn = [...results1, ...results2, ...results3];
 
         // Make sure no empty ones.
-        let empties = ["", undefined];
-        toReturn = toReturn.filter((r: ISelection) => {
-            return (empties.indexOf(r.resname) === -1)
-                || (empties.indexOf(r.resid) === -1)
-                || (empties.indexOf(r.chain) === -1)
-        });
+        // let empties = ["", undefined];
+        // toReturn = toReturn.filter((r: ISelection) => {
+        //     return (empties.indexOf(r.resnames) === -1)
+        //         || (empties.indexOf(r.resids) === -1)
+        //         || (empties.indexOf(r.chains) === -1)
+        // });
 
         return toReturn;
     },

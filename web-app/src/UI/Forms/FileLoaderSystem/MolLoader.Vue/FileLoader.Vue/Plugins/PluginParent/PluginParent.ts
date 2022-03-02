@@ -51,7 +51,7 @@ export abstract class FileLoaderPluginParent {
             // When the file is completely ready, after any conversion, error
             // handling, etc. Fires for every file loaded.
             onFileReady(fileInfo: IFileInfo): void {
-                if (fileInfo.fileContents === undefined) {
+                if (fileInfo.mol === undefined) {
                     // Didn't really load.
                     return;
                 }

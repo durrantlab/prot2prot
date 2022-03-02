@@ -2,15 +2,17 @@ import { loadTfjs, tf } from '../../LoadTF';
 import { initializeVars } from '../MakeImage';
 import { mergeAtomsData } from './MergedAtoms';
 import { vdwRadii } from './VDWRadii';
+import { PDBMol } from "../../../UI/Forms/FileLoaderSystem/Mols/PDBMol";
+import { ParentMol } from '../../../UI/Forms/FileLoaderSystem/Mols/ParentMol';
 
-let twoLetterElements: Set<string>;  // populated in parsePDB
+// let twoLetterElements: Set<string>;  // populated in parsePDB
 
 export let coorsTensor: any;  // tf.Tensor<tf.Rank>;
 export let elements: string[];
 export let vdw: any;  // tf.Tensor<tf.Rank>;
 export let pdbLines: string[];
 
-export function parsePDB(pdbText: string, recenter = true, radiusScale = 1.0, atomNamesToKeep: string[] = undefined): Promise<any> {
+export function parsePDB(pdb: ParentMol, recenter = true, radiusScale = 1.0, atomNamesToKeep: string[] = undefined): Promise<any> {
     // Reset the rotation and offset vectors, in case reloading PDB.
     initializeVars(true);
 
@@ -20,36 +22,36 @@ export function parsePDB(pdbText: string, recenter = true, radiusScale = 1.0, at
     }
 
     // Mark certain element names as having two letters.
-    twoLetterElements = new Set(Object.keys(vdwRadii).filter(e => e.length > 1));
+    // twoLetterElements = new Set(Object.keys(vdwRadii).filter(e => e.length > 1));
     
     return loadTfjs().then(() => {
-        pdbLines = pdbText.split("\n");
-        pdbLines = pdbLines.filter(l => l.startsWith("ATOM") || l.startsWith("HETATM"));
+        // pdbLines = pdbMol.split("\n");
+        // pdbLines = pdbLines.filter(l => l.startsWith("ATOM") || l.startsWith("HETATM"));
 
         // atomNamesToKeep = ["C", "CA", "N"];
         // radiusScale = 0.5;
         if (atomNamesToKeep) {
-            pdbLines = pdbLines.filter(
-                l => atomNamesToKeep.indexOf(
-                    l.substring(11, 16).trim()
-                ) !== -1
-            );
+            let _;
+            [pdb, _] = pdb.partitionBySelection({atomNames: atomNamesToKeep});
+            
+            // pdbLines = pdbLines.filter(
+            //     l => atomNamesToKeep.indexOf(
+            //         l.substring(11, 16).trim()
+            //     ) !== -1
+            // );
         }
 
-        let coors = pdbLines.map((l) => {
-            let x = parseFloat(l.substring(30, 38));
-            let y = parseFloat(l.substring(38, 46));
-            let z = parseFloat(l.substring(46, 54));
-            return [x, y, z];
-        });
-        elements = pdbLines.map((l) => {
-            let ln = l.length;
-            let elem = l.substring(ln - 3).trim();
-            if (elem === "") {
-                elem = elementFromAtomName(l.substring(12, 16).trim());
-            }
-            return elem;
-        });
+        let coors = pdb.getCoords()[0];
+        elements = pdb.getElements()[0];
+
+        // elements = pdbLines.map((l) => {
+        //     let ln = l.length;
+        //     let elem = l.substring(ln - 3).trim();
+        //     if (elem === "") {
+        //         elem = elementFromAtomName(l.substring(12, 16).trim());
+        //     }
+        //     return elem;
+        // });
         vdw = tf.tensor(
             elements.map((e) => {
                 // Assume carbon if radii not defined...
@@ -70,9 +72,10 @@ export function parsePDB(pdbText: string, recenter = true, radiusScale = 1.0, at
 }
 
 function elementFromAtomName(atomName: string): string {
-    atomName = atomName.replace(/[0-9]/g, "");
-    atomName = atomName.substring(0, 2).toUpperCase();
-    return (twoLetterElements.has(atomName)) ? atomName : atomName.substring(0, 1);
+    // atomName = atomName.replace(/[0-9]/g, "");
+    // atomName = atomName.substring(0, 2).toUpperCase();
+    // return (twoLetterElements.has(atomName)) ? atomName : atomName.substring(0, 1);
+    return "X";
 }
 
 export function getPDBTextUpdatedCoors(coors: any): string {  // tf.Tensor<tf.Rank>
