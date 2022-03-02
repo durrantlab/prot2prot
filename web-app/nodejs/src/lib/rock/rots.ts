@@ -1,6 +1,7 @@
+import { ParentMol } from "../../../../src/UI/Forms/FileLoaderSystem/Mols/ParentMol";
 import { extendFrames, scaleFrames } from "../core/utils";
 
-export function rockGetRotationAngles(params: any, frames: string[]): any[] {
+export function rockGetRotationAngles(params: any, mol: ParentMol): any[] {
     let rots: number[][] = [];
     let currentFrameIdx = 1;
     let deltaAnglePerFrame = 360 / (params.frames - 1);
@@ -14,7 +15,7 @@ export function rockGetRotationAngles(params: any, frames: string[]): any[] {
         rots.push([x, y, z, params.dist]);
     }
 
-    frames = scaleFrames(frames, rots.length);
+    mol = scaleFrames(mol, rots.length);
 
     return [currentFrameIdx, rots, frames];
 }

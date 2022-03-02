@@ -6,7 +6,7 @@ import { IProteinColoringInfo, neuralRender } from "../../../../src/Pix2Pix/Neur
 import { ParentMol } from "../../../../src/UI/Forms/FileLoaderSystem/Mols/ParentMol";
 import { saveDebugTextFiles } from "./debug";
 import { IHooks } from "./hooks";
-import { getPDBFrames } from "./load_pdb";
+import { getMolObj } from "./load_pdb";
 import { makeNodeImages, saveOutputImage } from "./make_images";
 import { getParameters } from "./params/params";
 import { setNodeMode, transformPDBCoors } from "./utils";
@@ -18,7 +18,7 @@ export function main(hooks: IHooks) {
     // Because running in nodejs.
     setNodeMode();
 
-    let framesArr = getPDBFrames(params.pdb);
+    let pdb: ParentMol = getMolObj(params.pdb);
 
     console.log("");
     console.log(hooks.description);

@@ -1,6 +1,7 @@
+import { ParentMol } from "../../../../src/UI/Forms/FileLoaderSystem/Mols/ParentMol";
 import { extendFrames, scaleFrames } from "../core/utils";
 
-export function stillGetRotationAngles(params: any, frames: string[]): any[] {
+export function stillGetRotationAngles(params: any, mol: ParentMol): any[] {
     let rots: number[][] = [];
     let currentFrameIdx = 1;
     // let deltaAnglePerFrame = 360 / (params.frames - 1);
@@ -11,7 +12,7 @@ export function stillGetRotationAngles(params: any, frames: string[]): any[] {
         rots.push([params.x_rot, params.y_rot, params.z_rot, params.dist]);
     }
 
-    frames = scaleFrames(frames, rots.length);
+    mol = scaleFrames(mol, rots.length);
 
-    return [currentFrameIdx, rots, frames];
+    return [currentFrameIdx, rots, mol];
 }
