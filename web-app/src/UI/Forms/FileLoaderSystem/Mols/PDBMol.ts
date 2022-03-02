@@ -52,7 +52,7 @@ export class PDBMol extends ParentMol {
         let txt = "";
         for (let frameIdx in this.frames) {
             console.warn("Need space before idx?");
-            txt += "MODEL " + (frameIdx + 1).toString() + "\n";
+            txt += "MODEL " + this.padStr((frameIdx + 1).toString(), 9) + "\n";
             txt += this.frameToText(parseInt(frameIdx));
             txt += "ENDMDL\n"
         }
@@ -86,7 +86,7 @@ export class PDBMol extends ParentMol {
                     atm = " " + atom.atom + " ";
             }
             // If two-letter element, shift one left.
-            if ((atom.elem) && (atom.elem.length > 1) && 
+            if ((atom.elem) && (atom.elem.replace(/[^A-Za-z]/gm, "").length > 1) && 
                 (atm.substring(0, 1) === " ")) {
                 atm = atm.substring(1) + " ";
             }
