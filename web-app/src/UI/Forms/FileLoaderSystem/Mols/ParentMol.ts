@@ -326,13 +326,6 @@ export class Frame {
                 mol.addAtomToCurrentFrame(this.atoms[atomIdx]);
             }
         }
-
-        // for (let atom of this.atoms) {
-        //     if (atom.nonAtomLine !== undefined) { continue; }
-        //     if (PROTEIN_RESNAMES.indexOf(atom.resn) === -1) {
-        //         mol.addAtomToCurrentFrame(atom);
-        //     }
-        // }
     }
 
     getCoords(): number[][] {

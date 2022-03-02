@@ -101,6 +101,8 @@ export class PDBMol extends ParentMol {
             txt += "\n";
         }
 
+        txt = txt.replace(/^END$/gm, "");
+
         return txt;
     }
 
