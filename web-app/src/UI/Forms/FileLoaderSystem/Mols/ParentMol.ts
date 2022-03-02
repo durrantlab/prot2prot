@@ -253,7 +253,7 @@ export abstract class ParentMol {
     }
 }
 
-class Frame {
+export class Frame {
     atoms: IAtom[] = [];
 
     addAtom(atom: IAtom): void {
