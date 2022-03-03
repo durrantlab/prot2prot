@@ -25,7 +25,7 @@ export class PDBMol extends ParentMol {
                 return l.slice(0, 4) === "ATOM"
                     || l.slice(0, 6) === "HETATM"
                     || l.slice(0, 4) === "ROOT"
-                    || l.slice(0, 3) === "END"
+                    // || l.slice(0, 3) === "END"  // No longer needed I think
                     || l.slice(0, 6) === "BRANCH"
                     || l.slice(0, 7) === "TORSDOF";
             });
