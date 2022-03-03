@@ -39,7 +39,7 @@ export let viewSetupTemplate = /* html */ `
                 v-model="doColorize" name="check-button" switch
                 :disabled="allDisabled" @change="drawImg" class="mt-3"
             >
-                Colorize the Prot2Prot Render
+                Colorize Prot2Prot Render
             </b-form-checkbox>
             <span v-if="doColorize">
                 <b-container fluid class="mt-3">
