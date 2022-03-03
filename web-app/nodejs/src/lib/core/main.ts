@@ -3,7 +3,8 @@ const Canvas = require('canvas')
 import { offsetVec, rotMat } from "../../../../src/Pix2Pix/InputImage/MakeImage";
 import { parsePDB } from "../../../../src/Pix2Pix/InputImage/PDBParser";
 import { IProteinColoringInfo, neuralRender } from "../../../../src/Pix2Pix/NeuralRender";
-import { ParentMol } from "../../../../src/UI/Forms/FileLoaderSystem/Mols/ParentMol";
+import { PDBMol } from "../../../../src/UI/Forms/FileLoaderSystem/Mols/PDBMol";
+import { Frame } from "../../../../src/UI/Forms/FileLoaderSystem/Mols/ParentMol";
 import { saveDebugTextFiles } from "./debug";
 import { IHooks } from "./hooks";
 import { getMolObj } from "./load_pdb";
@@ -18,7 +19,7 @@ export function main(hooks: IHooks) {
     // Because running in nodejs.
     setNodeMode();
 
-    let pdb: ParentMol = getMolObj(params.pdb);
+    let mol: PDBMol = getMolObj(params.pdb);
 
     console.log("");
     console.log(hooks.description);
@@ -27,13 +28,15 @@ export function main(hooks: IHooks) {
     console.log(params);
     console.log("");
 
-    let [currentFrameIdx, rots, frames] = hooks.rotationAngles(params, framesArr);
+    let [currentFrameIdx, rots, frames] = hooks.rotationAngles(params, mol);
 
     renderFrame(params, frames, rots, currentFrameIdx);
 }
 
-export function renderFrame(params: any, frames: ParentMol[], rotDists?: number[][], currentFrameIdx?: number): void {
-    let pdb = frames.shift();
+export function renderFrame(params: any, frames: Frame[], rotDists?: number[][], currentFrameIdx?: number): void {
+    let frame = frames.shift();
+    let mol = new PDBMol();
+    mol.frames = [frame]
 
     if (rotDists === undefined) {
         rotDists = [[params.x_rot, params.y_rot, params.z_rot, params.dist]];
@@ -47,7 +50,7 @@ export function renderFrame(params: any, frames: ParentMol[], rotDists?: number[
         console.log("Rendering frame " + currentFrameIdx.toString() + "...")
     }
 
-    parsePDB(pdb, params.dist !== 9999, params.radius_scale, params.atom_names)
+    parsePDB(mol, params.dist !== 9999, params.radius_scale, params.atom_names)
     .then(() => {
         // coorsTensor.print();
 
@@ -56,7 +59,7 @@ export function renderFrame(params: any, frames: ParentMol[], rotDists?: number[
         : params.out;
 
         transformPDBCoors(params, rotDists.shift());
-        saveDebugTextFiles(params, rotMat, offsetVec)
+        saveDebugTextFiles(mol, params, rotMat, offsetVec)
 
         // Make the input imagedata.
         // let newCanvas;

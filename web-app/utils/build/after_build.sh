@@ -16,7 +16,7 @@ cd -
 # compatibility.
 echo "Check for errors above. Enter to start compiling vendor js and other js files..."
 cd dist
-# ls vendors*js runtime*js styles*js | awk '{print "echo Compiling " $1 ";node ../node_modules/google-closure-compiler/cli.js " $1 " > t; mv t " $1}' | bash
+ls app*js vendors*js runtime*js styles*js | awk '{print "echo Compiling " $1 ";node ../node_modules/google-closure-compiler/cli.js " $1 " > " $1".tmp; mv " $1 ".tmp " $1}' | parallel
 cd -
 
 # If there is a .min.js file, delete any associated .js file.
@@ -31,14 +31,14 @@ cd dist
 echo "/**
  * Prot2Prot Copyright 2019 Jacob Durrant
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the \"License\");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
+ * distributed under the License is distributed on an \"AS IS\" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.

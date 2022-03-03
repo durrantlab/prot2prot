@@ -2,7 +2,6 @@ import { loadTfjs, tf } from '../../LoadTF';
 import { initializeVars } from '../MakeImage';
 import { mergeAtomsData } from './MergedAtoms';
 import { vdwRadii } from './VDWRadii';
-import { PDBMol } from "../../../UI/Forms/FileLoaderSystem/Mols/PDBMol";
 import { ParentMol } from '../../../UI/Forms/FileLoaderSystem/Mols/ParentMol';
 
 // let twoLetterElements: Set<string>;  // populated in parsePDB
@@ -31,8 +30,7 @@ export function parsePDB(pdb: ParentMol, recenter = true, radiusScale = 1.0, ato
         // atomNamesToKeep = ["C", "CA", "N"];
         // radiusScale = 0.5;
         if (atomNamesToKeep) {
-            let _;
-            [pdb, _] = pdb.partitionBySelection({atomNames: atomNamesToKeep});
+            pdb = pdb.keepSelection({atomNames: atomNamesToKeep});
             
             // pdbLines = pdbLines.filter(
             //     l => atomNamesToKeep.indexOf(
@@ -69,35 +67,6 @@ export function parsePDB(pdb: ParentMol, recenter = true, radiusScale = 1.0, ato
 
         return Promise.resolve(undefined);
     });
-}
-
-function elementFromAtomName(atomName: string): string {
-    // atomName = atomName.replace(/[0-9]/g, "");
-    // atomName = atomName.substring(0, 2).toUpperCase();
-    // return (twoLetterElements.has(atomName)) ? atomName : atomName.substring(0, 1);
-    return "X";
-}
-
-export function getPDBTextUpdatedCoors(coors: any): string {  // tf.Tensor<tf.Rank>
-    let i = 0;
-    let coorsList = coors.arraySync();
-    let newPDBLines: string[] = [];
-    for (let pdbLine of pdbLines) {
-        let first = pdbLine.substring(0, 30);
-        let last = pdbLine.substring(54);
-        let coors = coorsList[i];
-        let coorsStr = coors.map((c) => {
-            c = c.toFixed(3);
-            while (c.length < 8) {
-                c = " " + c;
-            }
-            return c;
-        });
-        newPDBLines.push(first + coorsStr.join("") + last);
-
-        i++;
-    }
-    return newPDBLines.join("\n");
 }
 
 function getIdxsOfElements(element: string): number[] {

@@ -1,7 +1,6 @@
-import { ParentMol } from "../../../../src/UI/Forms/FileLoaderSystem/Mols/ParentMol";
-import { extendFrames, scaleFrames } from "../core/utils";
+import { PDBMol } from "../../../../src/UI/Forms/FileLoaderSystem/Mols/PDBMol";
 
-export function stillGetRotationAngles(params: any, mol: ParentMol): any[] {
+export function stillGetRotationAngles(params: any, mol: PDBMol): any[] {
     let rots: number[][] = [];
     let currentFrameIdx = 1;
     // let deltaAnglePerFrame = 360 / (params.frames - 1);
@@ -12,7 +11,7 @@ export function stillGetRotationAngles(params: any, mol: ParentMol): any[] {
         rots.push([params.x_rot, params.y_rot, params.z_rot, params.dist]);
     }
 
-    mol = scaleFrames(mol, rots.length);
+    mol = mol.scaleFrames(rots.length);
 
-    return [currentFrameIdx, rots, mol];
+    return [currentFrameIdx, rots, mol.frames];
 }

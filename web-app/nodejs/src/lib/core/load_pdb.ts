@@ -1,9 +1,9 @@
 const fs = require("fs");
 const zlib = require('zlib');
 import { getMol } from "../../../../src/UI/Forms/FileLoaderSystem/Mols/";
-import { ParentMol } from "../../../../src/UI/Forms/FileLoaderSystem/Mols/ParentMol";
+import { PDBMol } from "../../../../src/UI/Forms/FileLoaderSystem/Mols/PDBMol";
 
-export function getMolObj(filename: string): ParentMol {
+export function getMolObj(filename: string): PDBMol {
     // Get PDB text.
     let pdbTxt: string;
     if (filename.endsWith(".gz")) {
@@ -14,7 +14,7 @@ export function getMolObj(filename: string): ParentMol {
         pdbTxt = fs.readFileSync(filename).toString();
     }
 
-    return getMol(filename, pdbTxt);
+    return getMol(filename, pdbTxt) as PDBMol;
 
     // let pdbLines = pdbTxt.split("\n").filter((l) => {
     //     return l.startsWith("ATOM") || l.startsWith("HETATM") || l.startsWith("END")
