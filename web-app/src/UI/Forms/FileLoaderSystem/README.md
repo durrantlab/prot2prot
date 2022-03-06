@@ -33,14 +33,6 @@ The main component is `<mol-loader>`.
 11. `allowAtomDelete` (default: `true`). Whether to allow users to extract
     portions of the molecule (emitted via `@onExtractAtoms`, see below).
 
-<!--
-2. `allowDeleteHeteroAtoms` (default: `false`). Whether the user can delete
-   non-protein residues.
-3. `allowExtractHeteroAtoms` (default: `false`). Whether the user can extract
-   non-protein residues (e.g., from a receptor `mol-loader` to a ligand
-   `mol-loader`).
--->
-
 ### emits
 
 1. `@onError`. A loading error occurred. Value is of type

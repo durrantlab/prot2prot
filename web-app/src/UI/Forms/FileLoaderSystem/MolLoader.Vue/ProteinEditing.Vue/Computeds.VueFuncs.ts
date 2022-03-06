@@ -26,41 +26,24 @@ export let computedFunctions = {
             return {};
         }
 
+        // Make sets for each residue name
         let data = {};
         let nonProteinMol = pdb.getNonProteinMol();
+        for (let frame of nonProteinMol.frames) {
+            for (let atom of frame.atoms) {
+                data[atom.resn] = new Set([]);
+            }
+        }
+
+        // Add specific keys to those sets
         for (let frame of nonProteinMol.frames) {
             for (let atom of frame.atoms) {
                 let key = atom.resn;
                 key += ":" + atom.resi;
                 key += ":" + atom.chain;
-                if (!data[atom.resn]) {
-                    data[atom.resn] = new Set([]);
-                }
                 data[atom.resn].add(key);
             }
         }
-
-        // let pdbLines = getAtomLines(pdbTxt);
-
-        // let data = {};
-        // let resname: string;
-        // let resid: string;
-        // let chain: string;
-        // for (let l of pdbLines) {
-        //     // let resname = l.slice(17,20).trim();
-        //     // let resid = l.slice(22,26).trim();
-        //     // let chain = l.slice(21,22).trim();
-        //     [resname, resid, chain] = getPDBLineInfo(l);
-        //     let key = resname;
-        //     key += ":" + resid;
-        //     key += ":" + chain;
-        //     if (proteinResnames.indexOf(resname) === -1) {
-        //         if (!data[resname]) {
-        //             data[resname] = new Set([]);
-        //         }
-        //         data[resname].add(key);
-        //     }
-        // }
 
         return data;
     },

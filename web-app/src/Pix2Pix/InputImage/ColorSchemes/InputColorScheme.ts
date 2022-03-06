@@ -10,6 +10,7 @@ export class InputColorScheme extends ParentColorScheme {
     backgroundColorHex = "#000";
 
     numSubCircleSteps = 3;
+    maxAtomsToShow = undefined;
 
     // Don't put anything in 3rd (B) value.
     atomColors = {

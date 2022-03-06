@@ -6,15 +6,15 @@ const TWO_LETTER_ELEMENTS = new Set([
 ]);
 
 export class PDBMol extends ParentMol {
-    constructor(fileTxt: string = undefined, mseToMet = true) {
+    constructor(fileTxt: string = undefined, mseToMet = true, removeAltLocs = true) {
         super(undefined);  // Does nothing because undefined.
 
         if (fileTxt !== undefined) {
-            this.load(fileTxt, mseToMet);
+            this.load(fileTxt, mseToMet, removeAltLocs);
         }
     }
 
-    load(pdbTxt: string, mseToMet = true): void {
+    load(pdbTxt: string, mseToMet = true, removeAltLocs = true): void {
         // Get the frames
         let frames = pdbTxt.split(/^(MODEL\s+?\d+?\s+?|^ENDMDL\s+?)/gm);
 
@@ -45,6 +45,10 @@ export class PDBMol extends ParentMol {
                     this.parsePDBLine(pdbLine)
                 );
             }
+
+            if (removeAltLocs) {
+                this.removeAltLocsCurrentFrame();
+            }
         }
     }
 
@@ -73,16 +77,16 @@ export class PDBMol extends ParentMol {
             let atm;
             switch (atom.atom.length) {
                 case 1:
-                    atm = "  " + atom.atom + "   ";
-                    break;
-                case 2:
                     atm = "  " + atom.atom + "  ";
                     break;
-                case 3:
+                case 2:
                     atm = "  " + atom.atom + " ";
                     break;
+                case 3:
+                    atm = "  " + atom.atom;
+                    break;
                 default:
-                    atm = " " + atom.atom + " ";
+                    atm = " " + atom.atom;
             }
             // If two-letter element, shift one left.
             if ((atom.elem) && (atom.elem.replace(/[^A-Za-z]/gm, "").length > 1) && 
@@ -90,6 +94,8 @@ export class PDBMol extends ParentMol {
                 atm = atm.substring(1) + " ";
             }
             txt += atm;
+
+            txt += atom.altLoc;
 
             txt += this.padStr(atom.resn, 3);
             txt += this.padStr(atom.chain, 2);
@@ -116,13 +122,14 @@ export class PDBMol extends ParentMol {
         
         let serial = pdbLine.substring(6, 11).trim();
         let atom = pdbLine.substring(12, 16).trim();
+        let altLoc = pdbLine.substring(16, 17);
         let resn = pdbLine.substring(17, 20).trim();
         let chain = pdbLine.substring(21, 22).trim();
         let resi = pdbLine.substring(22, 26).trim();
         let x = parseFloat(pdbLine.substring(30, 38));
         let y = parseFloat(pdbLine.substring(38, 46));
         let z = parseFloat(pdbLine.substring(46, 54));
-        
+
         let lngth = pdbLine.length;
         let elem = pdbLine.substring(lngth - 4).trim();
         if (elem === "") {
@@ -133,7 +140,7 @@ export class PDBMol extends ParentMol {
 
         return {
             resn, x, y, z, elem, chain, resi, atom, hetflag,
-            serial, 
+            serial, altLoc
             // origLine: pdbLine
         }
     }
@@ -143,7 +150,7 @@ export class PDBMol extends ParentMol {
         atomName = atomName.substring(0, 2).toUpperCase();
         return (TWO_LETTER_ELEMENTS.has(atomName)) ? atomName : atomName.substring(0, 1);
     }
-    
+
     private mseToMet(pdbLines: string[]): string[] {
         // TODO: Auto converting MSE to MET, but this could be a user parameter.
         return pdbLines.map((l) => {

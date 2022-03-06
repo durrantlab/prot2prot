@@ -1,10 +1,12 @@
-import { ParentColorScheme } from './ColorSchemes/ParentColorScheme';
+import { IAtomColorInfo, ParentColorScheme } from './ColorSchemes/ParentColorScheme';
 import { getImageDataFromCanvasContext, makeInMemoryCanvasContext } from './ImageDataHelper';
 import { loadTfjs, tf } from '../LoadTF';
 import { coorsTensor, elements, vdw } from './PDBParser/index';
 
-const focalLength = 1418.5  // 10/0.050  # If using 1/dist to define magnification.
-export const closestAllowedDist = 15.0;
+const FOCAL_LENGTH = 1418.5  // 10/0.050  # If using 1/dist to define magnification.
+const TWO_PI = 2 * Math.PI
+export const CLOSEST_ALLOWED_DIST = 15.0;
+
 export let rotMat: any;
 export let offsetVec: any;
 
@@ -13,6 +15,7 @@ export function getRotMatAsArray(): any {
 }
 
 export function setRotMatFromArray(arr: any): void {
+    if (rotMat) { rotMat.dispose(); }
     rotMat = tf.tensor(arr);
 }
 
@@ -38,6 +41,8 @@ export function initializeVars(reset = false) {
 
     // Set initial values if needed.
     if ((rotMat === undefined) || reset) {
+
+        if (rotMat) { rotMat.dispose(); }
         rotMat = tf.tensor(
             [
                 [1, 0, 0],
@@ -46,6 +51,7 @@ export function initializeVars(reset = false) {
             ]
         );
 
+        if (offsetVec) { offsetVec.dispose(); }
         offsetVec = tf.tensor([0, 0, 0]);
     }
 }
@@ -58,6 +64,9 @@ export function makeImg(imgSize: number, colorScheme: ParentColorScheme, simplif
 
     return loadTfjs()
     .then(() => {
+        // let mem = tf.memory();
+        // console.log(mem.numBytesInGPU, mem.numTensors, mem.numDataBuffers);
+
         // console.time("makeImage");
         initializeVars();
 
@@ -73,8 +82,8 @@ export function makeImg(imgSize: number, colorScheme: ParentColorScheme, simplif
             let minZ = coors.min(0).arraySync()[2];
             // let newOffsetVec = (offsetVec as tf.Tensor<tf.Rank>).clone()
             let newOffsetVec = offsetVec.clone()
-            if (minZ < closestAllowedDist) {
-                let delta = tf.tensor([0, 0, -minZ + closestAllowedDist]);
+            if (minZ < CLOSEST_ALLOWED_DIST) {
+                let delta = tf.tensor([0, 0, -minZ + CLOSEST_ALLOWED_DIST]);
                 coors = coors.add(delta);
         
                 // Update offsetVec too in case you generate transformed PDB
@@ -128,9 +137,22 @@ export function makeImg(imgSize: number, colorScheme: ParentColorScheme, simplif
         let distsSortedPromise = distsTensor.array()
             .then((dists: number[]) => {
                 distsTensor.dispose();
-                let distsSorted = dists.map((v, i) => {
+
+                let distsWithIdxs = dists.map((v, i) => {
                     return [v, i]
-                }).sort((a, b) => b[0] - a[0]);
+                });
+
+                // Here keep only a limited number (in case very large protein).
+                if (colorScheme.maxAtomsToShow) {
+                    let tmp = [];
+                    let step = distsWithIdxs.length / colorScheme.maxAtomsToShow;
+                    for (let i = 0; i < distsWithIdxs.length; i += step) {
+                      tmp.push(distsWithIdxs[Math.floor(i)]);
+                    }
+                    distsWithIdxs = tmp;
+                }
+
+                let distsSorted = distsWithIdxs.sort((a, b) => b[0] - a[0]);
                 return Promise.resolve(distsSorted);
             });
     
@@ -150,9 +172,9 @@ export function makeImg(imgSize: number, colorScheme: ParentColorScheme, simplif
 
         // For debugging
         // document.body.appendChild(canvas);
-        
-        const twoPI = 2 * Math.PI
-    
+
+        // distsSorted = colorScheme.pruneAtoms(distsSorted);
+
         // Draw spheres
         for (let data of distsSorted) {
             let atomCenterDist = data[0];
@@ -184,10 +206,9 @@ export function makeImg(imgSize: number, colorScheme: ParentColorScheme, simplif
             let first = true;
             for (let subCircle of colorsInf.subCircles) {
                 context.beginPath();
-                context.arc(center[0], center[1], subCircle.radius, 0, twoPI, false);
-                context.fillStyle = subCircle.color; //  "rgb(0,0,0)";  // fill_color;
+                context.arc(center[0], center[1], subCircle.radius, 0, TWO_PI, false);
+                context.fillStyle = subCircle.color;
                 context.fill();
-                // context.lineWidth = 1;
                 if (first && !simplify) {
                     // Draw the outline if its the first circle and it's not
                     // marked simplify.
@@ -219,8 +240,8 @@ function points3Dto2D(pts3D: any, imgSize: number): any {
     let ys = column(pts3D, 1);
     let zs = column(pts3D, 2);
 
-    let xs2D = xs.div(zs).mul(focalLength);
-    let ys2D = ys.div(zs).mul(focalLength);
+    let xs2D = xs.div(zs).mul(FOCAL_LENGTH);
+    let ys2D = ys.div(zs).mul(FOCAL_LENGTH);
 
     let xy = tf.stack([xs2D, ys2D], 1);
     xy = xy.reshape([xy.shape[0], 2]);
@@ -275,10 +296,7 @@ export function updateOffsetVec(deltaX: number, deltaY: number, deltaZ: number):
         return;
     }
 
-    if (offsetVec !== undefined) {
-        offsetVec.dispose();
-    }
-
+    if (offsetVec) { offsetVec.dispose(); }
     offsetVec = tf.tensor([deltaX, deltaY, deltaZ])
 }
 

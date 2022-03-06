@@ -14,6 +14,7 @@ export abstract class ParentColorScheme {
     abstract backgroundColorHex: string;
     abstract colorFromDist(baseColor: number[], dist: number, maxDist: number): string;
     abstract outlineColorFromDist(dist: number, maxDist: number): string;
+    abstract maxAtomsToShow: number;
     numSubCircleSteps = 3;
 
     makeRGBStr(color: number[]): string {

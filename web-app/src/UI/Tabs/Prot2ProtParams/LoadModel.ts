@@ -7,6 +7,7 @@ import { PDBMol } from "../../Forms/FileLoaderSystem/Mols/PDBMol";
 export let loadModelTemplate = /* html */ `
 <sub-section title="Input PDB File" v-if="showFileInputs">
     <mol-loader
+        ref="receptorLoader"
         :allowDeleteHeteroAtoms="true"
         :allowExtractHeteroAtoms="true"
         :multipleFiles="false"
@@ -17,7 +18,7 @@ export let loadModelTemplate = /* html */ `
         accept=".pdb,.ent"
         convert=""
         :required="true"
-        @onError="onError"
+        @onError="onFileLoadError"
         @onFileReady="onFileReady"
     ></mol-loader>
     <!-- @onExtractAtoms="onExtractReceptorAtomsToLigand" -->
@@ -30,7 +31,7 @@ export let loadModelTemplate = /* html */ `
 `;
 
 export let loadModelMethodsFunctions = {
-    "onError"(error: IFileLoadError): void {
+    "onFileLoadError"(error: IFileLoadError): void {
         this.onError(
             error.title,
             error.body
@@ -126,19 +127,24 @@ export let loadModelMethodsFunctions = {
      * @returns void
      */
      "useExampleProt2ProtInputFiles"(): void {
-        this["showFileInputs"] = false;
+        // this["showFileInputs"] = false;
 
-        setTimeout(() => {  // Vue.nextTick doesn't work...
+        // setTimeout(() => {  // Vue.nextTick doesn't work...
+            this.$refs["receptorLoader"].loadMolFromExternal(
+                "5iy4.pdb",
+                this.$store.state["receptorContentsExample"],
+            );
+
             // Update some values.
-            this["onFileReady"]({
-                fileContents: this.$store.state["receptorContentsExample"],
-                filename: "5iy4.pdb",
-                id: "receptor"
-            });    
+            // this["onFileReady"]({
+            //     fileContents: this.$store.state["receptorContentsExample"],
+            //     filename: "5iy4.pdb",
+            //     id: "receptor"
+            // });    
 
             // Also update file names so example vina command line is valid.
-            this.$store.commit("updateFileName", { type: "receptor", filename: "receptor_example.pdbqt" });
-        }, 100);
+            // this.$store.commit("updateFileName", { type: "receptor", filename: "receptor_example.pdbqt" });
+        // }, 100);
     },
 
     // "onConvertNeeded"(convertInfo: IConvert): void {

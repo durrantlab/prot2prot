@@ -133,6 +133,7 @@ function splitPDBLikeFile(fileInfo: IFileInfo, multipleFiles: boolean): IFileInf
     // if (pdbTxt.match(/^(ATOM|HETATM)/gm) != null) {
         // Let's assume it's a pdb. Thanks codex.
 
+        // let pdb = new PDBMol(pdbTxt);
         let fileInfos: IFileInfo[] = [];
         for (let frameIdx in fileInfo.mol.frames) {
             fileInfos.push({

@@ -1,33 +1,8 @@
 ONGOING
 =======
 
-If it's trying to render on the webworker, but you move the protein again,
-cancel webworker calculations and don't return image.
-
-Add more descriptions to model names (where to use, eg.). Also, wanring with
-1024x1024.
-
-Figur eout if memoty lleaks:
-  console.log(tf.memory());
-  tf.profile
-  https://js.tensorflow.org/api/latest/#memory
-
-Check memory leaks. Also in PDB loading/parsing side? Good to keep memory
-footprint as low as possible. You crashed even your new laptop once. Way to
-prevent by detecting GPU available?
-
 What about downloading prot2prot models from web automatically? Or could
 prepackage. For CLi version.
-
-Catch errors. Try 4V7Q to get one.
-
-Good to automatically remove rotamers. See 6MDW.pdb for example.
-
-Option to specify max atoms. Don't emit if exceeds.
-
-What about showing only limited atoms in viewport (stride)? That way, won't ever
-be too many. But use all atoms to visualize the protein in the end. I think I
-have the code for this, but haven't tested it.
 
 Experiments
 ===========
@@ -111,6 +86,31 @@ True. Black screen even from python otherwise.
 
 DONE
 ====
+
+If it's trying to render on the webworker, but you move the protein again,
+cancel webworker calculations and don't return image.
+
+Add more descriptions to model names (where to use, eg.). Also, wanring with
+1024x1024.
+
+Option to specify max atoms. Don't emit if exceeds.
+
+Figur eout if memoty lleaks:
+  console.log(tf.memory());
+  tf.profile
+  https://js.tensorflow.org/api/latest/#memory
+
+Check memory leaks. Also in PDB loading/parsing side? Good to keep memory
+footprint as low as possible. You crashed even your new laptop once. Way to
+prevent by detecting GPU available?
+
+Good to automatically remove rotamers. See 6MDW.pdb for example.
+
+Catch errors. Try 4V7Q to get one.
+
+What about showing only limited atoms in viewport (stride)? That way, won't ever
+be too many. But use all atoms to visualize the protein in the end. I think I
+have the code for this, but haven't tested it.
 
 Need unified function for trying to parse format, based on extension, perhaps
 contents, etc. Currently assuming PDBMol in too many places.

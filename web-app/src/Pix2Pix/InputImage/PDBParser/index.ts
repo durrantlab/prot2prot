@@ -50,6 +50,9 @@ export function parsePDB(pdb: ParentMol, recenter = true, radiusScale = 1.0, ato
         //     }
         //     return elem;
         // });
+
+        if (vdw) { vdw.dispose(); }
+
         vdw = tf.tensor(
             elements.map((e) => {
                 // Assume carbon if radii not defined...
@@ -57,13 +60,19 @@ export function parsePDB(pdb: ParentMol, recenter = true, radiusScale = 1.0, ato
                 // return vdwRadii[e] !== undefined ? vdwRadii[e] : vdwRadii["C"];
             })
         );
+
+        if (coorsTensor) { coorsTensor.dispose(); }
+
+        coorsTensor = tf.tidy(() => {
+            let coorsTensr = tf.tensor(coors);
+
+            // Center at origin
+            if (recenter) {
+                coorsTensr = coorsTensr.sub(coorsTensr.mean(0));
+            }
+            return coorsTensr;
+        });
     
-        coorsTensor = tf.tensor(coors)
-    
-        // Center at origin
-        if (recenter) {
-            coorsTensor = coorsTensor.sub(coorsTensor.mean(0));
-        }
 
         return Promise.resolve(undefined);
     });
@@ -98,7 +107,10 @@ export function removeAllOfElement(element: string): void {
     coorsTensorArr = coorsTensorArr.filter(i => i !== undefined);
     vdwArr = vdwArr.filter(i => i !== undefined);
 
+    if (coorsTensor) { coorsTensor.dispose(); }
     coorsTensor = tf.tensor(coorsTensorArr);
+
+    if (vdw) { vdw.dispose(); }
     vdw = tf.tensor(vdwArr);
 }
 

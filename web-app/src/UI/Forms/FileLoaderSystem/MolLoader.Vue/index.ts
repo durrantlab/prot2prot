@@ -21,6 +21,11 @@ import { getMol } from '../Mols';
 
 declare var Vue;
 
+export interface IAllowProteinEditing {
+    always?: boolean;
+    ifNumAtomsLessThan?: number;
+}
+
 /** An object containing the vue-component computed functions. */
 let computedFunctions = {
     "currentPdbFile"(): IFileInfo {
@@ -137,7 +142,8 @@ export function setupMolLoader(): void {
                             @onSelectedFilenameChange="onSelectedFilenameChange"
                         ></file-list>
         
-                        <protein-editing 
+                        <protein-editing
+                            v-if="allowAtomDelete || allowAtomExtract"
                             v-model="files"
                             :selectedFilename="selectedFilename"
                             :allowAtomExtract="allowAtomExtract"

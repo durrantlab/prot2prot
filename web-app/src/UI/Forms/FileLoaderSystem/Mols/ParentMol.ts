@@ -11,6 +11,7 @@ export interface IAtom {
     atom?: string;  // atom name
     nonAtomLine?: string;  // e.g., "TORSDOF" from PDBQT format.
     // origLine?: string;
+    altLoc?: string;  // rotamers
 }
 
 export interface ISelection {
@@ -31,7 +32,7 @@ export interface IPruneParams {
     keepOnlyProtein?: boolean;
 }
 
-export const PROTEIN_RESNAMES = [
+export const PROTEIN_RESNAMES = new Set([
     "ALA",
     "ARG",
     "ASN",
@@ -63,7 +64,7 @@ export const PROTEIN_RESNAMES = [
     "TRP",
     "TYR",
     "VAL",
-];
+]);
 
 type SetConstructor<T extends ParentMol> = {
     new (items:any[]): T;
@@ -139,6 +140,7 @@ export abstract class ParentMol {
 
     getNonProteinMol(): this {
         let nonProtMol = this.newMolOfThisType();
+        console.warn("Num frames: " + this.frames.length.toString());
         for (let frame of this.frames) {
             frame.addNonProteinAtomsToMol(nonProtMol);
         }
@@ -186,7 +188,15 @@ export abstract class ParentMol {
         return numAtoms;
     }
 
+    numAtoms(frameIdx = 0): number {
+        if (!this.frames[frameIdx]) {
+            return 0;
+        }
+        return this.frames[frameIdx].numAtoms();
+    }
+
     pruneAtoms(params: IPruneParams): this {
+        // Not tested yet.
         debugger;
         let newMol = this.clone();
         if (this.numAtomsAcrossAllFrames() < params.targetNumAtoms) { return newMol; }
@@ -255,6 +265,10 @@ export abstract class ParentMol {
     updateCoords(frameIdx: number, coors: any) {
         this.frames[frameIdx].updateCoords(coors);
     }
+
+    protected removeAltLocsCurrentFrame(): void {
+        this.frames[this.frames.length - 1].removeAltLocs();
+    }
 }
 
 export class Frame {
@@ -310,20 +324,17 @@ export class Frame {
         return Array.from(chains);
     }
 
-    isProtein(atomIdx: number): boolean {
-        let atom = this.atoms[atomIdx];
-        if (atom.nonAtomLine !== undefined) { return false; }
-        if (PROTEIN_RESNAMES.indexOf(atom.resn) === -1) {
-            return false;
-        }
-        return true;
+    isProtein(atom: IAtom): boolean {
+        // let atom = this.atoms[atomIdx];
+        // if (atom.nonAtomLine !== undefined) { return false; }
+        return PROTEIN_RESNAMES.has(atom.resn);
     }
 
     addNonProteinAtomsToMol(mol: ParentMol): void {
         mol.startNewFrame();
-        for (let atomIdx in this.atoms) {
-            if (!this.isProtein(parseInt(atomIdx))) {
-                mol.addAtomToCurrentFrame(this.atoms[atomIdx]);
+        for (let atom of this.atoms) {
+            if (!this.isProtein(atom)) {
+                mol.addAtomToCurrentFrame(atom);
             }
         }
     }
@@ -370,7 +381,7 @@ export class Frame {
 
     keepOnlyProtein(): Frame {
         let frame = new Frame();
-        frame.atoms = this.atoms.filter((_, i) => this.isProtein(i));
+        frame.atoms = this.atoms.filter(a => this.isProtein(a));
         return frame;
     }
 
@@ -386,5 +397,28 @@ export class Frame {
             this.atoms[idx].y = y;
             this.atoms[idx].z = z;
         }
+    }
+
+    removeAltLocs(): void {
+        let atomIdsSeen = new Set([]);
+        this.atoms = this.atoms.filter((atom) => {
+            if (atom.altLoc === " ") {
+                // Must be marked with altLoc.
+                return true;
+            }
+    
+            let id = atom.resn;
+            id += ":" + atom.resi;
+            id += ":" + atom.chain;
+            id += ":" + atom.atom;
+            
+            if (atomIdsSeen.has(id)) {
+                // It's an altLoc! Already seen.
+                return false;
+            }
+
+            atomIdsSeen.add(id);
+            return true;
+        });
     }
 }
