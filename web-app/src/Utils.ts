@@ -1,6 +1,6 @@
 // This file is part of Prot2Prot, released under the Apache 2.0 License. See
 // LICENSE.md or go to https://opensource.org/licenses/Apache-2.0 for full
-// details. Copyright 2021 Jacob D. Durrant.
+// details. Copyright 2022 Jacob D. Durrant.
 
 // For functions that don't really need to be within the Vue framework.
 
@@ -57,33 +57,4 @@ export function keepOnlyProteinAtoms(lines: string[]): string {
     }
 
     return linesToKeep;
-}
-
-export function scrollIt(elementID: string) {
-    let startPos = window.scrollY;
-    let startTime = new Date().getTime();
-    let duration = 500;
-    let targetPos = document.getElementById(elementID).getBoundingClientRect().top
-                    + window.pageYOffset
-                    - 20;
-    let deltaPos = targetPos - startPos;
-
-    function scrollStep() {
-        let ratio = (new Date().getTime() - startTime) / duration;
-        let curPos = startPos + ratio * deltaPos;
-        // console.log(ratio, startPos, curPos, targetPos);
-        window.scroll(0, curPos);
-        if (ratio < 1.0) {
-            requestAnimationFrame(() => {
-                scrollStep();
-            });
-        } else {
-            // Finalize
-            window.scroll(0, targetPos);
-        }
-    }
-
-    requestAnimationFrame(() => {
-        scrollStep();
-    });
 }

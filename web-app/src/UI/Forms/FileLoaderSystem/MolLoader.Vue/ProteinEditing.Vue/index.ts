@@ -1,5 +1,5 @@
 // This file is released under the Apache 2.0 License. See
-// https://opensource.org/licenses/Apache-2.0 for full details. Copyright 2021
+// https://opensource.org/licenses/Apache-2.0 for full details. Copyright 2022
 // Jacob D. Durrant.
 
 import { commonProteinEditingProps } from "../../Common/CommonProps.VueFuncs";
@@ -39,10 +39,20 @@ export function setupProteinEditing(): void {
             };
         },
         "watch": {
+            /**
+             * Update localValue based on the changed value.
+             * @param {string} newValue  The new value of the property.
+             * @param {string} oldValue  The previous value of the property.
+             */
             "value"(newValue: string, oldValue: string): void {
                 this["localValue"] = newValue;
-                // this.$emit("input", newValue);
             },
+
+            /**
+             * When the localValue property changes, emit the input event with the new value.
+             * @param {string} newValue  The new value of the input.
+             * @param {string} oldValue  The previous value of the input.
+             */
             "localValue"(newValue: string, oldValue: string): void {
                 this.$emit("input", newValue);
             }

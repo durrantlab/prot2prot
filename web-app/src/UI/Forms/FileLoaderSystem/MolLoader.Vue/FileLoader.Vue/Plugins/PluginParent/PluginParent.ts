@@ -1,5 +1,5 @@
 // This file is released under the Apache 2.0 License. See
-// https://opensource.org/licenses/Apache-2.0 for full details. Copyright 2021
+// https://opensource.org/licenses/Apache-2.0 for full details. Copyright 2022
 // Jacob D. Durrant.
 
 import { IFileInfo, IFileLoadError, IConvert } from '../../../../Common/Interfaces';
@@ -8,6 +8,11 @@ import { processFiles } from './ProcessFiles';
 
 declare var Vue;
 
+/**
+ * The parent class that all file-loader plugins extend.
+ * @abstract
+ * @class FileLoaderPluginParent
+ */
 export abstract class FileLoaderPluginParent {
     // Can be overwritten
     data = () => {return {};}
@@ -21,8 +26,16 @@ export abstract class FileLoaderPluginParent {
     protected abstract template: string;
     abstract tag: string;
     abstract tabName: string;
+
+    /**
+     * How to clear the entry after a file has loaded.
+     */    
     abstract clearEntryAfterLoad: Function;
 
+    /**
+     * Creates a Vue copmonent for the file-loader plugin.
+     * @returns {FileLoaderPluginParent}
+     */
     public setup(): FileLoaderPluginParent {
         let This = this;
 
@@ -48,9 +61,15 @@ export abstract class FileLoaderPluginParent {
         let methodsToUse = {
             ...this.methods,
             
-            // When the file is completely ready, after any conversion, error
-            // handling, etc. Fires for every file loaded.
+            /**
+             * When the file is completely ready, after any conversion, error
+             * handling, etc. Fires for every file loaded
+             * @param {IFileInfo} fileInfo  Information related to the new file.
+             * @returns {void}
+             */
             onFileReady(fileInfo: IFileInfo): void {
+                // When the file is completely ready, after any conversion,
+                // error handling, etc. Fires for every file loaded.
                 if (fileInfo.mol === undefined) {
                     // Didn't really load.
                     return;
@@ -64,13 +83,20 @@ export abstract class FileLoaderPluginParent {
             // contain only one file).
             onFilesLoaded: processFiles,
 
-            // When an error occurs, handle that as well.
+            /**
+             * When an error occurs, handle that as well.
+             * @param {IFileLoadError} errorMsg
+             */
             onError(errorMsg: IFileLoadError): void {
                 this.$emit("onError", errorMsg);
             },
 
-            // Start converting files that need to be converted.
-            onStartConvertFiles(files: IConvert[]) {
+            /**
+             * Start converting files that need to be converted.
+             * @param {IConvert[]} files  A list of convert-file information.
+             * @returns void
+             */
+            onStartConvertFiles(files: IConvert[]): void {
                 if (files.length === 0) {
                     return;
                 }
@@ -111,6 +137,12 @@ export abstract class FileLoaderPluginParent {
 
         let computedsToUse = {
             ...this.computed,
+
+            /**
+             * Get the placeholder text. Could be the filename you should show,
+             * or the default placeholder.
+             * @returns {string}  The placeholder text.
+             */
             "placeholder"(): string {
                 // Note that this["filenameToShow"] will be "" if multiple files
                 // not allowed, or the last (selected) file otherwise. If no
@@ -144,13 +176,13 @@ export abstract class FileLoaderPluginParent {
         return this;
     }
 
-    // propVals: {[key: string]: string}
-    public create(idx=0): string {
-        
-        // for (let propName in propVals) {
-        //     propStr += `${propName}=${propVals[propName]} `
-        // }
-
+    /**
+     * Get the html tag for the new file-loader plugin component.
+     *
+     * @param {number} [idx=0]  The index to use.
+     * @returns {string}
+     */
+    public create(idx = 0): string {
         let str = `<${this.tag}
             ref="fileLoaderPlugin${idx}"
             :accept="accept" :convert="convert"
@@ -161,8 +193,6 @@ export abstract class FileLoaderPluginParent {
             :filenameToShow="filenameToShow"
             :multipleFiles="multipleFiles"
         >`;
-
-        // 
 
         str += `</${this.tag}>`;
 

@@ -1,6 +1,18 @@
+// This file is part of Prot2Prot, released under the Apache 2.0 License. See
+// LICENSE.md or go to https://opensource.org/licenses/Apache-2.0 for full
+// details. Copyright 2022 Jacob D. Durrant.
+
 import { IProteinColoringInfo } from ".";
 
-export function colorize(inp, out, tf, proteinColoringInf: IProteinColoringInfo): any {
+/**
+ * Colorizes an iamge tensor.
+ * @param inp  The input tensor.
+ * @param out  The output tensor.
+ * @param tf   The TensorFlow module.
+ * @param {IProteinColoringInfo} proteinColoringInf  The coloring scheme.
+ * @returns The output image tensor.
+ */
+export function colorize(inp: any, out: any, tf: any, proteinColoringInf: IProteinColoringInfo): any {
     let compositeMask = makeMask(inp, out, proteinColoringInf.colorStrength);
 
     if (proteinColoringInf.colorBlend > 0) {
@@ -26,26 +38,23 @@ export function colorize(inp, out, tf, proteinColoringInf: IProteinColoringInfo)
 
     // Get the difference between the output and this solid color.
     let diff = solidColor.sub(out);
-    // solidColor.dispose();
     let diffScaled = diff.mul(compositeMaskRGB);
-    // diff.dispose();
-    // compositeMaskRGB.dispose();
-    
-    // Scale down by strength
-    // let diffScaledScaled = diffScaled.mul(strength);
     
     out = out.add(diffScaled);
-    // diffScaledScaled.dispose();
-    // diffScaled.dispose();
-
-    // out = tf.stack([zeros, g, zeros]).transpose([1, 2, 0]);
-    // return out.mul(mask).div(255);
-    // debugger;
 
     return out;
 }
 
-function makeMask(inp, out, strength: number) {
+/**
+ * Given an input image and an output image, create a mask that is a composite
+ * of a grayscale mask of the output image, a binary mask of the input image,
+ * and a distance mask of the input image
+ * @param {*}      inp  Input image tensor
+ * @param {*}      out  Output image tensor
+ * @param {number} strength  The strength of the colorizing effect.
+ * @returns {*}  The mask that is returned is a tensor.
+ */
+function makeMask(inp: any, out: any, strength: number) {
     // Initial grayscale masking of output scene.
     let outMask = grayscaleMask(out);
     
@@ -56,10 +65,9 @@ function makeMask(inp, out, strength: number) {
     let inpDist = inp.unstack(2)[2].div(255);
     inpDist = inpDist.onesLike(inpDist).sub(inpDist);  // invert
 
-    // Mask where protein is grayscale masked, everything else black
-    // (won't change).
+    // Mask where protein is grayscale masked, everything else black (won't
+    // change).
     let compositeMask = outMask.mul(inpMask).mul(strength).mul(inpDist);
-    // compositeMask = inpDist // inpDist.onesLike(inpDist).mul(strength);
 
     outMask.dispose();
     inpMask.dispose();
@@ -68,7 +76,14 @@ function makeMask(inp, out, strength: number) {
     return compositeMask;
 }
 
-function gaussianBlurMask(mask, blur, tf) {
+/**
+ * It takes a mask, and a blur radius, and returns a blurred mask.
+ * @param {*}      mask  The mask to blur.
+ * @param {number} blur  The radius of the Gaussian blur effect.
+ * @param {*}      tf    TensorFlow.js module.
+ * @returns {*}  A mask that is blurred.
+ */
+function gaussianBlurMask(mask: any, blur: number, tf: any) {
     let maskPadded = mask.mirrorPad(
             [[blur, blur],
             [blur, blur]]
@@ -111,11 +126,6 @@ function gaussianBlurMask(mask, blur, tf) {
 
                 return maskUpdated;
             });
-
-            // compositeMask.dispose();
-            // scaleSliced.dispose();
-            // compositeMaskSliced.dispose();
-            // compositeMask = updatedCompositeMask;
         }
     }
     mask = mask.div(maxPossible);
@@ -124,7 +134,14 @@ function gaussianBlurMask(mask, blur, tf) {
     return mask;
 }
 
-function makeSolidColor(color: number[], dimens: number[], tf) {
+/**
+ * Creates a tensor of the given dimensions, and fills it with the given color
+ * @param {number[]} color   An array of numbers representing the color.
+ * @param {number[]} dimens  The dimensions of the image.
+ * @param {*}        tf      The TensorFlow.js module.
+ * @returns A tensor representing the solid color.
+ */
+function makeSolidColor(color: number[], dimens: number[], tf): any {
     let onesChannel = tf.ones(dimens);
     let solidColor = stackColorChannels(
         onesChannel.mul(color[0]), onesChannel.mul(color[1]),
@@ -134,12 +151,25 @@ function makeSolidColor(color: number[], dimens: number[], tf) {
     return solidColor;
 }
 
-function grayscaleMask(imgData) {
+/**
+ * Given an image tensor, return a grayscale version.
+ * @param imgData  The image data to be converted to grayscale.
+ * @returns {*}  The grayscale image data, a tensor.
+ */
+function grayscaleMask(imgData): any {
     let [r, g, b] = imgData.unstack(2);
     let outGrayscaleBW = r.add(g).add(b).div(3);
     return outGrayscaleBW.div(255);  // So 0 to 1
 }
 
+/**
+ * Combines r, g, and b tensors into a single RGB tensor.
+ * @param r   The red channel tensor.
+ * @param g   The green channel tensor.
+ * @param b   The blue channel tensor.
+ * @param tf  The TensorFlow module.
+ * @returns {*}  A tensor with the R, G, B channels stacked.
+ */
 function stackColorChannels(r, g, b, tf) {
     return tf
         .stack([r, g, b])

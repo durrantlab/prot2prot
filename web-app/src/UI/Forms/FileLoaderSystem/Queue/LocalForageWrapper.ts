@@ -1,21 +1,20 @@
-// import localforage from "localforage";
+// Released under the Apache 2.0 License. See LICENSE.md or go to
+// https://opensource.org/licenses/Apache-2.0 for full details. Copyright 2022
+// Jacob D. Durrant.
 
 import { IFileInfo } from "../Common/Interfaces";
 import { ParentMol } from "../Mols/ParentMol";
 
 let localforage: any;
 
-// export const enum QueueStatus {
-//     // Note: const enum needed for closure-compiler compatibility.
-//     MULTPLE_ENTRIES = 1,
-//     ONE_ENTRY_LEFT = 2,
-//     EMPTY = 3,
-//     ERROR = 4
-// }
-
 let delim = "-::-:-";
 let outputPrefix = "OUTPUTOUTPUT"
 
+/**
+ * Import the localforage module and return a promise that resolves to the
+ * localforage module.
+ * @returns The promise.
+ */
 function getLocalForage(): Promise<any> {
     return import(
         /* webpackChunkName: "localforage" */
@@ -29,6 +28,11 @@ function getLocalForage(): Promise<any> {
 
 }
 
+/**
+ * Get all the localforage keys that start with the given id.
+ * @param {string} id  The prefix of the keys you want to retrieve.
+ * @returns {Promise}  A promise that resolves when done.
+ */
 function getKeys(id: string): Promise<any> {
     return getLocalForage()
     .then(() => {
@@ -40,6 +44,11 @@ function getKeys(id: string): Promise<any> {
     });
 }
 
+/**
+ * Clear all localForage items for a given id
+ * @param {string} id  The prefix of the items you want to clear.
+ * @returns {Promise}  A promise that resolves when done.
+ */
 export function clearAllLocalForage(id: string): Promise<any> {
     return getLocalForage()
     .then(() => { return getKeys(id); })
@@ -49,6 +58,13 @@ export function clearAllLocalForage(id: string): Promise<any> {
     });
 }
 
+/**
+ * Given an id and a files object, clear all localForage items with that id,
+ * then set each key/value pair in the files object to localForage.
+ * @param {string} id     The prefix of the items you want to clear.
+ * @param {any}    files  The files object to be stored.
+ * @returns {Promise}  A promise that resolves when done.
+ */
 export function filesObjToLocalForage(id: string, files: any): Promise<any> {
     return getLocalForage()
     .then(() => { return clearAllLocalForage(id); })
@@ -58,6 +74,11 @@ export function filesObjToLocalForage(id: string, files: any): Promise<any> {
     })
 }
 
+/**
+ * Gets the localforage keys for each of a list of ids.
+ * @param {string[]} ids  The list of ids.
+ * @returns An array of arrays of strings.
+ */
 function getQueueKeysPerId(ids: string[]): Promise<string[][]> {
     // Gets the status of the queue, but doesn't change the queue.
     let getKeysPromises = ids.map(id => getKeys(id));
@@ -67,6 +88,11 @@ function getQueueKeysPerId(ids: string[]): Promise<string[][]> {
     });
 }
 
+/**
+ * Get the number of items remaining in the queue.
+ * @param {string[]} ids  The localforage ids to check.
+ * @returns {number} The number of items in the queue.
+ */
 export function numLeftInQueue(ids: string[]): Promise<number> {
     // Gets the status of the queue, but doesn't change the queue.
     return getQueueKeysPerId(ids)
@@ -92,6 +118,12 @@ export function numLeftInQueue(ids: string[]): Promise<number> {
     });
 }
 
+/**
+ * Given an array of ids, return an array of corresponding ParentMol from
+ * localforage.
+ * @param {string[]} ids  The ids to retrieve.
+ * @returns {Promise}  A promise that resolves to an array of ParentMol objects.
+ */
 function getContents(ids: string[]): Promise<ParentMol[]> {
     // Each one contains only one element.
     let contentsPromises: Promise<ParentMol>[] = ids.map(
@@ -100,15 +132,19 @@ function getContents(ids: string[]): Promise<ParentMol[]> {
     return Promise.all(contentsPromises);
 }
 
+/**
+ * Get the contents of the first item in the queue, and remove that item.
+ * @param {string[]} ids  An array of ids.
+ * @returns {Promise}  A promise that resolves to an array of IFileInfo objects.
+ */
 export function popQueue(ids: string[]): Promise<IFileInfo[]> {
+    // TODO: Still right? I think objects are now stored in localforage as
+    // objects.
     return getLocalForage()
     .then(() => { return numLeftInQueue(ids); })
     .then((numItems: number): Promise<IFileInfo[]> => {
         let onlyOneOfEach: boolean;
         switch (numItems) {
-            // case QueueStatus.ERROR:
-            //     console.warn("One is empty, but other's aren't!", ids)
-            //     return Promise.resolve(ids.map(id => ""));
             case 0:
                 let emptyFiles = ids.map((id) => {
                     return {filename: "", mol: undefined} as IFileInfo
@@ -169,6 +205,13 @@ export function popQueue(ids: string[]): Promise<IFileInfo[]> {
     });
 }
 
+/**
+ * Generate a ZIP file from a list of files.
+ * @param {any} files                        A map of file names to file
+ *                                           contents.
+ * @param {string} [zipFilename=output.zip]  The name of the zip file that will
+ *                                           be created.
+ */
 function generateZIPDownload(files: any, zipFilename: string = "output.zip") {
     let jsZipPromise = import(
         /* webpackChunkName: "JSZip" */ 
@@ -216,14 +259,13 @@ function generateZIPDownload(files: any, zipFilename: string = "output.zip") {
 
 }
 
-// export function activeQueue(val: boolean = undefined): Promise<any> {
-//     return (val !== undefined)
-//         ? localforage.setItem("activeQueue", val)  // set
-//         : localforage.getItem("activeQueue");      // get
-// }
-
+/**
+ * Now that queue is empty, and if there are files to download, generate a zip
+ * file and download it.
+ * @param {string} [zipFilename=output.zip]  The name of the zip file to download.
+ * @returns {Promise}  A promise that resolves when done.
+ */
 export function endQueueAndDownloadFilesIfAvailable(zipFilename = "output.zip"): Promise<any> {
-    // return activeQueue(false) 
     return getLocalForage()
     .then(() => { return getKeys(outputPrefix); })
     .then((ids: string[]) => {
@@ -257,6 +299,13 @@ export function endQueueAndDownloadFilesIfAvailable(zipFilename = "output.zip"):
     });
 }
 
+/**
+ * Save a file to the localForage database
+ * @param {string} filename      The name of the file to save.
+ * @param {string} content       The content to be saved.
+ * @param {string} [dirname=""]  The directory name to save the file in.
+ * @returns {Promise}  A promise that resolves when done.
+ */
 export function saveOutputToLocalForage(filename: string, content: string, dirname: string = ""): Promise<any> {
     let key = [outputPrefix, dirname, filename].join(delim);
     return getLocalForage()
@@ -266,6 +315,11 @@ export function saveOutputToLocalForage(filename: string, content: string, dirna
 }
 
 
+/**
+ * Saves the meta data to localForage (e.g., program run parameters).
+ * @param {any} content  The data to be saved.
+ * @returns {Promise}  A promise that resolves when done.
+ */
 export function saveMetaToLocalForage(content: any): Promise<any> {
     return getLocalForage()
     .then(() => { 
@@ -273,6 +327,10 @@ export function saveMetaToLocalForage(content: any): Promise<any> {
     })
 }
 
+/**
+ * Get the meta data from localForage.
+ * @returns {Promise}  A promise that resolves with the metadata.
+ */
 export function loadMetaFromLocalForage(): Promise<any> {
     return localforage.getItem("meta");
 }

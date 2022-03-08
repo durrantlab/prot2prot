@@ -1,17 +1,28 @@
+// This file is part of Prot2Prot, released under the Apache 2.0 License. See
+// LICENSE.md or go to https://opensource.org/licenses/Apache-2.0 for full
+// details. Copyright 2022 Jacob D. Durrant.
+
 import { loadTfjs, tf } from '../../LoadTF';
 import { initializeVars } from '../MakeImage';
 import { mergeAtomsData } from './MergedAtoms';
 import { vdwRadii } from './VDWRadii';
 import { ParentMol } from '../../../UI/Forms/FileLoaderSystem/Mols/ParentMol';
 
-// let twoLetterElements: Set<string>;  // populated in parsePDB
-
 export let coorsTensor: any;  // tf.Tensor<tf.Rank>;
 export let elements: string[];
 export let vdw: any;  // tf.Tensor<tf.Rank>;
 export let pdbLines: string[];
 
-export function parsePDB(pdb: ParentMol, recenter = true, radiusScale = 1.0, atomNamesToKeep: string[] = undefined): Promise<any> {
+/**
+ * Load a molecule into tensorflow tensors.
+ * @param {ParentMol}  mol                The molecule.
+ * @param {boolean}    [recenter=true]    If true, center the molecule at the
+ *                                        origin.
+ * @param {number}     [radiusScale=1.0]  The scale factor for the vdw radii.
+ * @param {string[]}   atomNamesToKeep    An optional array of atom names to
+ *                                        keep.
+ */
+export function loadMolIntoTF(mol: ParentMol, recenter = true, radiusScale = 1.0, atomNamesToKeep: string[] = undefined): Promise<any> {
     // Reset the rotation and offset vectors, in case reloading PDB.
     initializeVars(true);
 
@@ -20,36 +31,15 @@ export function parsePDB(pdb: ParentMol, recenter = true, radiusScale = 1.0, ato
         vdwRadii[atomType] = mergeAtomsData[atomType][2];
     }
 
-    // Mark certain element names as having two letters.
-    // twoLetterElements = new Set(Object.keys(vdwRadii).filter(e => e.length > 1));
-    
     return loadTfjs().then(() => {
-        // pdbLines = pdbMol.split("\n");
-        // pdbLines = pdbLines.filter(l => l.startsWith("ATOM") || l.startsWith("HETATM"));
-
         // atomNamesToKeep = ["C", "CA", "N"];
         // radiusScale = 0.5;
         if (atomNamesToKeep) {
-            pdb = pdb.keepSelection({atomNames: atomNamesToKeep});
-            
-            // pdbLines = pdbLines.filter(
-            //     l => atomNamesToKeep.indexOf(
-            //         l.substring(11, 16).trim()
-            //     ) !== -1
-            // );
+            mol = mol.keepSelection({atomNames: atomNamesToKeep});
         }
 
-        let coors = pdb.getCoords()[0];
-        elements = pdb.getElements()[0];
-
-        // elements = pdbLines.map((l) => {
-        //     let ln = l.length;
-        //     let elem = l.substring(ln - 3).trim();
-        //     if (elem === "") {
-        //         elem = elementFromAtomName(l.substring(12, 16).trim());
-        //     }
-        //     return elem;
-        // });
+        let coors = mol.getCoords()[0];
+        elements = mol.getElements()[0];
 
         if (vdw) { vdw.dispose(); }
 
@@ -57,7 +47,6 @@ export function parsePDB(pdb: ParentMol, recenter = true, radiusScale = 1.0, ato
             elements.map((e) => {
                 // Assume carbon if radii not defined...
                 return radiusScale * (vdwRadii[e] !== undefined ? vdwRadii[e] : vdwRadii["C"]);
-                // return vdwRadii[e] !== undefined ? vdwRadii[e] : vdwRadii["C"];
             })
         );
 
@@ -72,12 +61,16 @@ export function parsePDB(pdb: ParentMol, recenter = true, radiusScale = 1.0, ato
             }
             return coorsTensr;
         });
-    
 
         return Promise.resolve(undefined);
     });
 }
 
+/**
+ * Get the indexes of all atoms of a given element.
+ * @param {string} element  The element to search for.
+ * @returns {number[]} An array of indexes of matching atoms.
+ */
 function getIdxsOfElements(element: string): number[] {
     if (elements === undefined) {
         return [];
@@ -87,6 +80,10 @@ function getIdxsOfElements(element: string): number[] {
     return elemsMatchs.map(e => e[1]) as number[];
 }
 
+/**
+ * Remove all of the atoms of a given element.
+ * @param {string} element  The element to remove.
+ */
 export function removeAllOfElement(element: string): void {
     let idxsToRemove = getIdxsOfElements(element);
     
@@ -114,8 +111,13 @@ export function removeAllOfElement(element: string): void {
     vdw = tf.tensor(vdwArr);
 }
 
-// Certain atoms should be considered the same atom for visualization purposes
-// (limited colors).
+/**
+ * For each element in the `mergeAtomsData` object, replace all instances of the
+ * original element with the new element. Because certain atoms should be
+ * considered the same atom for visualization purposes (limited colors).
+ * @param {boolean} [updatePDBLine=false]  If true, the PDB line will be updated
+ *                                         to reflect the new element.
+ */
 export function mergeAtomTypes(updatePDBLine = false): void {
     for (let newElem in mergeAtomsData) {
         for (let origElem of mergeAtomsData[newElem][0]) {
@@ -124,6 +126,15 @@ export function mergeAtomTypes(updatePDBLine = false): void {
     }
 }
 
+/**
+ * Replace all instances of a given element with a new element.
+ * @param {string} origElement             The element to replace.
+ * @param {string} newElement              The element to replace with.
+ * @param {number} frequency               The probability that a element will
+ *                                         be replaced.
+ * @param {boolean} [updatePDBLine=false]  If true, the PDB line will be updated
+ *                                         to reflect the new element.
+ */
 export function replaceElement(origElement: string, newElement: string, frequency: number, updatePDBLine = false): void {
     let idxsOfHydrogens = getIdxsOfElements(origElement);
     let initialNewElement = newElement.toUpperCase().trim();
@@ -137,7 +148,6 @@ export function replaceElement(origElement: string, newElement: string, frequenc
         }
         
         elements[idx] = initialNewElement;
-        // let newName = newElement + Math.floor(10 * Math.random()).toString();
         
         if (updatePDBLine) {
             // Also update PDB line. Only do this if you plan to save out the

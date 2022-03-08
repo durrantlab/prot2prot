@@ -1,12 +1,9 @@
 // This file is released under the Apache 2.0 License. See
-// https://opensource.org/licenses/Apache-2.0 for full details. Copyright 2021
+// https://opensource.org/licenses/Apache-2.0 for full details. Copyright 2022
 // Jacob D. Durrant.
 
 import { commonQueueProps } from "../../Common/CommonProps.VueFuncs";
 import { endQueueAndDownloadFilesIfAvailable, numLeftInQueue } from "../LocalForageWrapper";
-
-// import { addCSS } from "../Common/Utils";
-// import { fileLoaderFileListMethodsFunctions } from "./Methods.VueFuncs";
 
 declare var Vue;
 
@@ -36,6 +33,12 @@ export function setupQueueCatcher(): void {
             };
         },
         "watch": {
+            /**
+             * Useful for triggering the queue catcher externally. Just change
+             * the `trigger` prop to anything new.
+             * @param {boolean} newVal  The new value.
+             * @param {boolean} oldVal  The old value.
+             */
             "trigger"(newVal: boolean, oldVal: boolean) {
                 this["beforeQueueNextItemFunc"]()
                 .then(() => {
@@ -58,6 +61,9 @@ export function setupQueueCatcher(): void {
             }
         },
         "methods": {
+            /**
+             * Emit the onQueueNextItem event.
+             */
             "onProceed"(): void {
                 this.$emit("onQueueNextItem");
             }

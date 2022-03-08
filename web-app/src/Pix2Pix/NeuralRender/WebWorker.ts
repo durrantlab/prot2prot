@@ -1,3 +1,7 @@
+// This file is part of Prot2Prot, released under the Apache 2.0 License. See
+// LICENSE.md or go to https://opensource.org/licenses/Apache-2.0 for full
+// details. Copyright 2022 Jacob D. Durrant.
+
 import { neuralRenderInWorker } from './WebWorkerSupport';
 declare var tf;
 
@@ -56,6 +60,10 @@ if (inWebWorker) {
     };
 }
 
+/**
+ * Takes a string and sends it to the parent window.
+ * @param {string} msg  The message to send.
+ */
 function sendMsg(msg: string): void {
     ctx.postMessage({
         "cmd": "message",

@@ -1,6 +1,6 @@
 // This file is part of Prot2Prot, released under the Apache 2.0 License. See
 // LICENSE.md or go to https://opensource.org/licenses/Apache-2.0 for full
-// details. Copyright 2021 Jacob D. Durrant.
+// details. Copyright 2022 Jacob D. Durrant.
 
 import * as Store from "../VueInterface/Store";
 import * as Utils from "../Utils";
@@ -19,11 +19,6 @@ export function setup(): void {
         "template": /* html */ `
             <div class="container-fluid">
                 <open-modal></open-modal>
-                <!-- <div id="no-mobile">
-                    <b-jumbotron class="jumbo" header="Prot2Prot ${VERSION}" lead="Advanced protein rendering in the browser">
-                        <p>Prot2Prot ${VERSION} is not designed to work on mobile phones. Please use a device with a larger screen.</p>
-                    </b-jumbotron>
-                </div> -->
 
                 <b-jumbotron class="jumbo" style="background-image:url(${Utils.curPath()}webina_logo.jpg);" header="Prot2Prot ${VERSION}" lead="Advanced protein rendering in the browser">
                     <p>Brought to you by the <a target="_blank" href="http://durrantlab.com">Durrant Lab</a>.</p>

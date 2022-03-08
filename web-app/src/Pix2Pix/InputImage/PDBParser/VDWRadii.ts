@@ -1,3 +1,7 @@
+// This file is part of Prot2Prot, released under the Apache 2.0 License. See
+// LICENSE.md or go to https://opensource.org/licenses/Apache-2.0 for full
+// details. Copyright 2022 Jacob D. Durrant.
+
 // This list not exhaustive!
 export let vdwRadii = {
     "H": 1.2, "C": 1.7, "N": 1.55, "O": 1.52, "F": 1.47, "P": 1.8, "S": 1.8,

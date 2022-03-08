@@ -1,5 +1,5 @@
 // This file is released under the Apache 2.0 License. See
-// https://opensource.org/licenses/Apache-2.0 for full details. Copyright 2021
+// https://opensource.org/licenses/Apache-2.0 for full details. Copyright 2022
 // Jacob D. Durrant.
 
 import { FileLoaderInputPlugin } from "./Plugins/FileLoaderInput.Vue";
@@ -16,6 +16,10 @@ declare var Vue;
 
 let plugins: FileLoaderPluginParent[] = [];
 
+/**
+ * The HTML of all file-loader plugins.
+ * @returns A string of HTML.
+ */
 let getPluginsStr = () => {
     switch (plugins.length) {
         case 0:
@@ -68,10 +72,21 @@ let getPluginsStr = () => {
 
 /** An object containing the vue-component computed functions. */
 let computedFunctions = {
+    /**
+     * Whether associated file is valid. Used to show error message if needed.
+     * @returns True if valid, false otherwise.
+     */
     "isValid"(): boolean {
         let valid = (this["required"] === false) || (Object.keys(this["value"]).length !== 0);
         return valid ? null : valid;
     },
+
+
+    /**
+     * If the user has selected multiple files, return an empty string.
+     * Otherwise, return the selected filename.
+     * @returns The filename of the selected file.
+     */
     "filenameToShow"(): string {
         if (this["multipleFiles"] === true) {
             return "";
@@ -81,7 +96,10 @@ let computedFunctions = {
     }
 };
 
-export function setupFileLoader() {
+/**
+ * Setup all plugins.
+ */
+export function setupFileLoader(): void {
     // Always load all plugins. Whether they are displayed will be specified
     // within vue.js, but just always load them all.
     setupFileLoaderWithPlugins([
@@ -93,6 +111,7 @@ export function setupFileLoader() {
 
 /**
  * Setup the file-loader Vue commponent.
+ * @param {*} [pluginList=undefined]  The list of plugins.
  * @returns void
  */
 function setupFileLoaderWithPlugins(pluginList=undefined): void {

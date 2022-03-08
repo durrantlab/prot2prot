@@ -1,6 +1,6 @@
 // This file is part of Prot2Prot, released under the Apache 2.0 License. See
 // LICENSE.md or go to https://opensource.org/licenses/Apache-2.0 for full
-// details. Copyright 2021 Jacob D. Durrant.
+// details. Copyright 2022 Jacob D. Durrant.
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { viewSetupComputedFunctions, viewSetupData, viewSetupTemplate } from "./ViewSetup";
@@ -41,6 +41,11 @@ let watchFunctions = {
 
 /** An object containing the vue-component methods functions. */
 let methodsFunctions = {
+    /**
+     * Opens a modal with the given error title and message.
+     * @param {string} title  The title of the modal.
+     * @param {string} msg    The error message to display in the modal.
+     */
     onError(title: string, msg: string): void {
         this.$store.commit("openModal", {
             title: title,

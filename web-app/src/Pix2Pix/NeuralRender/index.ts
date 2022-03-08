@@ -1,3 +1,7 @@
+// This file is part of Prot2Prot, released under the Apache 2.0 License. See
+// LICENSE.md or go to https://opensource.org/licenses/Apache-2.0 for full
+// details. Copyright 2022 Jacob D. Durrant.
+
 import { store } from '../../VueInterface/Store';
 import { makeInMemoryCanvas, getImageDataFromCanvas, drawImageDataOnCanvas } from '../InputImage/ImageDataHelper';
 import { loadTfjs, tf } from '../LoadTF';
@@ -14,11 +18,21 @@ export interface IProteinColoringInfo {
     colorBlend: number;
 }
 
+/**
+ * Runs inference in a webworker.
+ * @param  {string}                modelPath           The path to the model.
+ * @param  {ImageData|Uint8Array}  imageData           The input image data
+ *                                                     (tensor).
+ * @param  {IProteinColoringInfo}  proteinColoringInf  The coloring scheme.
+ * @param  {Function}              resolveFunc         The function to call when
+ *                                                     complete.
+ * @returns void
+ */
 let runWebWorker = function(
     modelPath: string, imageData: ImageData | Uint8Array, 
     proteinColoringInf: IProteinColoringInfo,
     resolveFunc: Function
-) {
+): void {
     // Uses a web worker (default).
     if (webWorker === undefined) {
         webWorker = new Worker("./renderWebWorker.js?" + Math.random().toString());
@@ -53,12 +67,26 @@ let runWebWorker = function(
     });
 }
 
-export function runningInNode() {
+/**
+ * Runs inference without using a webworker. Good for use in nodejs.
+ */
+export function runningInNode(): void {
     // Run inference without using web workers (for use in nodejs).
+
+    /**
+     * Runs inference without using a webworker.
+     * @param  {string}                modelPath           The path to the model.
+     * @param  {ImageData|Uint8Array}  imageData           The input image data
+     *                                                     (tensor).
+     * @param  {IProteinColoringInfo}  proteinColoringInf  The coloring scheme.
+     * @param  {Function}              resolveFunc         The function to call when
+     *                                                     complete.
+     * @returns void
+     */
     runWebWorker = function(
         modelPath: string, imageData: ImageData | Uint8Array, 
         proteinColoringInf: IProteinColoringInfo, resolveFunc: Function
-    ) {
+    ): any {
         neuralRenderInWorker(modelPath, imageData, proteinColoringInf, tf)
         .then((outTypedArray) => {
             resolveFunc(outTypedArray);
@@ -66,6 +94,11 @@ export function runningInNode() {
     };
 }
 
+/**
+ * Given image data, return the dimension of the image.
+ * @param {ImageData | Float32Array} imageData  The image data.
+ * @returns  The dimensions of the image.
+ */
 function getDimen(imageData: ImageData | Float32Array): number {
     if (imageData instanceof Float32Array) {
         return Math.round(Math.sqrt(imageData.length / 3));
@@ -74,6 +107,15 @@ function getDimen(imageData: ImageData | Float32Array): number {
     }
 }
 
+/**
+ * Actually renders the image using Prot2Prot.
+ * @param {string}                modelPath             The path to the model.
+ * @param {ImageData|Uint8Array}  inputImageData        The input image data
+ *                                                      (tensor).
+ * @param {IProteinColoringInfo}  [proteinColoringInf]  The coloring scheme.
+ * @param {*}                     [ImageClass]          For use when running in
+ * @returns {Promise}  A promise that resolves with the rendered image data
+ */
 export function neuralRender(
     modelPath: string, inputImageData: ImageData | Uint8Array,
     proteinColoringInf?: IProteinColoringInfo, ImageClass?: any
@@ -155,6 +197,11 @@ export function neuralRender(
         });
 }
 
+/**
+ * Convert a hexadecimal color to an RGB array
+ * @param   {string} h  Hexadecimal color value (e.g. #FF00FF)
+ * @returns {number[]}  An array of numbers.
+ */
 function hexToRGB(h: string): number[] {
     // Make with help from codex.
     var hex = h.replace('#', '');

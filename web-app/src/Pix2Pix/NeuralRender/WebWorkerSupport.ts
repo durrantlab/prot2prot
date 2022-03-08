@@ -1,3 +1,7 @@
+// This file is part of Prot2Prot, released under the Apache 2.0 License. See
+// LICENSE.md or go to https://opensource.org/licenses/Apache-2.0 for full
+// details. Copyright 2022 Jacob D. Durrant.
+
 // These functions are in a separate file because sometimes you might want to
 // access them outside a webworker as well (e.g., for use in nodejs).
 
@@ -11,10 +15,25 @@ let storedModel = {
 let out;
 let firstRender = true;
 
+/**
+ * Rendering in the webworker.
+ * @param {string}                modelPath             The path to the model.
+ * @param {ImageData|Uint8Array}  inputImageData        The input image data
+ *                                                      (tensor).
+ * @param {IProteinColoringInfo}  [proteinColoringInf]  The coloring scheme.
+ * @param {*}                     tf                    The TensorFlow.js
+ *                                                      module.
+ * @param {Function}              sendMsgFunc           A function that takes a
+ *                                                      string as an argument
+ *                                                      and sends it to the main
+ *                                                      thread.
+ * @returns {Promise}  A promise that resolves the output of the neural network
+ *                     (a JavaScript array).
+ */
 export function neuralRenderInWorker(
     modelPath: string, imageData: ImageData | Uint8Array, 
     proteinColoringInf: IProteinColoringInfo,
-    tf, sendMsgFunc=undefined
+    tf: any, sendMsgFunc: Function=undefined
 ): Promise<any> {
     let loadModelPromise: Promise<any>;
     if (modelPath !== storedModel.path) {
@@ -24,7 +43,6 @@ export function neuralRenderInWorker(
 
         loadModelPromise = tf.ready()
             .then(() => {
-                // ? loadLayersModel(modelPath)
                 let loadGraph = tf.loadGraphModel(modelPath, {
                     "onProgress"(v) {
                         if (sendMsgFunc) {
@@ -68,15 +86,11 @@ export function neuralRenderInWorker(
             if (imageData instanceof Uint8Array) {
                 // Probably running in nodejs, not the browser.
                 inp = tf.node.decodePng(imageData, 3);
-                // inpSimp = tf.node.decodePng(proteinColoringInf.imageDataSimpleForColoring, 3);
             } else {
                 // Probably running in the browser, using ImageData.
                 inp = tf.browser.fromPixels(imageData, 3);
-                // inpSimp = tf.browser.fromPixels(proteinColoringInf.imageDataSimpleForColoring, 3);
             }
             
-            // return inpSimp.div(255);
-
             const processed = normalize(inp, tf);
             const channelFirst = processed.transpose([2, 0, 1]);
             processed.dispose();
@@ -126,11 +140,23 @@ export function neuralRenderInWorker(
     });
 }
 
-function normalize(t, tf) {
+/**
+ * Normalize the tensor t.
+ * @param {*} t   The tensor to be normalized
+ * @param {*} tf  The tensorflow module
+ * @returns The normalized tensor.
+ */
+function normalize(t: any, tf: any): any {
     return tf.sub(tf.div(t, 127.5), 1)
 }
 
-function unnormalize(t, tf) {
+/**
+ * Undo normalization of the tensor t.
+ * @param {*} t   The normalized tensor tensor to be normalized
+ * @param {*} tf  The tensorflow module
+ * @returns The unnormalized tensor.
+ */
+function unnormalize(t: any, tf: any): any {
     return tf.mul(tf.add(t, 1), 127.5)
 }
 

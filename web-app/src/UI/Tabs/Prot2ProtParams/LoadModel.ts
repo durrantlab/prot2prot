@@ -1,8 +1,11 @@
+// This file is part of Prot2Prot, released under the Apache 2.0 License. See
+// LICENSE.md or go to https://opensource.org/licenses/Apache-2.0 for full
+// details. Copyright 2022 Jacob D. Durrant.
+
 import { initializeVars } from "../../../Pix2Pix/InputImage/MakeImage";
-import { parsePDB, pdbLines } from "../../../Pix2Pix/InputImage/PDBParser";
+import { loadMolIntoTF, pdbLines } from "../../../Pix2Pix/InputImage/PDBParser";
 import { keepOnlyProteinAtoms, replaceExt } from "../../../Utils";
 import { IFileInfo, IFileLoadError } from '../../Forms/FileLoaderSystem/Common/Interfaces';
-import { PDBMol } from "../../Forms/FileLoaderSystem/Mols/PDBMol";
 
 export let loadModelTemplate = /* html */ `
 <sub-section title="Input PDB File" v-if="showFileInputs">
@@ -21,16 +24,19 @@ export let loadModelTemplate = /* html */ `
         @onError="onFileLoadError"
         @onFileReady="onFileReady"
     ></mol-loader>
-    <!-- @onExtractAtoms="onExtractReceptorAtomsToLigand" -->
 
     <form-button
         @click.native="useExampleProt2ProtInputFiles"
         cls="float-right"
-    >Use Example Files</form-button>  <!-- variant="default" -->
+    >Use Example Files</form-button>
 </sub-section>
 `;
 
 export let loadModelMethodsFunctions = {
+    /**
+     * When an error occurs.
+     * @param {IFileLoadError} error  The error.
+     */
     "onFileLoadError"(error: IFileLoadError): void {
         this.onError(
             error.title,
@@ -38,13 +44,17 @@ export let loadModelMethodsFunctions = {
         );
     },
 
+    /**
+     * When a file is ready.
+     * @param {IFileInfo} fileInfo  File information.
+     */
     "onFileReady"(fileInfo: IFileInfo): void {
         if (fileInfo.mol === undefined) {
             // Not really loaded
             return;
         }
 
-        parsePDB(fileInfo.mol).then(() => {
+        loadMolIntoTF(fileInfo.mol).then(() => {
             initializeVars();
             this["offset"]();
 
@@ -52,41 +62,9 @@ export let loadModelMethodsFunctions = {
                 name: "pdbLoaded",
                 val: true
             });
-
-            // setTimeout(() => {
-            //     scrollIt("pick-panel");
-            //     // document.getElementById("pick-panel").scrollTo({
-            //     //     top: 0,
-            //     //     left: 0,
-            //     //     behavior: 'smooth'
-            //     // });
-            // }, 1000);
         });
-
-        return;
-
-        // TODO: Still need to think about the below.
-        // this.$store.commit("updateFileName", {
-        //     type: this["id"],
-        //     filename: fileInfo.filename,
-        // });
-
-        // // this.getModelFileContents(this["file"]).then((text: string) => {
-        // this.$store.commit("setVar", {
-        //     name: fileInfo.id + "Contents",
-        //     val: fileInfo.fileContents,
-        // });
-
-        // // Reset the show non-protein atom's link.
-        // if (fileInfo.id === "receptor") {
-        //     this.$store.commit("setVar", {
-        //         name: "showKeepProteinOnlyLink",
-        //         val: true,
-        //     });
-        // }
-
-        // // });
     },
+
     /**
      * Removes residues from protein model that are not protein amino acids.
      * @param  {any} e  The click event.
@@ -101,11 +79,6 @@ export let loadModelMethodsFunctions = {
             filename: "5iy4.pdb",
             id: "receptor"
         });    
-
-        // Also update file names so example vina command line is valid.
-        // this.$store.commit("updateFileName", { type: "receptor", filename: "receptor_example.pdbqt" });
-
-        // return
 
         this.$store.commit("updateFileName", {
             type: "receptor",
@@ -127,54 +100,16 @@ export let loadModelMethodsFunctions = {
      * @returns void
      */
      "useExampleProt2ProtInputFiles"(): void {
-        // this["showFileInputs"] = false;
-
-        // setTimeout(() => {  // Vue.nextTick doesn't work...
-            this.$refs["receptorLoader"].loadMolFromExternal(
-                "5iy4.pdb",
-                this.$store.state["receptorContentsExample"],
-            );
-
-            // Update some values.
-            // this["onFileReady"]({
-            //     fileContents: this.$store.state["receptorContentsExample"],
-            //     filename: "5iy4.pdb",
-            //     id: "receptor"
-            // });    
-
-            // Also update file names so example vina command line is valid.
-            // this.$store.commit("updateFileName", { type: "receptor", filename: "receptor_example.pdbqt" });
-        // }, 100);
+        this.$refs["receptorLoader"].loadMolFromExternal(
+            "5iy4.pdb",
+            this.$store.state["receptorContentsExample"],
+        );
     },
-
-    // "onConvertNeeded"(convertInfo: IConvert): void {
-    //     // Set the filename.
-    //     this.$store.commit("updateFileName", {
-    //         type: convertInfo.id,
-    //         filename: convertInfo.filename,
-    //     });
-
-    //     // let ext = getExt(convertInfo.filename);
-
-    //     // this.getModelFileContents(val).then((text: string) => {
-    //         // this.$store.commit("openConvertFileModal", {
-    //         //     ext: ext,
-    //         //     type: convertInfo.id,
-    //         //     file: convertInfo.fileContents,
-    //         //     onConvertCancel: convertInfo.onConvertCancel,
-    //         //     onConvertDone: convertInfo.onConvertDone,
-    //         // });
-    //     // });
-
-    //     alert("");
-    //     // Handle below!!!
-    //     // convertInfo.onConvertCancel
-    //     // convertInfo.onConvertDone
-    // },
 }
 
 export let loadModelComputedFunctions = {
-    /** Whether to show the keep-protein-only link. Has both a getter and a setter. */
+    /** Whether to show the keep-protein-only link. Has both a getter and a
+     * setter. */
     "showKeepProteinOnlyLink": {
         get(): number {
             return this.$store.state["showKeepProteinOnlyLink"];

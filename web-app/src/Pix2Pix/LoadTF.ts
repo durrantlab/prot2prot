@@ -1,6 +1,14 @@
+// This file is part of Prot2Prot, released under the Apache 2.0 License. See
+// LICENSE.md or go to https://opensource.org/licenses/Apache-2.0 for full
+// details. Copyright 2022 Jacob D. Durrant.
+
 export let tf;
 let alreadyLoaded = false;
 
+/**
+ * Loads the tensorflow.js module.
+ * @returns {Promise}  A promise that resolves the tensorflow.js module.
+ */
 export function loadTfjs(): Promise<any> {
     if (alreadyLoaded) {
         return Promise.resolve(tf);
@@ -34,5 +42,4 @@ export function loadTfjs(): Promise<any> {
 
         /// #endif
     }
-
 }

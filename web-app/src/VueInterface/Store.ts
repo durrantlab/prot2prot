@@ -1,12 +1,6 @@
 // This file is part of Prot2Prot, released under the Apache 2.0 License. See
 // LICENSE.md or go to https://opensource.org/licenses/Apache-2.0 for full
-// details. Copyright 2021 Jacob D. Durrant.
-
-// @ts-ignore
-// import ExampleLigandPDBQT from "../example/ATP.pdbqt";
-
-// @ts-ignore
-// import ExampleOutputPDBQT from "../example/webina_out.pdbqt";
+// details. Copyright 2022 Jacob D. Durrant.
 
 declare var Vuex;
 declare var Vue;
@@ -16,28 +10,9 @@ interface IVueXStoreSetVar {
     val: any;
 }
 
-interface iVueXParam {
-    stateVarName?: string;
-    name: string;
-    val: any;
-}
-
-interface IParamAccess {
-    stateVarName: string;
-    name: string;
-}
-
 interface IModal {
     title: string;
     body: string;
-}
-
-interface IFileConvertModal {
-    ext: string;
-    type: string;
-    file: string;
-    onConvertCancel: Function;
-    onConvertDone: Function;
 }
 
 interface IInputFileNames {
@@ -54,7 +29,6 @@ export function setupVueXStore(ExampleReceptorPDBQT) {
         "state": {
             "tabIdx": 0,
             "receptorFileName": "",
-            // "receptorContents": "",
             "receptorContentsExample": ExampleReceptorPDBQT,
             "showKeepProteinOnlyLink": true,
             "onConvertCancel": undefined,
@@ -66,7 +40,6 @@ export function setupVueXStore(ExampleReceptorPDBQT) {
             "protDist": 150,
             "leftRightOffset": 0,
             "upDownOffset": 0,
-            // "doColorize": false,
             "pdbLoaded": false,
             "selectedNeuralRenderer": "",
             "selectedDimensions": "",

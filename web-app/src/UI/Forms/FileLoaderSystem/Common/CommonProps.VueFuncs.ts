@@ -1,5 +1,8 @@
-// A place to put properties that are common to multiple components.
+// Released under the Apache 2.0 License. See LICENSE.md or go to
+// https://opensource.org/licenses/Apache-2.0 for full details. Copyright 2022
+// Jacob D. Durrant.
 
+// A place to put properties that are common to multiple components.
 
 // Common to mol-loader, and file loaders.
 export var commonMultipleFilesProps = {
@@ -8,10 +11,9 @@ export var commonMultipleFilesProps = {
         "default": false
     },
     "saveMultipleFilesToDatabase": {
-        // Saves copies of files to database for use elsewhere (even
-        // after page reload). But I can imagine scenarios when you'd
-        // want to load multiple files without realoading the page, so
-        // false by default.
+        // Saves copies of files to database for use elsewhere (even after page
+        // reload). But I can imagine scenarios when you'd want to load multiple
+        // files without realoading the page, so false by default.
         "type": Boolean,
         "default": false
     },

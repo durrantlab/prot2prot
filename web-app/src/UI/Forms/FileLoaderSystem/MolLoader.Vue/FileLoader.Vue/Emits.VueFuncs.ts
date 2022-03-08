@@ -1,5 +1,5 @@
 // This file is released under the Apache 2.0 License. See
-// https://opensource.org/licenses/Apache-2.0 for full details. Copyright 2021
+// https://opensource.org/licenses/Apache-2.0 for full details. Copyright 2022
 // Jacob D. Durrant.
 
 import { IConvert, IFileInfo, IFileLoadError } from "../../Common/Interfaces";
@@ -11,19 +11,30 @@ import { IConvert, IFileInfo, IFileLoadError } from "../../Common/Interfaces";
 // data a bit if necessary and emit it to the encompassing component
 // (FileLoaderWrapper). Like relay functions.
 export let fileLoaderEmitFunctions = {
-    // Start converting files that need to be converted.
+    /**
+     * This is a relay function. Start converting files that need to be
+     * converted.
+     * @param {IConvert} val
+     */
     "onStartConvertFile": function(val: IConvert): void {
         this.$emit("onStartConvertFile", val);
     },
 
-    // When an error occurs, handle that as well. No need to process. Just pass
-    // up the chain.
+    /**
+     * This is a relay function. When an error occurs, handle that as well. No
+     * need to process. Just pass up the chain.
+     * @param  {IFileLoadError} val  The error information.
+     * @returns void
+     */
     "onError": function(val: IFileLoadError): void {
         this.$emit("onError", val);
     },
 
-    // When the file is completely ready, after any conversion, error handling,
-    // etc. Fires for every file loaded.
+    /**
+     * When the file is completely ready, after any conversion, error handling,
+     * etc. Fires for every file loaded.
+     * @param {IFileInfo} val  The file information.
+     */
     "onFileReady": function(val: IFileInfo): void {
         let files = {};
         
@@ -34,15 +45,9 @@ export let fileLoaderEmitFunctions = {
 
         // Add this file to the object containing all files
         files[val.filename] = val.mol;
-        // this["selectedFilename"] = val.filename;
 
         // Send all the data up the chain (via v-bind).
         this.$emit("input", files);
         this.$emit("onSelectedFilenameChange", val.filename);
-
-        // this.$emit("onFileReady", {
-        //     selectedFilename: val.filename,
-        //     allFiles: files
-        // } as IAllFiles);
     },
 }

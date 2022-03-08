@@ -1,3 +1,7 @@
+// This file is part of Prot2Prot, released under the Apache 2.0 License. See
+// LICENSE.md or go to https://opensource.org/licenses/Apache-2.0 for full
+// details. Copyright 2022 Jacob D. Durrant.
+
 import { resizeCanvas } from "../../../Pix2Pix/InputImage/ImageDataHelper";
 
 export let protCanvasTemplate = /*html*/ `
@@ -20,37 +24,70 @@ export let protCanvasTemplate = /*html*/ `
     `;
 
 export let protCanvasWatchFunctions = {
+    /**
+     * When the user-specified size of the canvas changes, the canvas is resized
+     * and the pre-mode is set to fast.
+     * @param {number} newSize  The new size of the canvas
+     * @param {number} oldSize  The size of the canvas before the resize
+     */
     "selectedDimensions"(newSize: number, oldSize: number): void {
         resizeCanvas(this.$refs["viewCanvas"], newSize);
         this["preModeSelected"] = "fast";
         this["drawImg"]();
     },
-    "selectedNeuralRenderer"(newSize: number, oldSize: number): void {
+
+    /**
+     * When the user selects a new neural renderer, update preModeSelected to
+     * "fast" mode and draw the image.
+     * @param {number} newNeuralRenderer  The new size of the image
+     * @param {number} oldNeuralRenderer  The size of the image before the user
+     *                                    changed the size.
+     */
+    "selectedNeuralRenderer"(newNeuralRenderer: number, oldNeuralRenderer: number): void {
         this["preModeSelected"] = "fast";
         this["drawImg"]();
     },
-    "selectedQuality"(newSize: number, oldSize: number): void {
+
+    /**
+     * When the user selects a new quality, update preModeSelected to "fast"
+     * mode and draw the image.
+     * @param {number} newQuality  The new size of the image
+     * @param {number} oldQuality  The size of the image before the user changed
+     *                             the size.
+     */
+    "selectedQuality"(newQuality: number, oldQuality: number): void {
         this["preModeSelected"] = "fast";
         this["drawImg"]();
     }
 }
 
 export let protCanvasComputedFunctions = {
+    /* Gets the selected neural renderer. */
     "selectedNeuralRenderer": {
         get(): number {
             return parseInt(this.$store.state["selectedNeuralRenderer"]);
         }
     },
+
+    /* Gets the selected image dimensions. */
     "selectedDimensions": {
         get(): number {
             return parseInt(this.$store.state["selectedDimensions"]);
         }
     },
+
+    /* Gets the selected quality. */
     "selectedQuality": {
         get(): number {
             return parseInt(this.$store.state["selectedQuality"]);
         }
     },
+
+
+    /**
+     * Get a string that is the CSS style for the canvas element.*
+     * @returns {string}  The style string to use on the canvas.
+     */
     "canvasStyle"(): string {
         let dimen = this.$store.state["selectedDimensions"];
         let style = `width:${dimen}px;aspect-ratio: 1/1;`;
@@ -63,6 +100,9 @@ export let protCanvasComputedFunctions = {
 }
 
 export let protCanvasMethodsFunctions = {
+    /**
+     * If the mouse state is changing, set the preModeSelected to fast
+     */
     preModeSelectedTmpToFast(): void {
         if (this.mouseStateChanging === false) {
             // Changing for first time. Set it to fast.
@@ -80,6 +120,12 @@ export let protCanvasMethodsFunctions = {
             this.mouseStateChanging = false;
         }, 500);
     },
+
+    /**
+     * If it's been less than 100 milliseconds since the last mouse move, return
+     * false. Otherwise, return true.
+     * @returns {boolean}  Whether enough time has passed since last mouse move.
+     */
     enoughTimePassed(): boolean {
         // Ignore if not much time has passed
         let now = new Date().getTime();
@@ -87,15 +133,33 @@ export let protCanvasMethodsFunctions = {
         this.lastMouseMoveCheck = now;
         return true;
     },
+
+    /**
+     * When the user clicks on the canvas, the buttonDown variable is set to
+     * true, and the lastCanvasX and lastCanvasY variables are set to the
+     * mouse's x and y coordinates
+     * @param {MouseEvent} e  The mouse event.
+     */
     "onCanvasMouseDown"(e: MouseEvent) {
         this.buttonDown = true;
         this.lastCanvasX = e.offsetX - 128;
         this.lastCanvasY = e.offsetY - 128;
     },
+
+    /**
+     * When the mouse button is released, the buttonDown flag is set to false,
+     * etc.
+     * @param {MouseEvent} e  The mouse event.
+     */
     "onCanvasMouseUp"(e: MouseEvent) {
         this.buttonDown = false;
         this.previousPinchDistance = undefined;
     },
+
+    /**
+     * If the mouse is down, and enough time has passed, then rotate the protein
+     * @param {MouseEvent | TouchEvent} e  The mouse or touch event.
+     */
     "onCanvasMouseMove"(e: MouseEvent | TouchEvent) {
         // Ignore if mouse not down
         if (!this.buttonDown) { return; }
@@ -156,6 +220,11 @@ export let protCanvasMethodsFunctions = {
 
     },
 
+    /**
+     * Rotates the protein.
+     * @param {number} offsetX  The x-coordinate of the mouse pointer.
+     * @param {number} offsetY  the y-coordinate of the mouse pointer.
+     */
     rotateProtein(offsetX: number, offsetY: number): void {
         this.preModeSelectedTmpToFast();
 
@@ -178,7 +247,11 @@ export let protCanvasMethodsFunctions = {
         this.previousPinchDistance = undefined;
     },
 
-    "onCanvasWheel"(e: WheelEvent) {
+    /**
+     * Zoom in and out per mouse wheel.
+     * @param {WheelEvent} e The wheel event.
+     */
+    "onCanvasWheel"(e: WheelEvent): void {
         // Ignore if not much time has passed
         if (!this.enoughTimePassed()) { return; }
 
@@ -186,17 +259,15 @@ export let protCanvasMethodsFunctions = {
         this.previousPinchDistance = undefined;
     },
 
+    /**
+     * Zoom in or out.
+     * @param {number} delta  The amount to zoom.
+     */
     zoom(delta: number): void {
         this.preModeSelectedTmpToFast();
 
         this["protDist"] = this["protDist"] + delta;
         this["offset"]();
-
-        // clearTimeout(this.doneMouseStateChangeTimeoutId);
-        // this.doneMouseStateChangeTimeoutId = setTimeout(() => {
-        //     this.wheelScrolling = false;
-        //     this.restorePreModeSelected();
-        // }, 500);
     }
 }
 

@@ -1,4 +1,8 @@
-import { IAtomColorInfo, ParentColorScheme } from './ColorSchemes/ParentColorScheme';
+// This file is part of Prot2Prot, released under the Apache 2.0 License. See
+// LICENSE.md or go to https://opensource.org/licenses/Apache-2.0 for full
+// details. Copyright 2022 Jacob D. Durrant.
+
+import { ParentColorScheme } from './ColorSchemes/ParentColorScheme';
 import { getImageDataFromCanvasContext, makeInMemoryCanvasContext } from './ImageDataHelper';
 import { loadTfjs, tf } from '../LoadTF';
 import { coorsTensor, elements, vdw } from './PDBParser/index';
@@ -10,15 +14,28 @@ export const CLOSEST_ALLOWED_DIST = 15.0;
 export let rotMat: any;
 export let offsetVec: any;
 
+/**
+ * Returns the rotation matrix as an array of numbers
+ * @returns The rotation matrix as a JavaScript array.
+ */
 export function getRotMatAsArray(): any {
     return rotMat ? rotMat.arraySync() : undefined;
 }
 
+/**
+ * Sets the rotation tensor from an array.
+ * @param {any} arr  An array representing a rotation matrix.
+ */
 export function setRotMatFromArray(arr: any): void {
     if (rotMat) { rotMat.dispose(); }
     rotMat = tf.tensor(arr);
 }
 
+/**
+ * Return a coordinates tensor that has been transformed by rotation and
+ * offsetVec tensors.
+ * @returns {*} The tensor.
+ */
 export function getCoorsTransformed(): any {  // tf.Tensor<tf.Rank>
     // Apply rotation and offset, return new coors
     
@@ -33,7 +50,13 @@ export function getCoorsTransformed(): any {  // tf.Tensor<tf.Rank>
     });
 }
 
-export function initializeVars(reset = false) {
+/**
+ * If the rotation matrix and offset vector are undefined, set them to the
+ * identity matrix and zero vector.
+ * @param {boolean} [reset=false]  If true, the variables will be reset to their
+ *                                 initial values.
+ */
+export function initializeVars(reset = false): void {
     if (tf === undefined) {
         // Not ready yet.
         return;
@@ -56,6 +79,16 @@ export function initializeVars(reset = false) {
     }
 }
 
+/**
+ * Creates an image of the protein.
+ * @param {number}            imgSize           The size of the image to
+ *                                              generate.
+ * @param {ParentColorScheme} colorScheme       The color scheme to use.
+ * @param {boolean}           [simplify=false]  Whether to simplify the image,
+ *                                              meaning no subcircles and
+ *                                              outlines.
+ * @returns {Promise}  Resolves with the image data.
+ */
 export function makeImg(imgSize: number, colorScheme: ParentColorScheme, simplify=false): Promise<ImageData> {
     if (coorsTensor === undefined) {
         // No pdb loaded yet.
@@ -67,7 +100,6 @@ export function makeImg(imgSize: number, colorScheme: ParentColorScheme, simplif
         // let mem = tf.memory();
         // console.log(mem.numBytesInGPU, mem.numTensors, mem.numDataBuffers);
 
-        // console.time("makeImage");
         initializeVars();
 
         let distsTensor: any;  // tf.Tensor<tf.Rank>
@@ -80,7 +112,6 @@ export function makeImg(imgSize: number, colorScheme: ParentColorScheme, simplif
             // It must be in front of the "camera". Alternative would be to
             // remove atoms < 0.
             let minZ = coors.min(0).arraySync()[2];
-            // let newOffsetVec = (offsetVec as tf.Tensor<tf.Rank>).clone()
             let newOffsetVec = offsetVec.clone()
             if (minZ < CLOSEST_ALLOWED_DIST) {
                 let delta = tf.tensor([0, 0, -minZ + CLOSEST_ALLOWED_DIST]);
@@ -96,10 +127,8 @@ export function makeImg(imgSize: number, colorScheme: ParentColorScheme, simplif
 
             // Get the atom centers in 2D (canvas space).
             let drawCentersTensor = points3Dto2D(coors, imgSize);
-            // let drawCenters = drawCentersTensor.arraySync();
             
             // Get the atom radii in 2D (canvas space).
-            // let tmpZeros = tf.zeros([vdw.size]);
             let radiiToAdd = tf.stack([
                 vdw, 
                 tf.zeros([vdw.size]), 
@@ -173,8 +202,6 @@ export function makeImg(imgSize: number, colorScheme: ParentColorScheme, simplif
         // For debugging
         // document.body.appendChild(canvas);
 
-        // distsSorted = colorScheme.pruneAtoms(distsSorted);
-
         // Draw spheres
         for (let data of distsSorted) {
             let atomCenterDist = data[0];
@@ -213,7 +240,6 @@ export function makeImg(imgSize: number, colorScheme: ParentColorScheme, simplif
                     // Draw the outline if its the first circle and it's not
                     // marked simplify.
 
-                    // context.strokeStyle = first ? colorsInf.outline : subCircle.color;  // "rgb(0,0,0)" // outline_color;
                     context.strokeStyle = colorsInf.outline;
                     context.stroke();
                     first = false;
@@ -233,7 +259,12 @@ export function makeImg(imgSize: number, colorScheme: ParentColorScheme, simplif
     
 }
 
-// function points3Dto2D(pts3D: tf.Tensor<tf.Rank>, imgSize: number): tf.Tensor<tf.Rank> {
+/**
+ * Given a set of 3D points, project them onto a 2D plane.
+ * @param {*}      pts3D    A 3D point cloud with shape [N, 3].
+ * @param {number} imgSize  The size of the image in pixels.
+ * @returns {*}  A tensor of shape [N, 2] where N is the number of points.
+ */
 function points3Dto2D(pts3D: any, imgSize: number): any {
     // Project the points onto a 2D plane
     let xs = column(pts3D, 0);
@@ -255,12 +286,23 @@ function points3Dto2D(pts3D: any, imgSize: number): any {
     return xy;
 }
 
-// function column(tensor: tf.Tensor<tf.Rank>, idx: number): tf.Tensor<tf.Rank> {
+/**
+ * Return a tensor that is a column of the input tensor.
+ * @param {*}      tensor  The tensor to be sliced.
+ * @param {number} idx     The index of the column to gather.
+ * @returns {*}  A tensor with the same number of rows as the input tensor, but
+ *               a single column.
+ */
 function column(tensor: any, idx: number): any {
     return tf.gather(tensor, [idx], 1);
 }
 
-export function updateRotMat(axis: number[], degrees: number) {
+/**
+ * Updates the rotation matrix given a rotation axis and a rotation angle.
+ * @param {number[]} axis     The axis of rotation.
+ * @param {number}   degrees  The number of degrees to rotate.
+ */
+export function updateRotMat(axis: number[], degrees: number): void {
     if (tf === undefined) {
         return;
     }
@@ -291,6 +333,12 @@ export function updateRotMat(axis: number[], degrees: number) {
     rotMat = rotMat2;
 }
 
+/**
+ * Update the offset vector by adding the delta to it.
+ * @param {number} deltaX  The change in the x-coordinate.
+ * @param {number} deltaY  The change in the y-coordinate.
+ * @param {number} deltaZ  The change in the z-coordinate.
+ */
 export function updateOffsetVec(deltaX: number, deltaY: number, deltaZ: number): void {
     if (tf === undefined) {
         return;
@@ -300,7 +348,11 @@ export function updateOffsetVec(deltaX: number, deltaY: number, deltaZ: number):
     offsetVec = tf.tensor([deltaX, deltaY, deltaZ])
 }
 
-function applyRotation() {
+/**
+ * Multiply the rotation matrix by the coordinates tensor
+ * @returns {*}  The rotated coordinates.
+ */
+function applyRotation(): any {
     // First must update the rotation matrix with updateRotMat()
     return tf.matMul(rotMat, coorsTensor, false, true).transpose();
 }

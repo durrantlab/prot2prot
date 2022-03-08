@@ -1,5 +1,5 @@
 // This file is released under the Apache 2.0 License. See
-// https://opensource.org/licenses/Apache-2.0 for full details. Copyright 2021
+// https://opensource.org/licenses/Apache-2.0 for full details. Copyright 2022
 // Jacob D. Durrant.
 
 import { ISelection, ParentMol } from "../Mols/ParentMol";
@@ -17,24 +17,12 @@ export interface IConvert extends IFileInfo {
 export interface IFileInfo {
     filename: string;
     mol: ParentMol;
-    // onConvertDone: IConvert;
-    // convertedResolveFunc?: Function;
-    // convertedRejectFunc?: Function;
-    // id?: string;  // associated component id
 }
 
 export interface IFileLoadError {
     title: string;
     body: string;
 }
-
-// export interface IFileFromTextField {
-//     placeholder: string;
-//     tabName: string;
-//     loadFunc: Function
-//     onSuccess: Function;
-//     onError: Function;
-// }
 
 export interface IAllFiles {
     selectedFilename: string;
@@ -48,6 +36,11 @@ export interface IExtractInfo {
     suggestedNewFilename: string
 }
 
+/**
+ * Converts ISelection to a string for labelling.
+ * @param  {ISelection} sel
+ * @returns string
+ */
 export function iSelectionToStr(sel: ISelection): string {
     if (sel["chains"] && !sel["resnames"] && !sel["resids"]) {
         // Only has chain.

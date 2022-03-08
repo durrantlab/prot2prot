@@ -1,5 +1,5 @@
 // This file is released under the Apache 2.0 License. See
-// https://opensource.org/licenses/Apache-2.0 for full details. Copyright 2021
+// https://opensource.org/licenses/Apache-2.0 for full details. Copyright 2022
 // Jacob D. Durrant.
 
 // FileLoader.ts is meant to be generic. You'll usually want to wrap it in
@@ -11,12 +11,10 @@ import { setupFileLoaderFormGroup } from '../Common/FileLoaderFormGroup.Vue/File
 import { setupQueueController } from '../Queue/QueueController.Vue';
 import { setupFileLoader } from './FileLoader.Vue';
 import { setupProteinEditing } from './ProteinEditing.Vue';
-// import { setupProteinEditingDeleteExtract } from './ProteinEditing.Vue/ProteinEditing.ts.old';
 import { setupFileList } from './FileList.Vue';
 import { filesObjToLocalForage } from '../Queue/LocalForageWrapper';
 import { setupSmallPillBtn } from '../Common/SmallPillBtn.Vue';
 import { commonMultipleFilesProps, commonProteinEditingProps } from '../Common/CommonProps.VueFuncs';
-import { PDBMol } from '../Mols/PDBMol';
 import { getMol } from '../Mols';
 
 declare var Vue;
@@ -28,6 +26,10 @@ export interface IAllowProteinEditing {
 
 /** An object containing the vue-component computed functions. */
 let computedFunctions = {
+    /**
+     * Return the filename and molecule of the currently selected file
+     * @returns {IFileInfo}  The filename and the molecule.
+     */
     "currentPdbFile"(): IFileInfo {
         return {
             filename: this["selectedFilename"],
@@ -35,6 +37,10 @@ let computedFunctions = {
         }
     },
 
+    /**
+     * Returns the slugified version of the label.
+     * @returns {string}  The slugified label.
+     */
     "idToUse"(): string {
         return slugify(this["label"]);
     }
@@ -42,40 +48,60 @@ let computedFunctions = {
 
 /** An object containing the vue-component methods functions. */
 let methodsFunctions = {
+    /**
+     * When the user changes the filename, update the selectedFilename variable
+     * @param {string} selectedFilename  The filename of the selected file.
+     */
     "onSelectedFilenameChange"(selectedFilename: string): void {
         this["selectedFilename"] = selectedFilename
     },
 
+    /**
+     * Emit an event when an error occurs. Relay.
+     * @param {IFileLoadError} error  Error information.
+     */
     "onError"(error: IFileLoadError): void {
         this.$emit("onError", error);
     },
 
+    /**
+     * Emits an event when atoms are selected.
+     * @param {IExtractInfo} residueInfo  Info about the extracted atoms.
+     */
     "onExtractAtoms"(residueInfo: IExtractInfo): void {
         this.$emit("onExtractAtoms", residueInfo);
     },
 
+    /**
+     * Emits when file conversion starts.
+     * @param {IConvert} convertInfo  Info about the converison.
+     */
     "onStartConvertFile"(convertInfo: IConvert) {
         // Must always call convertInfo.onConvertDone(filename, convertedText)
         // (to resume next convert) or convertInfo.onConvertCancel (to abort
         // conversions).
 
         this.$emit("onStartConvertFile", convertInfo);
-
-        // alert("Convert :: " + convertInfo.filename + " :: " + convertInfo.fileContents);
-        // convertInfo.onConvertDone(convertInfo.filename, "new content");
     },
-    "loadMolFromExternal"(filename: string, pdbContents: string): void {
+
+
+    /**
+     * Load a file given the filename and contents. This function allows the
+     * user to load a file directly, bypassing the user interface. For example,
+     * when extracting a ligand molecule from the protein structure, you might
+     * want to set the ligand here directly.
+     * @param {string} filename - string
+     * @param {string} fileContents - The contents of the PDB file.
+     */
+    "loadMolFromExternal"(filename: string, fileContents: string): void {
         // Note that typically you don't want a parent component to access a
         // child component directly through $ref. But in some rare cases, this
-        // is just easier. This function allows the user to load a PDB file
-        // directly, bypassing the user interface. For example, when extracting
-        // a ligand molecule from the protein structure, you might want to set
-        // the ligand here directly.
+        // is just easier. 
         
         this.$refs["fileLoader"].$refs["fileLoaderPlugin1"].onFilesLoaded([
             {
                 filename: filename,
-                mol: getMol(filename, pdbContents)
+                mol: getMol(filename, fileContents)
             } as IFileInfo
         ]);
     }
@@ -96,7 +122,6 @@ export function setupMolLoader(): void {
     setupFileLoader();
     setupFileList();
     setupProteinEditing();
-    // setupProteinEditingDeleteExtract();
     setupQueueController();
     setupSmallPillBtn();
 
@@ -189,12 +214,23 @@ export function setupMolLoader(): void {
         },
         "computed": computedFunctions,
         "watch": {
+            /**
+             * When the currentPdbFile property changes, emit the onFileReady
+             * event with the new value
+             * @param {string} newValue  The new value of the property.
+             * @param {string} oldValue  The previous value of the property.
+             */
             "currentPdbFile"(newValue: string, oldValue: string): void {
                 this.$emit("onFileReady", newValue);
             },
+
+            /**
+             * Save the files to the database when they change, if appropriate.
+             * @param {any} newValue  The new value of the files property.
+             * @param {any} oldValue  The old value of the property.
+             */
             "files"(newValue: any, oldValue: any): void {
                 if (
-                    // (this["multipleFiles"] !== false) && 
                     (this["saveMultipleFilesToDatabase"] !== false)
                 ) {
                     // You are supposed to save the files to the database.

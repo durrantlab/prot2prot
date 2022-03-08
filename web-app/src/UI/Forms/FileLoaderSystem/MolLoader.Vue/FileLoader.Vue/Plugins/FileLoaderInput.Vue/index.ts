@@ -1,5 +1,5 @@
 // This file is released under the Apache 2.0 License. See
-// https://opensource.org/licenses/Apache-2.0 for full details. Copyright 2021
+// https://opensource.org/licenses/Apache-2.0 for full details. Copyright 2022
 // Jacob D. Durrant.
 
 import { fileLoaderInputComputedFunctions } from "./Computed.VueFuncs";
@@ -12,9 +12,12 @@ export class FileLoaderInputPlugin extends FileLoaderPluginParent {
     tag = "file-loader-input";
     tabName = "File";
     defaultPlaceHolder = "Choose a file or drop it here...";
-    clearEntryAfterLoad = function() {
-        // this["val"] = undefined;
-    }
+
+    /**
+     * How to clear the entry after a file has loaded.
+     */    
+    clearEntryAfterLoad = function() {}
+    
     template = /*html*/ `
         <div>
             <b-form-file

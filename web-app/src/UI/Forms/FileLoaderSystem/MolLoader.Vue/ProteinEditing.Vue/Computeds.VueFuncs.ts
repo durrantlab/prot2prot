@@ -1,24 +1,45 @@
+// Released under the Apache 2.0 License. See LICENSE.md or go to
+// https://opensource.org/licenses/Apache-2.0 for full details. Copyright 2022
+// Jacob D. Durrant.
+
 import { ISelection, ParentMol } from "../../Mols/ParentMol";
-import { PDBMol } from "../../Mols/PDBMol";
 
 /** An object containing the vue-component computed functions. */
 export let computedFunctions = {
+    /**
+     * Return the current molecule.
+     * @returns {ParentMol}  The current molecule.
+     */
     currentMol(): ParentMol {
         return this["value"][this["selectedFilename"]];
     },
 
+    /**
+     * Returns a list of the chains in the current molecule
+     * @returns {string[]}  A list of the chains in the current molecule.
+     */
     chainsList(): string[] {
         let pdb: ParentMol = this.currentMol;
         if (pdb === undefined) { return []; }
         return pdb.getChains();
     },
 
+    /**
+     * Returns true if the current molecule has hydrogens.
+     * @returns {boolean}  A boolean value.
+     */
     hasHydrogens(): boolean {
         let pdb: ParentMol = this.currentMol;
         if (pdb === undefined) { return false; }
         return pdb.hasHydrogens();
     },
 
+    /**
+     * It returns a dictionary describing residues in the molecule that do not
+     * belong to the protein.
+     * @returns {*}  The data is being returned as a dictionary. The keys are
+     *               the residue names.
+     */
     nonProteinResiduesData(): any {
         let pdb: ParentMol = this.currentMol;
 
@@ -48,6 +69,10 @@ export let computedFunctions = {
         return data;
     },
 
+    /**
+     * Gets information about residue selections that can be removed.
+     * @returns {string[][]}  A list of selections.
+     */
     "removeResiduesSelections"(): string[][] {
         let nonProtData = this.nonProteinResiduesData;
         let chainsList = this.chainsList;
@@ -66,7 +91,6 @@ export let computedFunctions = {
                     "resnames": [resname],
                     "nonProtein": true
                 } as ISelection);
-                // html += "Group: " + resname + ". ";
             } else {
                 // If less than ten, treat as separate things (multiple copies
                 // of ligand).
@@ -104,24 +128,6 @@ export let computedFunctions = {
 
         let toReturn = [...results1, ...results2, ...results3];
 
-        // Make sure no empty ones.
-        // let empties = ["", undefined];
-        // toReturn = toReturn.filter((r: ISelection) => {
-        //     return (empties.indexOf(r.resnames) === -1)
-        //         || (empties.indexOf(r.resids) === -1)
-        //         || (empties.indexOf(r.chains) === -1)
-        // });
-
         return toReturn;
     },
-
-    // deleteExtractDescription(): string {
-    //     if (this["allowDeleteHeteroAtoms"] && this["allowExtractHeteroAtoms"]) {
-    //         return "Alternatively, delete individual residues or extract them as ligands";
-    //     }
-    //     if (this["allowDeleteHeteroAtoms"]) {
-    //         return "Alternatively, delete individual residues";
-    //     }
-    //     return "Alternatively, extract individual residues as ligands";
-    // }
 };

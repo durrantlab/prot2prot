@@ -1,5 +1,5 @@
 // This file is released under the Apache 2.0 License. See
-// https://opensource.org/licenses/Apache-2.0 for full details. Copyright 2021
+// https://opensource.org/licenses/Apache-2.0 for full details. Copyright 2022
 // Jacob D. Durrant.
 
 import { commonFileLoaderProps } from "../../../Common/CommonProps.VueFuncs";
@@ -10,6 +10,10 @@ export class URLInputPlugin extends FileLoaderPluginParent {
     tag = "url-input";
     tabName = "URL";
     defaultPlaceHolder = "Type your URL here...";
+
+    /**
+     * How to clear the entry after a file has loaded.
+     */    
     clearEntryAfterLoad = function() {
         this["val"] = "";
     }
@@ -30,29 +34,16 @@ export class URLInputPlugin extends FileLoaderPluginParent {
     }
 
     methods = {
+        /**
+         * Loads a remote file.
+         * @param {string} url  The URL to load.
+         */
         "loadUrl"(url: string): void {
-            loadRemote(url, this).then((success) => {
-                if (!success) {
-                    console.warn("evaluate");
-                    // this.$refs["textInput"]["clearText"]();
-                }
-            });
+            loadRemote(url, this).then((success) => {});
         }
     };
     
     props = {
         ...commonFileLoaderProps,
-        // "selectedFilename": {
-        //     "type": String,
-        //     "default": ""
-        // },
-        // "associatedFileLoaderComponent": {
-        //     "type": Object,
-        //     "default": undefined
-        // }
     };
-
-    // computed = {};
-
-    // mounted = () => {}
 }

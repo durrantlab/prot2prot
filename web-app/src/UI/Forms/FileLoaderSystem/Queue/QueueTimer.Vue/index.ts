@@ -1,5 +1,5 @@
 // This file is released under the Apache 2.0 License. See
-// https://opensource.org/licenses/Apache-2.0 for full details. Copyright 2021
+// https://opensource.org/licenses/Apache-2.0 for full details. Copyright 2022
 // Jacob D. Durrant.
 
 declare var Vue;
@@ -43,6 +43,11 @@ export function setupQueueTimer(): void {
         },
         "watch": {},
         "methods": {
+            /**
+             * If the countdown is enabled, decrement the countdown time by 1
+             * second and call the nextCountDownTick function again after 1
+             * second. In onProceed() if enough time has passed.
+             */
             nextCountDownTick(): void {
                 if (this["countDownTimeLeft"] === -1) {
                     // Not enabled from the beginning
@@ -62,6 +67,10 @@ export function setupQueueTimer(): void {
                 }
             },
 
+            /**
+             * Runs when user pauses or resumes countdown. If the count down is
+             * not paused, set a timeout to call the nextCountDownTick function.
+             */
             "onPauseOrResume"(): void {
                 this["countDownPaused"] = !this["countDownPaused"];
         
@@ -70,15 +79,20 @@ export function setupQueueTimer(): void {
                 }
             },
 
+            /**
+             * Disable countdown timer, emit onProceed.
+             */
             "onProceed"(): void {
                 this["countDownTimeLeft"] = -1;  // disable
                 this.$emit("onProceed");
             },
 
+            /**
+             * Disable countdown timer, emit onStop.
+             */
             "onStop"(): void {
                 this["countDownTimeLeft"] = -1;  // disable
                 this.$emit("onStop");
-                // alert("stop")
             }
         },
         "template": /*html*/ `

@@ -1,29 +1,20 @@
 // This file is part of Prot2Prot, released under the Apache 2.0 License. See
 // LICENSE.md or go to https://opensource.org/licenses/Apache-2.0 for full
-// details. Copyright 2021 Jacob D. Durrant.
+// details. Copyright 2022 Jacob D. Durrant.
 
 
 import * as UI from "./UI/UI";
 import * as VueSetup from "./VueInterface/Setup";
 import { VERSION } from "./Version";
-import { hasNextLigandUrlParam } from './URLParams';
 declare var ga;
 
 console.log("Prot2Prot Web App " + VERSION);
 
-// Create/load the database.
-// createFileSystemDatabase(
-//     ["receptor"], // , "ligand", "crystal", "output"],
-//     // delete previous database if "nextLigand" not in url
-//     !hasNextLigandUrlParam()
-// )
-// .then(() => {
-    // Setup Vue
-    VueSetup.setup();
+// Setup Vue
+VueSetup.setup();
 
-    // Setup UI
-    UI.setup();
-// });
+// Setup UI
+UI.setup();
 
 // If the url has "durrantlab" in it, contact google analytics. Logging all
 // usage would be ideal for grant reporting, but some users may wish to run

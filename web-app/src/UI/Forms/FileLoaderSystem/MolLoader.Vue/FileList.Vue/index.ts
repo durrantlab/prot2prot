@@ -1,5 +1,5 @@
 // This file is released under the Apache 2.0 License. See
-// https://opensource.org/licenses/Apache-2.0 for full details. Copyright 2021
+// https://opensource.org/licenses/Apache-2.0 for full details. Copyright 2022
 // Jacob D. Durrant.
 
 import { addCSS } from "../../Common/Utils";
@@ -9,6 +9,10 @@ declare var Vue;
 
 /** An object containing the vue-component computed functions. */
 let computedFunctions = {
+    /**
+     * Return the filenames of the currently loaded molecules.
+     * @returns {string[]}
+     */
     "filenames"(): string[] {
         return Object.keys(this["value"]);
     }
@@ -39,8 +43,13 @@ export function setupFileList(): void {
             };
         },
         "watch": {
+            /**
+             * When the selectedFilename property changes, call the
+             * fileNameClicked method with the new value.
+             * @param {string} newVal  The new value of the property.
+             * @param {string} oldVal  The old value of the property.
+             */
             "selectedFilename"(newVal: string, oldVal: string): void {
-                // this["currentlySelectedFilenameToUse"] = newVal;
                 this["fileNameClicked"](newVal);
             }
         },
@@ -52,7 +61,6 @@ export function setupFileList(): void {
                     style="max-height:135px; overflow-y:scroll;" 
                     :class="filenames.length > 0 ? 'mt-2' : ''"
                 >
-                    <!-- <div style="margin-bottom:15px;margin-top:15px;">{{filenames}}</div> -->
                     <b-alert 
                         v-for="filename in filenames"
                         :key="filename"
@@ -68,7 +76,6 @@ export function setupFileList(): void {
                         </div>
                     </b-alert>
                 </div>
-                <!-- style="padding-top:3px; float:right; cursor:pointer;" -->
                 <div 
                     v-if="filenames.length > 1"
                     style="height:22.5px;"
@@ -80,8 +87,6 @@ export function setupFileList(): void {
                         @click.native="clearAll"
                     >Clear All</b-form-tag>
                 </div>
-                <!-- variant="secondary" -->
-                <!-- <span style="clear:both;"></span> -->
             </div>
         `,
         "props": {
@@ -89,10 +94,6 @@ export function setupFileList(): void {
                 "type": String,
                 "default": ""
             },
-            // "database": {
-            //     "type": Object,
-            //     "default": undefined
-            // },
             "id": {
                 "type": String,
                 "default": undefined
@@ -103,11 +104,6 @@ export function setupFileList(): void {
                 "type": Object,
                 "default": {}
             }
-
-            // "associatedFileLoaderComponent": {
-            //     "type": Object,
-            //     "default": undefined
-            // }
         },
         "computed": computedFunctions,
 

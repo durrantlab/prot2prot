@@ -1,11 +1,16 @@
 // This file is released under the Apache 2.0 License. See
-// https://opensource.org/licenses/Apache-2.0 for full details. Copyright 2021
+// https://opensource.org/licenses/Apache-2.0 for full details. Copyright 2022
 // Jacob D. Durrant.
 
 import { getMol } from "../Mols";
-import { PDBMol } from "../Mols/PDBMol";
 import { IFileInfo, IFileLoadError } from "./Interfaces";
 
+/**
+ * Takes a string of extensions and returns an array of extensions.
+ * @param  {string} exts  A string containing a list of extensions separated by
+ *                        commas.
+ * @returns array
+ */
 export function extsStrToList(exts: string): string[] {
     return exts
         .toLowerCase()
@@ -16,11 +21,26 @@ export function extsStrToList(exts: string): string[] {
         );
 }
 
+/**
+ * Given a filename, return the basename of the file
+ * @param {string}  filename          The filename to get the basename of.
+ * @param {boolean} [extensive=true]  If true, considers multi-component
+ *                                    extensions (e.g., .pdb.txt).
+ * @returns {string}
+ */
 export function getBasename(filename: string, extensive = true): string {
     let ext = getExt(filename, extensive);
     return filename.substring(0, filename.length - ext.length - 1);
 }
 
+/**
+ * Given a filename, return the extension of the file
+ * @export
+ * @param {string}  filename          The filename to get the extension from.
+ * @param {boolean} [extensive=true]  If true, considers multi-component
+ *                                    extensions (e.g., .pdb.txt).
+ * @returns {string}
+ */
 export function getExt(filename: string, extensive = true): string {
     if (filename === undefined) {
         return "";
@@ -61,17 +81,16 @@ export function getFileObjContents(fileObj): Promise<string> {
             resolve(new TextDecoder("utf-8").decode(data));
         };
         fr.readAsArrayBuffer(fileObj);
-
-        // Reset the show non-protein atom's link.
-        // if (this["id"] === "receptor") {
-        //     this.$store.commit("setVar", {
-        //         name: "showKeepProteinOnlyLink",
-        //         val: true,
-        //     });
-        // }
     });
 }
 
+/**
+ * Loads a remote file and sends it to the relevant Vue component.
+ * @export
+ * @param {string} url      The URL of the remote file to load.
+ * @param {*}      vueComp  The Vue component.
+ * @returns {Promise<boolean>}
+ */
 export function loadRemote(url: string, vueComp: any): Promise<boolean> {
     let urlUpper = url.toUpperCase();
     if (
@@ -121,10 +140,10 @@ export function loadRemote(url: string, vueComp: any): Promise<boolean> {
     })
 }
 
-// export function deepCopy(obj: any): any {
-//     return JSON.parse(JSON.stringify(obj));
-// }
-
+/**
+ * Add a CSS string to the document's head
+ * @param {string} css  The CSS to be added to the page.
+ */
 export function addCSS(css: string): void {
     document.head.appendChild(Object.assign(
         document.createElement("style"), {
@@ -132,6 +151,12 @@ export function addCSS(css: string): void {
     }));
 }
 
+/**
+ * Takes a string and converts it to lowercase, replaces any non-alphanumeric
+ * characters with dashes, and replaces any double dashes with a single dash.
+ * @param   {string} complexString  The string to be slugified.
+ * @returns {string}
+ */
 export function slugify(complexString: string): string {
     // With help from codex
     var slug = complexString.toLowerCase().replace(/[^a-z0-9]+/g, '-');

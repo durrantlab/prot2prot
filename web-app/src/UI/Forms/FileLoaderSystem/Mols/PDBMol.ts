@@ -1,3 +1,7 @@
+// Released under the Apache 2.0 License. See LICENSE.md or go to
+// https://opensource.org/licenses/Apache-2.0 for full details. Copyright 2022
+// Jacob D. Durrant.
+
 import { IAtom, ParentMol } from "./ParentMol";
 
 const TWO_LETTER_ELEMENTS = new Set([
@@ -6,17 +10,33 @@ const TWO_LETTER_ELEMENTS = new Set([
 ]);
 
 export class PDBMol extends ParentMol {
-    constructor(fileTxt: string = undefined, mseToMet = true, removeAltLocs = true) {
+    /**
+     * If a fileContents is passed in, load it. Otherwise, do nothing
+     * @param {string} [fileContents=undefined]  The contents of the file.
+     * @param {boolean} [mseToMet=true]          If true, will convert all MSE
+     *                                           residues to MET.
+     * @param {boolean} [removeAltLocs=true]     If true, remove alternate
+     *                                           locations.
+     */
+    constructor(fileContents: string = undefined, mseToMet = true, removeAltLocs = true) {
         super(undefined);  // Does nothing because undefined.
 
-        if (fileTxt !== undefined) {
-            this.load(fileTxt, mseToMet, removeAltLocs);
+        if (fileContents !== undefined) {
+            this.load(fileContents, mseToMet, removeAltLocs);
         }
     }
 
-    load(pdbTxt: string, mseToMet = true, removeAltLocs = true): void {
+    /**
+     * Takes a string of PDB data and parses it into a list of atoms.
+     * @param {string}  fileContents          The contents of the PDB file.
+     * @param {boolean} [mseToMet=true]       If true, will convert all MSE
+     *                                        residues to MET.
+     * @param {boolean} [removeAltLocs=true]  If true, remove alternate
+     *                                        locations.
+     */
+    load(fileContents: string, mseToMet = true, removeAltLocs = true): void {
         // Get the frames
-        let frames = pdbTxt.split(/^(MODEL\s+?\d+?\s+?|^ENDMDL\s+?)/gm);
+        let frames = fileContents.split(/^(MODEL\s+?\d+?\s+?|^ENDMDL\s+?)/gm);
 
         for (let frame of frames) {
             // Key only key atoms
@@ -52,6 +72,10 @@ export class PDBMol extends ParentMol {
         }
     }
 
+    /**
+     * Converts the frames of the molecule into a text format.
+     * @returns The text of the PDB file.
+     */
     toText(): string {
         let txt = "";
         for (let frameIdx in this.frames) {
@@ -63,6 +87,11 @@ export class PDBMol extends ParentMol {
         return txt;
     }
 
+    /**
+     * Given a frame index, return a string containing the text of the frame.
+     * @param {number} frameIdx  The frame index.
+     * @returns {string} The file contents.
+     */
     frameToText(frameIdx: number): string {
         let txt = "";
         for (let atom of this.frames[frameIdx].atoms) {
@@ -113,6 +142,11 @@ export class PDBMol extends ParentMol {
         return txt;
     }
 
+    /**
+     * Takes a line from a PDB file and parses it into an atom object.
+     * @param {string} pdbLine  The PDB line to parse.
+     * @returns An atom object.
+     */
     private parsePDBLine(pdbLine: string): IAtom {
         let recordName = pdbLine.substring(0, 6);
 
@@ -145,14 +179,23 @@ export class PDBMol extends ParentMol {
         }
     }
 
+    /**
+     * Given an atom name, return the element name
+     * @param {string} atomName  The name of the atom.
+     * @returns {string} The element name.
+     */
     private elementFromAtomName(atomName: string): string {
         atomName = atomName.replace(/[0-9]/g, "");
         atomName = atomName.substring(0, 2).toUpperCase();
         return (TWO_LETTER_ELEMENTS.has(atomName)) ? atomName : atomName.substring(0, 1);
     }
 
+    /**
+     * Replace all MSE residues with MET residues.
+     * @param {string[]} pdbLines  The lines of the PDB file to be modified.
+     * @returns {string[]} A new array of lines.
+     */
     private mseToMet(pdbLines: string[]): string[] {
-        // TODO: Auto converting MSE to MET, but this could be a user parameter.
         return pdbLines.map((l) => {
             if (l.substring(17, 20) === "MSE") {
                 l = l

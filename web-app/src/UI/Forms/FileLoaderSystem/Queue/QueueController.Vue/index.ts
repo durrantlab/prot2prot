@@ -1,5 +1,5 @@
 // This file is released under the Apache 2.0 License. See
-// https://opensource.org/licenses/Apache-2.0 for full details. Copyright 2021
+// https://opensource.org/licenses/Apache-2.0 for full details. Copyright 2022
 // Jacob D. Durrant.
 
 import { commonQueueProps } from "../../Common/CommonProps.VueFuncs";
@@ -16,9 +16,6 @@ let computedFunctions = {};
  * @returns void
  */
 function mountedFunction(): void {
-    // Add some CSS
-    // addCSS(`.alert-dismissible { padding: 0.15rem !important;} .alert-dismissible .close {padding-top: 1px; padding-right: 8px; padding-left: 8px; padding-bottom: 0;}`);
-
     numLeftInQueue(this["molLoaderIds"])
     .then((numItems: number) => {
         this["numItemsInQueue"] = numItems;
@@ -34,7 +31,7 @@ function mountedFunction(): void {
 }
 
 /**
- * Setup the file-list Vue commponent.
+ * Setup the queue-controller Vue commponent.
  * @returns void
  */
 export function setupQueueController(): void {
@@ -50,11 +47,20 @@ export function setupQueueController(): void {
             };
         },
         "watch": {
-            "trigger"(newVal: boolean, oldVal: boolean) {
+            /**
+             * Useful for triggering the queue controller externally. Just
+             * change the `trigger` prop to anything new.
+             * @param {boolean} newVal  The new value.
+             * @param {boolean} oldVal  The old value.
+             */
+             "trigger"(newVal: boolean, oldVal: boolean) {
                 this["onProceed"]();
             }
         },
         "methods": {
+            /**
+             * Pop the next file off the queue and emits it.
+             */
             "onProceed"(): void {
                 popQueue(this["molLoaderIds"])
                 .then((fileInfos: IFileInfo[]) => {
@@ -65,6 +71,10 @@ export function setupQueueController(): void {
                     this.$emit("onQueueDelivery", files);
                 });
             },
+
+            /**
+             * Ends the queue and downloads the files if available.
+             */
             "onStop"(): void {
                 endQueueAndDownloadFilesIfAvailable(this["outputZipFilename"]);
             }

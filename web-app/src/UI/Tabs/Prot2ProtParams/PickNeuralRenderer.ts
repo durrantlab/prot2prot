@@ -1,3 +1,7 @@
+// This file is part of Prot2Prot, released under the Apache 2.0 License. See
+// LICENSE.md or go to https://opensource.org/licenses/Apache-2.0 for full
+// details. Copyright 2022 Jacob D. Durrant.
+
 // @ts-ignore
 import neuralRenderersInfo from "../../../models/info.json";
 
@@ -41,16 +45,28 @@ export let pickNeuralRendererData = {
 }
 
 export let pickNeuralRendererMethodsFunctions = {
+    /**
+     * Updates the description and color scheme with the values of the current
+     * neural renderer.
+     */
     "updateAssociatedInfo"(): void {
         let nr = this.getCurrentNeuralRendererInfo();
         this["description"] = nr["description"];
         this["colorScheme"] = nr["colorScheme"];
     },
 
+    /**
+     * Returns information about the current neural renderer.
+     * @returns {*}  The info for the currently selected neural renderer.
+     */
     getCurrentNeuralRendererInfo(): any {
         return neuralRenderersInfo[this.$store.state["selectedNeuralRenderer"]];
     },
 
+    /**
+     * Get the available image dimensions of the current neural renderer.
+     * @returns {*}  The sizes of the images.
+     */
     getCurrentDimensionsInfo(): any {
         let nrInfo = this.getCurrentNeuralRendererInfo();
         if (!nrInfo) {
@@ -59,6 +75,10 @@ export let pickNeuralRendererMethodsFunctions = {
         return nrInfo["sizes"];
     },
 
+    /**
+     * Get the available qualiy information of the current neural renderer.
+     * @returns {*}  The quality information.
+     */
     getCurrentQualityInfo(): any {
         let dimenInfo = this.getCurrentDimensionsInfo();
         if (!dimenInfo) {
@@ -69,6 +89,10 @@ export let pickNeuralRendererMethodsFunctions = {
 }
 
 export let pickNeuralRendererComputedFunctions = {
+    /**
+     * Get a list of available neural renderers.
+     * @returns {*} The renderers.
+     */
     "neuralRendererOptions"(): any[] { 
         let options = Object.keys(neuralRenderersInfo).map((r) => {
             return {value: r, text: neuralRenderersInfo[r]["name"]}
@@ -84,7 +108,11 @@ export let pickNeuralRendererComputedFunctions = {
         return options;
     },
 
-    "dimensionsOptions"(): any[] {
+    /**
+     * Get a list of available image dimensions.
+     * @returns {*} The dimensions.
+     */
+     "dimensionsOptions"(): any[] {
         let sizeInfo = this.getCurrentDimensionsInfo();
 
         if (!sizeInfo) {
@@ -110,13 +138,16 @@ export let pickNeuralRendererComputedFunctions = {
                 name: "selectedDimensions",
                 val: options[0].value
             });
-            // this["updateAssociatedInfo"]();
         };
 
         return options;
     },
 
-    "qualityOptions"(): any[] {
+    /**
+     * Get a list of available quality options.
+     * @returns {*} The quality options.
+     */
+     "qualityOptions"(): any[] {
         let qualInfo = this.getCurrentQualityInfo();
 
         if (!qualInfo) {

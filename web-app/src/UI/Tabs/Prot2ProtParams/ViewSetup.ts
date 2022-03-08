@@ -1,3 +1,7 @@
+// This file is part of Prot2Prot, released under the Apache 2.0 License. See
+// LICENSE.md or go to https://opensource.org/licenses/Apache-2.0 for full
+// details. Copyright 2022 Jacob D. Durrant.
+
 import { InputColorScheme } from "../../../Pix2Pix/InputImage/ColorSchemes/InputColorScheme";
 import { drawImageDataOnCanvas } from "../../../Pix2Pix/InputImage/ImageDataHelper";
 import { neuralRender, IProteinColoringInfo } from "../../../Pix2Pix/NeuralRender";
@@ -95,6 +99,9 @@ export let viewSetupTemplate = /* html */ `
 </div>`;
 
 export let viewSetupMethodsFunctions = {
+    /**
+     * Downloads the canvas as a png file.
+     */
     "downloadImg"(): void {
         import(
             /* webpackChunkName: "filesaver" */ 
@@ -107,12 +114,22 @@ export let viewSetupMethodsFunctions = {
             });
         });
     },
+
+    /**
+     * Rotates the protein.
+     * @param {number[]} axis     The axis to rotate around.
+     * @param {number}   degrees  The number of degrees to rotate the image.
+     */
     "tilt"(axis: number[], degrees: number): void {
         updateRotMat(axis, degrees);
         this["drawImg"]();
         this.rotMat = getRotMatAsArray();
     },
 
+    /**
+     * Updates the offset vector by subtracting the left right offset and adding
+     * the up down offset.
+     */
     "offset"(): void {
         if (this["protDist"] > maxDist) {
             this["protDist"] = maxDist;
@@ -126,6 +143,9 @@ export let viewSetupMethodsFunctions = {
         this["drawImg"]();
     },
 
+    /**
+     * Save the previous pre-mode selected value (e.g., "fast").
+     */
     "saveLastPreModeSelected"(): void {
         if (this["preModeSelected"] === "save") {
             return;
@@ -133,6 +153,9 @@ export let viewSetupMethodsFunctions = {
         this["previousPreModeSelected"] = this["preModeSelected"];
     },
 
+    /**
+     * Creates an image from the protein data and then draws it on the canvas.
+     */
     "drawImg"(): void {
         if (this["preModeSelected"] === "save") {
             this["preModeSelected"] = this["previousPreModeSelected"];
@@ -189,9 +212,6 @@ export let viewSetupMethodsFunctions = {
                 
                 let filename: string;
                 filename = `./models/${this.$store.state["selectedNeuralRenderer"]}/${this.$store.state["selectedDimensions"]}/${this.$store.state["selectedQuality"]}/model.json`;
-                // console.log(filename);
-                // filename = "./models/simple_surf/256/uint8/model.json";
-                // filename = "./models/simple_surf/256/full/model.json";
 
                 let proteinColoringInf = (this["doColorize"]) 
                     ? {
@@ -234,10 +254,10 @@ export let viewSetupData = {
     "colorBlend": true,
     "allDisabled": false,
     rotMat: undefined
-    // "neuralCheckBoxDisabled": false
 }
 
 export let viewSetupComputedFunctions = {
+    /** Get or set the upDownOffset. */
     "upDownOffset": {
         get(): number {
             return this.$store.state["upDownOffset"];
@@ -250,6 +270,7 @@ export let viewSetupComputedFunctions = {
         }
     },
 
+    /** Get or set the protDist. */
     "protDist": {
         get(): number {
             return this.$store.state["protDist"];
@@ -262,6 +283,7 @@ export let viewSetupComputedFunctions = {
         }
     },
 
+    /** Get or set the viewPortInf. */
     "viewPortInf": {
         get(): string {
             return JSON.stringify({
@@ -290,16 +312,4 @@ export let viewSetupComputedFunctions = {
             this["drawImg"]();
         }
     }
-
-    // "doColorize": {
-    //     get(): boolean {
-    //         return this.$store.state["doColorize"];
-    //     },
-    //     set(val: boolean): void {
-    //         this.$store.commit("setVar", {
-    //             name: "doColorize",
-    //             val
-    //         });
-    //     }
-    // }
 }

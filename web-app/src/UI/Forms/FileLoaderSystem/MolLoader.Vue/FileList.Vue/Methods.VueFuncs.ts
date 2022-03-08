@@ -1,11 +1,14 @@
 // This file is released under the Apache 2.0 License. See
-// https://opensource.org/licenses/Apache-2.0 for full details. Copyright 2021
+// https://opensource.org/licenses/Apache-2.0 for full details. Copyright 2022
 // Jacob D. Durrant.
 
 /** An object containing the vue-component methods functions. */
 export let fileLoaderFileListMethodsFunctions = {
-    "fileDismissed"(filename) {
-        // removeFileFromDatabase(this["id"], filename, this["associatedFileLoaderComponent"])
+    /**
+     * Remove a loaded file and select the next file.
+     * @param {string} filename  The name of the file to dismiss.
+     */
+    "fileDismissed"(filename: string) {
         let files = Object.assign({}, this["value"]);
         let keys = Object.keys(files);
         let idx = keys.indexOf(filename);
@@ -17,38 +20,32 @@ export let fileLoaderFileListMethodsFunctions = {
 
         this.$emit("input", files);
         this.$emit("onSelectedFilenameChange", newFilename);
-
-        // this.$nextTick(() => {
-        //     this.$emit("onRequestRemoveFile", filename);
-        // });
     },
 
+    /**
+     * Clears all entries in the list
+     */
     "clearAll"(): void {
         // Clears all entries in the list.
-        // this.$emit("onRequestRemoveAllFiles");
-
         this.$emit("input", {});
         this.$emit("onSelectedFilenameChange", "");
-
-        // clearAllInDatabase(this["id"]);
-        // clearAllInDatabase();
     },
 
-    // ...dbVueFuncs,
-
+    /**
+     * Runs when the user clicks on a filename.
+     * @param {string} filename  The filename.
+     */
     "fileNameClicked"(filename: string): void {
-        // this.loadSingleFileFromIndexedDB(filename, this["associatedFileLoaderComponent"]);
         this["currentlySelectedFilenameToUse"] = filename;
         
         this.$nextTick(() => {
             this.$emit("onSelectedFilenameChange", filename);
-            // this.$emit("onSelectFile", {
-            //     filename: filename,
-            //     fileContents: this["files"][filename]
-            // } as IFileInfo);
         });
     },
 
+    /**
+     * Scrolls the files div to the bottom.
+     */
     "scrollToBottom"(): void {
         setTimeout(() => {
             let div = (this.$refs["filesDiv"] as HTMLDivElement);
