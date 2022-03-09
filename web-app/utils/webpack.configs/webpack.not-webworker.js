@@ -31,11 +31,11 @@ module.exports = {
         // new HtmlWebpackExcludeAssetsPlugin(),
         new webpack.ProvidePlugin({
             // For plugins that are not webpack-compatible.
-            $: 'jquery',
-            jQuery: 'jquery',
-            "window.jQuery": "jquery",
-            $3Dmol: '3dmol',
-            "window.$3Dmol": '3dmol',
+            // $: 'jquery',
+            // jQuery: 'jquery',
+            // "window.jQuery": "jquery",
+            // $3Dmol: '3dmol',
+            // "window.$3Dmol": '3dmol',
             FileSaver: "file-saver",
         }),
         new CopyWebpackPlugin([

@@ -11,7 +11,7 @@ let methodsFunctions = {
      * @returns void
      */
     "onSubmitClick"(): void {
-        jQuery("body").addClass("waiting");
+        document.body.classList.add("waiting");
         location.reload();
     }
 }
@@ -27,7 +27,7 @@ export function setup(): void {
                 <b-alert show variant="warning">
                     If you start over, your existing image will be deleted.
                     Proceed only if you have already saved your image using
-                    the "Download" button in the "Prot2Prot" tab.
+                    the "Save" button in the "Prot2Prot" tab.
                 </b-alert>
                 <form-button @click.native="onSubmitClick" variant="primary">
                     Start Over

@@ -69,7 +69,7 @@ export function setupVueXStore(ExampleReceptorPDBQT) {
                 state["modalTitle"] = payload.title;
                 state["modalBody"] = payload.body;
                 state["modalShow"] = true;
-                jQuery("body").removeClass("waiting");
+                document.body.classList.remove("waiting");
             },
     
             /**

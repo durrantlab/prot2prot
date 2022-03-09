@@ -35,7 +35,6 @@ export function getBasename(filename: string, extensive = true): string {
 
 /**
  * Given a filename, return the extension of the file
- * @export
  * @param {string}  filename          The filename to get the extension from.
  * @param {boolean} [extensive=true]  If true, considers multi-component
  *                                    extensions (e.g., .pdb.txt).
@@ -86,7 +85,6 @@ export function getFileObjContents(fileObj): Promise<string> {
 
 /**
  * Loads a remote file and sends it to the relevant Vue component.
- * @export
  * @param {string} url      The URL of the remote file to load.
  * @param {*}      vueComp  The Vue component.
  * @returns {Promise<boolean>}
