@@ -73,3 +73,7 @@ test/data/legacy_serialized.pt
 web-app/*/models
 gen-training-data/src/Pix2Pix
 *.doc*
+
+gen-training-data
+.swp
+training
