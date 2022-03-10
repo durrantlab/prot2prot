@@ -4,6 +4,10 @@ ONGOING
 What about downloading prot2prot models from web automatically? Or could
 prepackage. For CLi version.
 
+Phone doesn't look good, and doesn't work. Need to debug.
+
+What about only 1024x1024mdodels (not smaller)? See if it would work on phones.
+
 Experiments
 ===========
 
@@ -86,6 +90,10 @@ True. Black screen even from python otherwise.
 
 DONE
 ====
+
+When loading models, spin mouse (to show doing something).
+
+Need to make durrantlab.com/prot2prot work.
 
 If it's trying to render on the webworker, but you move the protein again,
 cancel webworker calculations and don't return image.

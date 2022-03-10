@@ -4,14 +4,16 @@ const webworker = require('./webpack.webworker.js');
 const notWebworker = require('./webpack.not-webworker.js');
 const common = require('./webpack.common.js');
 const clean = require('./webpack.clean.js');
-const path = require('path');
-const ClosurePlugin = require('closure-webpack-plugin');
+// const path = require('path');
+// const ClosurePlugin = require('closure-webpack-plugin');
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 let forProd = {
     mode: 'production',
     plugins: [
-        new webpack.optimize.ModuleConcatenationPlugin()
+        new webpack.optimize.ModuleConcatenationPlugin(),
+        // new BundleAnalyzerPlugin()
     ],
     optimization: {
         // sideEffects: false,
@@ -33,8 +35,8 @@ let forProd = {
         ],
         splitChunks: {
             chunks: 'async',
-            minSize: 30000,
-            maxSize: 0,
+            minSize: 20000,
+            maxSize: 100000,
             minChunks: 1,
             maxAsyncRequests: 5,
             maxInitialRequests: 3,

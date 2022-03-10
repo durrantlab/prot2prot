@@ -22,14 +22,13 @@ interface IInputFileNames {
 
 export var store;
 
-export function setupVueXStore(ExampleReceptorPDBQT) {
+export function setupVueXStore() {
     Vue.use(Vuex)
 
     store = new Vuex.Store({
         "state": {
             "tabIdx": 0,
             "receptorFileName": "",
-            "receptorContentsExample": ExampleReceptorPDBQT,
             "showKeepProteinOnlyLink": true,
             "onConvertCancel": undefined,
             "onConvertDone": undefined,

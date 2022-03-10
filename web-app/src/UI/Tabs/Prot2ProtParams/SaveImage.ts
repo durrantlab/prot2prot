@@ -15,7 +15,7 @@ export let saveImageMethodsFunctions = {
      */
     "downloadImg"(): void {
         import(
-            /* webpackChunkName: "filesaver" */ 
+            /* webpackChunkName: "FileSaver" */ 
             /* webpackMode: "lazy" */
             'file-saver'
         ).then((mod) => {

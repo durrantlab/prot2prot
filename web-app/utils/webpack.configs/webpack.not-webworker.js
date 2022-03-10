@@ -62,6 +62,10 @@ module.exports = {
             {
                 from: "src/tfjs",
                 to: "tfjs"
+            },
+            {
+                from: "src/example/5iy4.pdb",
+                to: "5iy4.pdb"
             }
             // {
             //     from: 'src/Pix2Pix',

@@ -100,10 +100,15 @@ export let loadModelMethodsFunctions = {
      * @returns void
      */
      "useExampleProt2ProtInputFiles"(): void {
-        this.$refs["receptorLoader"].loadMolFromExternal(
-            "5iy4.pdb",
-            this.$store.state["receptorContentsExample"],
-        );
+        fetch("./5iy4.pdb")
+        .then(response => {
+            return response.text()
+        })
+        .then(pdbTxt => {
+            this.$refs["receptorLoader"].loadMolFromExternal(
+                "5iy4.pdb", pdbTxt
+            );
+        });
     },
 }
 

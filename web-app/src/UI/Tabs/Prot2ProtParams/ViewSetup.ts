@@ -104,7 +104,7 @@ export let viewSetupMethodsFunctions = {
      */
     "downloadImg"(): void {
         import(
-            /* webpackChunkName: "filesaver" */ 
+            /* webpackChunkName: "FileSaver" */ 
             /* webpackMode: "lazy" */
             'file-saver'
         ).then((mod) => {
@@ -157,10 +157,14 @@ export let viewSetupMethodsFunctions = {
      * Creates an image from the protein data and then draws it on the canvas.
      */
     "drawImg"(): void {
-        if (this["preModeSelected"] === "save") {
-            this["preModeSelected"] = this["previousPreModeSelected"];
-            this.downloadImg();
-            return;
+        switch (this["preModeSelected"]) {
+            case "save":
+                this["preModeSelected"] = this["previousPreModeSelected"];
+                this.downloadImg();
+                return;
+            case "neural":
+                document.body.classList.add("waiting");
+                break;
         }
 
         let startDrawImgTime = new Date().getTime();
@@ -234,6 +238,7 @@ export let viewSetupMethodsFunctions = {
                     }
 
                     this["allDisabled"] = false;
+                    document.body.classList.remove("waiting");
                 });
             }
         });

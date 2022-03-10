@@ -11,8 +11,6 @@ import * as FormButton from "../UI/Forms/FormButton";
 import * as FormSelect  from "../UI/Forms/FormSelect";
 import { setupMolLoader } from '../UI/Forms/FileLoaderSystem/MolLoader.Vue/index';
 import { setupVueXStore } from "./Store";
-// @ts-ignore
-import ExampleReceptorPDBQT from "../example/5iy4.pdb";
 
 declare var Vue;
 
@@ -24,7 +22,7 @@ declare var BootstrapVue;
  */
 export function setup(): void {
     Vue.use(BootstrapVue)
-    setupVueXStore(ExampleReceptorPDBQT);
+    setupVueXStore();
 
     SubSection.setup();
     FormButton.setup();

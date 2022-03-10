@@ -77,3 +77,4 @@ gen-training-data/src/Pix2Pix
 gen-training-data
 .swp
 training
+prot2prot_models.zip

@@ -22,6 +22,12 @@ cd -
 # If there is a .min.js file, delete any associated .js file.
 find dist/ -name "*.min.js" | sed "s/\.min\././g" | awk '{print "rm -rf " $0}' | bash
 
+# Add hash to references to worker
+cd dist
+export workerFileName=`ls renderWebWorker*.js`
+grep -l "renderWebWorker.js" *.js | awk '{print "cat " $1 " | sed \"s/renderWebWorker.js/$workerFileName/g\" > " $1 ".tmp; mv " $1 ".tmp " $1}' | bash
+cd -
+
 # Link the models. Better than copying (faster).
 # ln -s $(realpath ../javascript/src_aux/models) ./dist/
 
@@ -29,7 +35,7 @@ find dist/ -name "*.min.js" | sed "s/\.min\././g" | awk '{print "rm -rf " $0}' |
 # closure compiler didn't put it right at the top.
 cd dist
 echo "/**
- * Prot2Prot Copyright 2019 Jacob Durrant
+ * Prot2Prot Copyright 2022 Jacob Durrant
  *
  * Licensed under the Apache License, Version 2.0 (the \"License\");
  * you may not use this file except in compliance with the License.
@@ -43,12 +49,12 @@ echo "/**
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */" > t
-ls app.*js | awk '{print "cat t > " $1 ".tmp; cat " $1 " >> " $1 ".tmp; mv " $1 ".tmp " $1}' | bash
+ls app*js | awk '{print "cat t > " $1 ".tmp; cat " $1 " >> " $1 ".tmp; mv " $1 ".tmp " $1}' | bash
 rm t
 cd -
 
 # Copy simple python server.
-cp ./utils/simple-server.py ./dist/simple-server.py.txt
+# cp ./utils/simple-server.py ./dist/simple-server.py.txt
 
 # Also create a ZIP file of the dist directory, for convenient distribution.
 # mv dist prot2prot
@@ -57,6 +63,8 @@ cp ./utils/simple-server.py ./dist/simple-server.py.txt
 
 # Build the docs while you're at it.
 # . utils/build/make_docs.sh
+
+
 
 # Let the user know that compilation is finished. Works only on macOS.
 say "Beep"
