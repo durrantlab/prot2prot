@@ -18,7 +18,7 @@ simply visit the [Prot2Prot website](http://durrantlab.com/prot2prot) to use the
 model in their browser.
 
 You can also download a [copy of the Prot2Prot
-web-app](http://durrantlab.com/prot2prot/prot2prot.zip) (including the Prot2Prot
+web app](http://durrantlab.com/prot2prot/prot2prot.zip) (including the Prot2Prot
 models themselves) to run on your own server.
 
 ### Command-line-interface Prot2Prot
@@ -30,8 +30,8 @@ CLI Prot2Prot by following these steps:
 # Clone the repository
 git clone https://git.durrantlab.pitt.edu/jdurrant/ml-protein-render.git
 
-# Change into the web-app directory
-cd ml-protein-render/web-app/
+# Change into the ml-protein-render directory
+cd ml-protein-render/
 
 # Install the third-party dependencies
 npm install
