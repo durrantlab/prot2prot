@@ -15,4 +15,4 @@ find . -name "*.js" | awk '{print "cat " $1 " | sed \"s|../../src/|./lib/core/|g
 cp ../src/tests.sh ./
 
 # Below is temp
-ln -s ../prot2prot_models ./
+#ln -s ../prot2prot_models ./
