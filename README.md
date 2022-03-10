@@ -11,12 +11,20 @@ Prot2Prot is released under the terms of the Apache License, Version 2.0. See
 
 ## Usage
 
-Most users should visit the [Prot2Prot website](http://durrantlab.com/prot2prot)
-to use the model in their browser.
+### Prot2Prot Web App
+
+The Prot2Prot web app works on all major operating systems. Most users should
+simply visit the [Prot2Prot website](http://durrantlab.com/prot2prot) to use the
+model in their browser.
 
 You can also download a [copy of the Prot2Prot
 web-app](http://durrantlab.com/prot2prot/prot2prot.zip) (including the Prot2Prot
 models themselves) to run on your own server.
+
+### Command-line-interface Prot2Prot
+
+Comand-line-interface (CLI) Prot2Prot requires Linux. Users can compile and run
+CLI Prot2Prot by following these steps:
 
 ```bash
 # Clone the repository
@@ -33,20 +41,22 @@ cd nodejs/
 
 # Compile command-line prot2prot
 ./compile.sh
+
+# Change into the newly created dist/ directory
+cd dist/
+
+# You must separately download and uncompress the trained prot2prot models
+wget durrantlab.com/prot2prot/prot2prot_models.zip
+unzip prot2prot_models.zip
+rm prot2prot_models.zip
+
+# You can now use the CLI using the render_*.js files
+ls render_*js
+
+# For help, use the -h flag like this:
+node render_still.js -h
+
+# See ./tests.sh for examples of use
+./tests.sh
+
 ```
-
-# Directories
-
-* `./py-gen-training-data/` : Code to generate training data (images).
-* `./html-javascript/` : HTML/JavaScript files (generating input images in the
-  browser, inference in the browser)
-* `./pdbs/` : Code that puts PDB data in a Python module (for convenience in
-  testing).
-* `./py-tensorflow-training/` : Code for training the pix2pix model.
-
-# TODO
-
-* Get training code in this repo.
-* Clean up code some for Harrison.
-  * Training code
-  * Also HTML/Javascript code.
