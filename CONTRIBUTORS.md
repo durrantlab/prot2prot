@@ -1,4 +1,4 @@
 # Contributors #
 
-Jacob D. Durrant
-Harrison Green
+* Jacob D. Durrant
+* Harrison Green
