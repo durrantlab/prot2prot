@@ -28,7 +28,6 @@ test-tfjs
 training/export/*
 training/imgs/size_*
 .DS_Store
-debug*
 datasets/
 checkpoints/
 results/
