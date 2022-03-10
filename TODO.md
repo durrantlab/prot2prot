@@ -1,14 +1,13 @@
 ONGOING
 =======
 
-What about downloading prot2prot models from web automatically? Or could
-prepackage. For CLi version.
-
 Phone doesn't look good, and doesn't work. Need to debug.
 
 What about only 1024x1024mdodels (not smaller)? See if it would work on phones.
 
 Try to optimize rotation. Taking too long.
+
+Need to rename repo to prot2prot
 
 Experiments
 ===========
@@ -92,6 +91,9 @@ True. Black screen even from python otherwise.
 
 DONE
 ====
+
+What about downloading prot2prot models from web automatically? Or could
+prepackage. For CLi version.
 
 When loading models, spin mouse (to show doing something).
 
