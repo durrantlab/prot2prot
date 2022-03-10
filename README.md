@@ -1,7 +1,5 @@
 # Prot2Prot
 
-## Introduction
-
 Prot2Prot is a deep-learning model that imitates a Blender-rendered molecular
 image given a much simpler representation ("sketch") of a protein surface.
 Prot2Prot outputs an image that is often indistinguishable from a BlendMol-based
@@ -13,7 +11,29 @@ Prot2Prot is released under the terms of the Apache License, Version 2.0. See
 
 ## Usage
 
-The vast majority of users should simply visit 
+Most users should visit the [Prot2Prot website](http://durrantlab.com/prot2prot)
+to use the model in their browser.
+
+You can also download a [copy of the Prot2Prot
+web-app](http://durrantlab.com/prot2prot/prot2prot.zip) (including the Prot2Prot
+models themselves) to run on your own server.
+
+```bash
+# Clone the repository
+git clone https://git.durrantlab.pitt.edu/jdurrant/ml-protein-render.git
+
+# Change into the web-app directory
+cd ml-protein-render/web-app/
+
+# Install the third-party dependencies
+npm install
+
+# Change into the nodejs directory
+cd nodejs/
+
+# Compile command-line prot2prot
+./compile.sh
+```
 
 # Directories
 

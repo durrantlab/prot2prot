@@ -1,7 +1,7 @@
 const Canvas = require('canvas')
 
 import { offsetVec, rotMat } from "../../../../src/Pix2Pix/InputImage/MakeImage";
-import { parsePDB } from "../../../../src/Pix2Pix/InputImage/PDBParser";
+import { loadMolIntoTF } from "../../../../src/Pix2Pix/InputImage/PDBParser";
 import { IProteinColoringInfo, neuralRender } from "../../../../src/Pix2Pix/NeuralRender";
 import { PDBMol } from "../../../../src/UI/Forms/FileLoaderSystem/Mols/PDBMol";
 import { Frame } from "../../../../src/UI/Forms/FileLoaderSystem/Mols/ParentMol";
@@ -50,7 +50,7 @@ export function renderFrame(params: any, frames: Frame[], rotDists?: number[][],
         console.log("Rendering frame " + currentFrameIdx.toString() + "...")
     }
 
-    parsePDB(mol, params.dist !== 9999, params.radius_scale, params.atom_names)
+    loadMolIntoTF(mol, params.dist !== 9999, params.radius_scale, params.atom_names)
     .then(() => {
         // coorsTensor.print();
 
@@ -80,7 +80,7 @@ export function renderFrame(params: any, frames: Frame[], rotDists?: number[][],
             let proteinColoringInfo: IProteinColoringInfo = payload[1];
 
             // Feed the image data into the neural network.
-            // let filename = `../../dist/models/simple_surf/1024/uint8/model.json`;
+            // let filename = `../../dist/prot2prot_models/simple_surf/1024/uint8/model.json`;
 
             // Render the image
             return neuralRender("file://" + params.model_js, uint8View, proteinColoringInfo, Canvas.Image);

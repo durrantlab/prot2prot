@@ -28,9 +28,6 @@ export workerFileName=`ls renderWebWorker*.js`
 grep -l "renderWebWorker.js" *.js | awk '{print "cat " $1 " | sed \"s/renderWebWorker.js/$workerFileName/g\" > " $1 ".tmp; mv " $1 ".tmp " $1}' | bash
 cd -
 
-# Link the models. Better than copying (faster).
-# ln -s $(realpath ../javascript/src_aux/models) ./dist/
-
 # Add the license to the top of the app..js file. Tries using @license, but
 # closure compiler didn't put it right at the top.
 cd dist
@@ -57,14 +54,23 @@ cd -
 # cp ./utils/simple-server.py ./dist/simple-server.py.txt
 
 # Also create a ZIP file of the dist directory, for convenient distribution.
-# mv dist prot2prot
-# zip -r prot2prot.zip prot2prot
-# mv prot2prot dist
+echo
+echo "(Re)generate prot2prot.zip (/dist/)?"
+select yn in "Yes" "No"; do
+  case $yn in
+    Yes ) rm prot2prot.zip; mv dist prot2prot; zip -r prot2prot.zip prot2prot; mv prot2prot dist;break;;
+    No ) break;;
+  esac
+done
 
-# Build the docs while you're at it.
-# . utils/build/make_docs.sh
-
-
+echo
+echo "(Re)generate prot2prot_models.zip (/src/)?"
+select yn in "Yes" "No"; do
+  case $yn in
+    Yes ) cd src; rm prot2prot_models.zip; zip -r prot2prot_models.zip prot2prot_models; cd -;break;;
+    No ) break;;
+  esac
+done
 
 # Let the user know that compilation is finished. Works only on macOS.
 say "Beep"

@@ -215,7 +215,7 @@ export let viewSetupMethodsFunctions = {
                     : undefined;
                 
                 let filename: string;
-                filename = `./models/${this.$store.state["selectedNeuralRenderer"]}/${this.$store.state["selectedDimensions"]}/${this.$store.state["selectedQuality"]}/model.json`;
+                filename = `./prot2prot_models/${this.$store.state["selectedNeuralRenderer"]}/${this.$store.state["selectedDimensions"]}/${this.$store.state["selectedQuality"]}/model.json`;
 
                 let proteinColoringInf = (this["doColorize"]) 
                     ? {

@@ -8,6 +8,8 @@ Phone doesn't look good, and doesn't work. Need to debug.
 
 What about only 1024x1024mdodels (not smaller)? See if it would work on phones.
 
+Try to optimize rotation. Taking too long.
+
 Experiments
 ===========
 

@@ -3,7 +3,7 @@
 // details. Copyright 2022 Jacob D. Durrant.
 
 // @ts-ignore
-import neuralRenderersInfo from "../../../models/info.json";
+import neuralRenderersInfo from "../../../prot2prot_models/info.json";
 
 export let pickNeuralRendererTemplate = /* html */ `
 <sub-section id="pick-panel" title="Prot2Prot Renderer">

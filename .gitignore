@@ -70,7 +70,7 @@ test/.coverage
 test/data/legacy_serialized.pt
 *~
 .idea
-web-app/*/models
+web-app/*/prot2prot_models
 gen-training-data/src/Pix2Pix
 *.doc*
 

@@ -56,8 +56,8 @@ module.exports = {
                 to: 'vuex.min.js'
             },
             {
-                from: 'src/models',
-                to: 'models'
+                from: 'src/prot2prot_models',
+                to: 'prot2prot_models'
             },
             {
                 from: "src/tfjs",

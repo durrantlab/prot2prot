@@ -44,7 +44,7 @@ export function getParameters(hooks: IHooks): any {
                 "If `--mode` is `render` or `both`, the file path were `model.json` is located."
             )
             .argParser(myFilePathExists)
-            .default("models/simple_surf/1024/uint8/model.json")  // TODO:
+            .default("prot2prot_models/simple_surf/1024/uint8/model.json")  // TODO:
             // .makeOptionMandatory()
         )
         .addOption(
