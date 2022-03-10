@@ -9,6 +9,8 @@ Try to optimize rotation. Taking too long.
 
 Need to rename repo to prot2prot
 
+Add build time to console.
+
 Experiments
 ===========
 
