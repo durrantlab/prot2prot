@@ -37,48 +37,51 @@ export let viewSetupTemplate = /* html */ `
             :disabled="allDisabled"
         ></b-form-radio-group>
 
-        <span v-if="preModeSelected==='neural'">
-            <!-- title="Colorize" -->
-            <b-form-checkbox 
-                v-model="doColorize" name="check-button" switch
-                :disabled="allDisabled" @change="drawImg" class="mt-3"
-            >
-                Colorize Prot2Prot Render
-            </b-form-checkbox>
-            <span v-if="doColorize">
-                <b-container fluid class="mt-3">
-                    <b-row>
-                        <b-col sm="2" class="p-0" style="text-align:center;">
-                            <input 
-                                type="color" id="protColor" name="protColor"
-                                v-model="protColor"
-                                :disabled="allDisabled"
-                                @change="drawImg"
-                                style="width:100%;"
-                            >
-                        </b-col>
-                        <b-col sm="8" class="px-3">
-                            <b-form-input 
-                                id="colorStrength" type="range"
-                                min="0" max="1" step="0.05"
-                                v-model="colorStrength"
-                                :disabled="allDisabled"
-                                class="pt-2"
-                                @change="drawImg"
-                            ></b-form-input>
-                        </b-col>
-                        <b-col sm="2" class="p-0" style="text-align:center;">
-                            <b-form-checkbox 
-                                v-model="colorBlend" name="check-button" switch
-                                :disabled="allDisabled" @change="drawImg"
-                            >Blend
-                            </b-form-checkbox>
-                        </b-col>
-                    </b-row>
-                </b-container>
-            </span>
-        </span>
+        <b-alert class="slide-height mt-3 mb-0" show variant="info">{{$store.state.webWorkerInfo}}</b-alert>
 
+        <b-form-checkbox 
+            v-model="doColorize" name="check-button" switch
+            :disabled="allDisabledOrNotNeural" @change="drawImg" class="mt-3"
+            :title="notNeuralTitle"
+        >
+            Colorize Prot2Prot Render
+        </b-form-checkbox>
+        <span v-if="doColorize">
+            <b-container fluid class="mt-3">
+                <b-row>
+                    <b-col sm="2" class="p-0" style="text-align:center;">
+                        <input 
+                            type="color" id="protColor" name="protColor"
+                            v-model="protColor"
+                            :disabled="allDisabledOrNotNeural"
+                            :title="notNeuralTitle"
+                            @change="drawImg"
+                            :style="'width:100%;' + (allDisabledOrNotNeural ? 'cursor:not-allowed': '')"
+                        >
+                    </b-col>
+                    <b-col sm="8" class="px-3">
+                        <b-form-input 
+                            id="colorStrength" type="range"
+                            min="0" max="1" step="0.05"
+                            v-model="colorStrength"
+                            :disabled="allDisabledOrNotNeural"
+                            :title="notNeuralTitle"
+                            class="pt-2"
+                            @change="drawImg"
+                        ></b-form-input>
+                    </b-col>
+                    <b-col sm="2" class="p-0" style="text-align:center;">
+                        <b-form-checkbox 
+                            v-model="colorBlend" name="check-button" switch
+                            :disabled="allDisabledOrNotNeural"
+                            :title="notNeuralTitle"
+                            @change="drawImg"
+                        >Blend
+                        </b-form-checkbox>
+                    </b-col>
+                </b-row>
+            </b-container>
+        </span>
         <form-group
             label="Viewport"
             id="angle-dist-text"
@@ -91,10 +94,9 @@ export let viewSetupTemplate = /* html */ `
                 style="border-top-left-radius:4px; border-bottom-left-radius:4px;"
                 placeholder="Copy and paste to restore viewport"
                 v-model="viewPortInf"
+                :disabled="allDisabled"
             ></b-form-input>
         </form-group>
-
-        <b-alert class="slide-height mt-3 mb-0" show variant="info">{{$store.state.webWorkerInfo}}</b-alert>
     </sub-section>
 </div>`;
 
@@ -129,8 +131,11 @@ export let viewSetupMethodsFunctions = {
     /**
      * Updates the offset vector by subtracting the left right offset and adding
      * the up down offset.
+     * @param  {boolean} [updateImg=true]  If true (defualt), also updates the
+     *                                     image.
+     * @returns void
      */
-    "offset"(): void {
+    "offset"(updateImg=true): void {
         if (this["protDist"] > maxDist) {
             this["protDist"] = maxDist;
         }
@@ -140,7 +145,9 @@ export let viewSetupMethodsFunctions = {
             -this.$store.state["upDownOffset"],
             this.$store.state["protDist"],
         );
-        this["drawImg"]();
+        if (updateImg) {
+            this["drawImg"]();  
+        }
     },
 
     /**
@@ -155,8 +162,12 @@ export let viewSetupMethodsFunctions = {
 
     /**
      * Creates an image from the protein data and then draws it on the canvas.
+     * @param {boolean} [alwaysShowAllAtoms=false]  If true, will always show
+     *                                              all atoms. Useful after
+     *                                              rotating, when stopped.
+     * @returns void
      */
-    "drawImg"(): void {
+    "drawImg"(alwaysShowAllAtoms=false): void {
         switch (this["preModeSelected"]) {
             case "save":
                 this["preModeSelected"] = this["previousPreModeSelected"];
@@ -175,11 +186,15 @@ export let viewSetupMethodsFunctions = {
                 this["selectedDimensions"], 
                 isFast
                     ? new StandardColorScheme()
-                    : new InputColorScheme()
+                    : new InputColorScheme(),
+                false,
+                isFast
+                    ? alwaysShowAllAtoms
+                    : false                    
             )
         ];
 
-        if (this["doColorize"]) {
+        if (this["doColorize"] && !isFast) {
             imgPromises.push(
                 makeImg(
                     this["selectedDimensions"], 
@@ -227,17 +242,23 @@ export let viewSetupMethodsFunctions = {
                     : undefined
 
                 neuralRender(filename, imageData, proteinColoringInf)
-                .then((imgData: ImageData) => {
-                    if (imgData !== undefined) {
-                        drawImageDataOnCanvas(imgData, canvas);
+                .then((outImgData: ImageData) => {
+                    if ([undefined, null].indexOf(outImgData) === -1) {
+                        drawImageDataOnCanvas(outImgData, canvas);
                         let deltaTime = (new Date().getTime() - startDrawImgTime) / 1000;
                         this.$store.commit("setVar", {
                             name: "webWorkerInfo",
                             val: `Render time: ${deltaTime.toFixed(1)} seconds`
                         });
+                        this["allDisabled"] = false;
+                    } else {
+                        this.$store.commit("setVar", {
+                            name: "webWorkerInfo",
+                            val: `ERROR: Render failed. GPU may not be powerful enough to render at this image size (${imageData.width}px x ${imageData.height}px). Try reloading the page and reducing the size.`
+                        });
+                        this["allDisabled"] = true;
                     }
 
-                    this["allDisabled"] = false;
                     document.body.classList.remove("waiting");
                 });
             }
@@ -316,5 +337,11 @@ export let viewSetupComputedFunctions = {
             }
             this["drawImg"]();
         }
+    },
+    "allDisabledOrNotNeural"(): boolean {
+        return this["allDisabled"] || (this["preModeSelected"] !== 'neural')
+    },
+    "notNeuralTitle"(): string {
+        return (this["preModeSelected"] !== 'neural') ? "Click the \"Prot2Prot\" button to enable" : "";
     }
 }

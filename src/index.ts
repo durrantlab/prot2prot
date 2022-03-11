@@ -10,6 +10,9 @@ declare var ga;
 
 console.log("Prot2Prot Web App " + VERSION);
 
+// @ts-ignore
+console.log(__BUILD_TIME__);
+
 // Setup Vue
 VueSetup.setup();
 

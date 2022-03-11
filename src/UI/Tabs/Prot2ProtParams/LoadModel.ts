@@ -15,7 +15,6 @@ export let loadModelTemplate = /* html */ `
         :allowExtractHeteroAtoms="true"
         :multipleFiles="false"
         :fileLoaderPlugins="['pdb-id-input', 'file-loader-input']"
-        label="Receptor"
         description="Format: PDB"
         extraDescription=""
         accept=".pdb,.ent"
@@ -28,7 +27,7 @@ export let loadModelTemplate = /* html */ `
     <form-button
         @click.native="useExampleProt2ProtInputFiles"
         cls="float-right"
-    >Use Example Files</form-button>
+    >Use Example File</form-button>
 </sub-section>
 `;
 
@@ -56,7 +55,8 @@ export let loadModelMethodsFunctions = {
 
         loadMolIntoTF(fileInfo.mol).then(() => {
             initializeVars();
-            this["offset"]();
+            this["offset"](false);
+            this["drawImg"](true);  // So on initial load, show all atoms (true).
 
             this.$store.commit("setVar", {
                 name: "pdbLoaded",

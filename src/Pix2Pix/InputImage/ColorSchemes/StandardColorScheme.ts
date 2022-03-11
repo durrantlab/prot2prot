@@ -11,7 +11,7 @@ export class StandardColorScheme extends ParentColorScheme {
     backgroundColorHex = "#fff";
 
     numSubCircleSteps = 1;
-    maxAtomsToShow = 20000;
+    maxAtomsToShow = 10000; // 20000;
 
     atomColors = {
         "C": [153, 153, 153],

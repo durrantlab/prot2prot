@@ -42,7 +42,7 @@ let computedFunctions = {
      * @returns {string}  The slugified label.
      */
     "idToUse"(): string {
-        return slugify(this["label"]);
+        return slugify(this["label"] ? this["label"] : this["description"]);
     }
 };
 
@@ -185,7 +185,7 @@ export function setupMolLoader(): void {
             ...commonProteinEditingProps,
             "label": {
                 "type": String,
-                "default": "Molecule"
+                "default": undefined
             },
             "description": {
                 "type": String,

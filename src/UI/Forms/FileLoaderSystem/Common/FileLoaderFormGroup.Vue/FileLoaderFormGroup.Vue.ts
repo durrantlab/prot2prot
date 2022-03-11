@@ -54,9 +54,9 @@ export function setupFileLoaderFormGroup(): void {
                     :label="label"
                     :label-for="id"
                     :id="'input-group-' + id"
-                    :style="styl"
-                    label-cols="0"
-                    label-cols-xl="1"
+                    :style="styl + ';max-width:none !important;'"
+                    :label-cols="label ? 12 : 0"
+                    :label-cols-sm="label ? 2 : 0"
                 >
                     <slot></slot>
                     <small
@@ -75,7 +75,10 @@ export function setupFileLoaderFormGroup(): void {
             </span>
         `,
         "props": {
-            "label": String,
+            "label": {
+                "type": String,
+                "default": undefined
+            },
             "id": String,
             "styl": String,
             "description": String,

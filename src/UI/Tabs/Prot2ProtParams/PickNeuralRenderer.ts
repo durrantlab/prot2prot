@@ -8,7 +8,7 @@ import neuralRenderersInfo from "../../../prot2prot_models/info.json";
 export let pickNeuralRendererTemplate = /* html */ `
 <sub-section id="pick-panel" title="Prot2Prot Renderer">
     <form-select
-        label="Render Style"
+        label="Style"
         :options="neuralRendererOptions"
         storeVarName="selectedNeuralRenderer"
         @change="updateAssociatedInfo"
@@ -16,7 +16,7 @@ export let pickNeuralRendererTemplate = /* html */ `
     ></form-select>
 
     <form-select
-        label="Dimensions"
+        label="Size"
         v-if="$store.state.selectedNeuralRenderer"
         :options="dimensionsOptions"
         storeVarName="selectedDimensions"
@@ -93,7 +93,7 @@ export let pickNeuralRendererComputedFunctions = {
      * Get a list of available neural renderers.
      * @returns {*} The renderers.
      */
-    "neuralRendererOptions"(): any[] { 
+    "neuralRendererOptions"(): any[] {
         let options = Object.keys(neuralRenderersInfo).map((r) => {
             return {value: r, text: neuralRenderersInfo[r]["name"]}
         });
@@ -119,7 +119,8 @@ export let pickNeuralRendererComputedFunctions = {
             return [];
         }
         
-        let ids = Object.keys(sizeInfo);
+        let ids = Object.keys(sizeInfo).map(s => parseInt(s));
+        ids.sort((a, b) => { return b - a; });  // biggest to smallest.
         let options = ids.map((s) => {
             let txt = `${s}px x ${s}px`;
             let sizeKeys = Object.keys(sizeInfo[s]);

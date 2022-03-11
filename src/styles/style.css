@@ -147,10 +147,10 @@ canvas.emscripten {
     margin-top: 0 !important;
 }
 
-.col-form-label {
+/* .col-form-label {
     hyphens: auto;
-    max-width: 135px !important; /* Depends on biggest label (words) */
-}
+    max-width: 135px !important; /* /* Depends on biggest label (words) */
+/* } */
 
 td {
     cursor: pointer;
@@ -239,4 +239,28 @@ div.col small {
     .tabs .col-auto {
         width:100%;
     }
+}
+
+/* we will explain what these classes do next! */
+/* .v-enter-active,
+.v-leave-active {
+    overflow: hidden;
+    transition: opacity 2s ease;
+}
+
+.v-enter-from,
+.v-leave-to {
+    opacity: 0;
+} */
+
+.enter-active,
+.leave-active {
+  overflow: hidden;
+  transition: height 0.25s linear;
+}
+
+.enter-from,
+.leave-to {
+    overflow: hidden;
+    height: 0;
 }

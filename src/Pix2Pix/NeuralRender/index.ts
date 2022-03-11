@@ -153,7 +153,11 @@ export function neuralRender(
                 );
             })
         })
-        .then((outputImageDataArray: Float32Array) => {
+        .then((outputImageDataArray: Float32Array | null) => {
+            if (outputImageDataArray === null) {
+                return null;
+            }
+
             // Convert back to tensor.
             let dimen = getDimen(outputImageDataArray);
             newImageDataTensor = tf.tensor(outputImageDataArray, [dimen, dimen, 3]);
@@ -184,10 +188,11 @@ export function neuralRender(
         })
         .then(() => {
             // Because outside of tidy.
-            newImageDataTensor.dispose();
-            let imgData = getImageDataFromCanvas(outputCanvas);
-            inferenceRunning = false;
+            newImageDataTensor?.dispose();
 
+            let imgData = (outputCanvas === undefined) ? null : getImageDataFromCanvas(outputCanvas);
+            
+            inferenceRunning = false;
             store.commit("setVar", {
                 name: "webWorkerInfo",
                 val: undefined

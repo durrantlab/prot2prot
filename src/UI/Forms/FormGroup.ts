@@ -21,14 +21,6 @@ let computedFunctions = {
     "labelCols"(): number {
         return ((this.hasLabel === true)  && (this["labelToLeft"] === true)) ? 3 : 0;
     },
-
-    /**
-     * Determines if label should be placed to the left or above.
-     * @returns number  Returns 2 if it has a label, 0 otherwise.
-     */
-    "labelColsLg"(): number {
-        return ((this.hasLabel === true)  && (this["labelToLeft"] === true)) ? 2 : 0;
-    }
 }
 
 /**
@@ -45,15 +37,16 @@ export function setup(): void {
             return {}
         },
         "computed": computedFunctions,
-        "template": `
+        "template": /* html */ `
             <div>
                 <b-form-group
                     v-if="formGroupWrapper"
-                    :label-cols="labelCols" :label-cols-lg="labelColsLg"
                     :label="label"
                     :label-for="id"
                     :id="'input-group-' + id"
                     :style="styl"
+                    label-cols="12"
+                    label-cols-sm="2"
                 >
                     <slot></slot>
                     <small

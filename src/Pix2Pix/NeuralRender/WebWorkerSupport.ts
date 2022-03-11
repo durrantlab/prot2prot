@@ -97,7 +97,13 @@ export function neuralRenderInWorker(
     
             // Convert to shape [1, N, N, 3]
             let batch = tf.expandDims(channelFirst)
-            let pred = model.predict(batch);  //  as tf.Tensor<tf.Rank> | tf.TensorLike;
+            let pred;
+            try {
+                pred = model.predict(batch);  //  as tf.Tensor<tf.Rank> | tf.TensorLike;
+            } catch(e) {
+                    return null;
+            }
+
             batch.dispose();
 
             pred = pred.transpose([0, 2, 3, 1]);
@@ -129,9 +135,9 @@ export function neuralRenderInWorker(
             return tf.div(out, 255);
         });
 
-        return out.data();
+        return out === null ? null : out.data();
     }).then((outArray: number[][]) => {
-        out.dispose();
+        out?.dispose();
         if (sendMsgFunc) {
             sendMsgFunc("Sending image data to main thread...");
         }

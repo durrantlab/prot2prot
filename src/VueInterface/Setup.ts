@@ -11,6 +11,7 @@ import * as FormButton from "../UI/Forms/FormButton";
 import * as FormSelect  from "../UI/Forms/FormSelect";
 import { setupMolLoader } from '../UI/Forms/FileLoaderSystem/MolLoader.Vue/index';
 import { setupVueXStore } from "./Store";
+import { setupSlideTransition } from "../UI/SlideTransition";
 
 declare var Vue;
 
@@ -32,4 +33,5 @@ export function setup(): void {
     setupMolLoader();
     Prot2ProtParams.setup();
     StartOver.setup();
+    setupSlideTransition();
 }

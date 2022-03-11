@@ -14,6 +14,11 @@ export const CLOSEST_ALLOWED_DIST = 15.0;
 export let rotMat: any;
 export let offsetVec: any;
 
+// Allows app to scale up or down the number of displayed atoms to keep render
+// times reasonable.
+let maxAtomsToShowScale = 1.0;
+let lastTimeUpdatedMaxAtomsToShowScale = 0;
+
 /**
  * Returns the rotation matrix as an array of numbers
  * @returns The rotation matrix as a JavaScript array.
@@ -81,24 +86,34 @@ export function initializeVars(reset = false): void {
 
 /**
  * Creates an image of the protein.
- * @param {number}            imgSize           The size of the image to
- *                                              generate.
- * @param {ParentColorScheme} colorScheme       The color scheme to use.
- * @param {boolean}           [simplify=false]  Whether to simplify the image,
- *                                              meaning no subcircles and
- *                                              outlines.
+ * @param {number}            imgSize                     The size of the image
+ *                                                        to generate.
+ * @param {ParentColorScheme} colorScheme                 The color scheme to
+ *                                                        use.
+ * @param {boolean}           [simplify=false]            Whether to simplify
+ *                                                        the image, meaning no
+ *                                                        subcircles and
+ *                                                        outlines.
+ * @param {boolean}           [alwaysShowAllAtoms=false]  If true, will always
+ *                                                        show all atoms. Useful
+ *                                                        after rotating, when
+ *                                                        stopped.
  * @returns {Promise}  Resolves with the image data.
  */
-export function makeImg(imgSize: number, colorScheme: ParentColorScheme, simplify=false): Promise<ImageData> {
+export function makeImg(imgSize: number, colorScheme: ParentColorScheme, simplify=false, alwaysShowAllAtoms=false): Promise<ImageData> {
     if (coorsTensor === undefined) {
         // No pdb loaded yet.
         return Promise.resolve(undefined);
     }
 
+    let startRender;
+
     return loadTfjs()
     .then(() => {
         // let mem = tf.memory();
         // console.log(mem.numBytesInGPU, mem.numTensors, mem.numDataBuffers);
+
+        startRender = new Date().getTime();
 
         initializeVars();
 
@@ -172,9 +187,9 @@ export function makeImg(imgSize: number, colorScheme: ParentColorScheme, simplif
                 });
 
                 // Here keep only a limited number (in case very large protein).
-                if (colorScheme.maxAtomsToShow) {
+                if (colorScheme.maxAtomsToShow && !alwaysShowAllAtoms) {
                     let tmp = [];
-                    let step = distsWithIdxs.length / colorScheme.maxAtomsToShow;
+                    let step = distsWithIdxs.length / (maxAtomsToShowScale * colorScheme.maxAtomsToShow);
                     for (let i = 0; i < distsWithIdxs.length; i += step) {
                       tmp.push(distsWithIdxs[Math.floor(i)]);
                     }
@@ -254,6 +269,25 @@ export function makeImg(imgSize: number, colorScheme: ParentColorScheme, simplif
 
         // return image
         let imgData = getImageDataFromCanvasContext(context);
+
+        if (colorScheme.maxAtomsToShow) {
+            let now = new Date().getTime();
+            if (now - lastTimeUpdatedMaxAtomsToShowScale > 3000) {
+                // Only update every three seconds.
+                lastTimeUpdatedMaxAtomsToShowScale = now;
+
+                let durationRender = now - startRender;
+                // console.log(maxAtomsToShowScale, durationRender)
+                if (durationRender < 70) {
+                    // Increase atoms shown
+                    maxAtomsToShowScale = maxAtomsToShowScale * 1.1;
+                } else if (durationRender > 90) {
+                    // Decrease atoms shown
+                    maxAtomsToShowScale = maxAtomsToShowScale / 1.1;
+                }
+            }
+        }
+
         return Promise.resolve(imgData);
     });
     

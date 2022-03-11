@@ -116,7 +116,7 @@ export let protCanvasMethodsFunctions = {
         this.doneMouseStateChangeTimeoutId = setTimeout(() => {
             // If it gets here, mouse state no longer changing.
             this["preModeSelected"] = this.preModeSelectedBeforeMouseChange;
-            this["drawImg"]();
+            this["drawImg"](true);
             this.mouseStateChanging = false;
         }, 500);
     },
@@ -127,7 +127,7 @@ export let protCanvasMethodsFunctions = {
      * @returns {boolean}  Whether enough time has passed since last mouse move.
      */
     enoughTimePassed(): boolean {
-        // Ignore if not much time has passed
+        // Ignore if not much time has passed. So limits FPS to 10.
         let now = new Date().getTime();
         if (now - this.lastMouseMoveCheck < 100) { return false; }
         this.lastMouseMoveCheck = now;
