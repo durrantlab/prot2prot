@@ -46,7 +46,7 @@ export function neuralRenderInWorker(
                 let loadGraph = tf.loadGraphModel(modelPath, {
                     "onProgress"(v) {
                         if (sendMsgFunc) {
-                            sendMsgFunc(`Loading Prot2Prot model (${Math.round(100 * v).toString()}%)...`);
+                            sendMsgFunc(`Downloading Prot2Prot model (${Math.round(100 * v).toString()}%)...`);
                         }
                     }
                 });

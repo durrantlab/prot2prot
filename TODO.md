@@ -5,11 +5,6 @@ Need to rename repo to prot2prot
 
 Make page on durrnatlab.com, repo public, etc.
 
-Play around with it on the phone for a while, and you get strange errors. Need
-to capture these and debug.
-
-What about getting rid of transitions and just putting the message right udner the vewer?
-
 Experiments
 ===========
 
@@ -92,6 +87,11 @@ True. Black screen even from python otherwise.
 
 DONE
 ====
+
+Play around with it on the phone for a while, and you get strange errors. Need
+to capture these and debug.
+
+What about getting rid of transitions and just putting the message right udner the vewer?
 
 Update maxAtomsToShow dynamically based on fps?
   Done. But what about when mouse up, re render with all atoms?
