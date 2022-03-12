@@ -28,10 +28,10 @@ CLI Prot2Prot by following these steps:
 
 ```bash
 # Clone the repository
-git clone https://git.durrantlab.pitt.edu/jdurrant/ml-protein-render.git
+git clone https://git.durrantlab.pitt.edu/jdurrant/prot2prot.git
 
-# Change into the ml-protein-render directory
-cd ml-protein-render/
+# Change into the prot2prot directory
+cd prot2prot/
 
 # Install the third-party dependencies
 npm install
