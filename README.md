@@ -46,7 +46,7 @@ cd nodejs/
 cd dist/
 
 # You must separately download and uncompress the trained prot2prot models
-wget durrantlab.com/prot2prot/prot2prot_models.zip
+wget http://durrantlab.com/prot2prot/prot2prot_models.zip
 unzip prot2prot_models.zip
 rm prot2prot_models.zip
 

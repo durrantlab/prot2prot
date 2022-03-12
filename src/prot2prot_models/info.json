@@ -1,0 +1,59 @@
+{
+    "simple_surf": {
+        "name": "Simple Surface",
+        "description": "Simple Surface shows a surface representation with slight subsurface scattering, fog that fades to white, ambient occlusion, HDR lighting, and depth-of-field blur.",
+        "colorScheme": "Carbon, oxygen, nitrogen, sulfur, and hydrogen atoms are shown in silver, red, blue, yellow, and white, respectively. Support for other elements is limited.",
+        "misc": {
+            "notes": "all these with unet_128, not unet_256"
+        },
+        "sizes": {
+            "1024": {
+                "uint8": "43.6 MiB"
+            },
+            "512": {
+                "uint8": "41.9 MiB"
+            },
+            "256": {
+                "uint8": "41.9 MiB"
+            }
+        }
+    },
+    "chalk_shadow": {
+        "name": "Chalky Shadow",
+        "description": "Chalky Shadow shows a surface representation with fog that fades to white, ambient occlusion, studio lighting, depth-of-field blur, and cast shadows.",
+        "colorScheme": "All atoms are rendered in chalky white.",
+        "misc": {
+            "notes": "all these with unet_128, not unet_256"
+        },
+        "sizes": {
+            "1024": {
+                "uint8": "40.0 MiB"
+            },
+            "512": {
+                "uint8": "40.0 MiB"
+            },
+            "256": {
+                "uint8": "40.0 MiB"
+            }
+        }
+    },
+    "chalk": {
+        "name": "Chalky",
+        "description": "Chalky shows a surface representation with fog that fades to white, ambient occlusion, studio lighting, and depth-of-field blur. Unlike Chalky Shadow, there are no cast shadows.",
+        "colorScheme": "All atoms are rendered in chalky white.",
+        "misc": {
+            "notes": "all these with unet_128, not unet_256"
+        },
+        "sizes": {
+            "1024": {
+                "uint8": "40.3 MiB"
+            },
+            "512": {
+                "uint8": "41.9 MiB"
+            },
+            "256": {
+                "uint8": "40.5 MiB"
+            }
+        }
+    }
+}
