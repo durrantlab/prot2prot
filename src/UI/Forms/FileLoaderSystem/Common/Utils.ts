@@ -161,3 +161,7 @@ export function slugify(complexString: string): string {
     slug = slug.replace(/\-\-/g, "-");
     return slug;
 }
+
+export function deepCopy(obj: any): any {
+    return Object.assign({}, obj);
+}

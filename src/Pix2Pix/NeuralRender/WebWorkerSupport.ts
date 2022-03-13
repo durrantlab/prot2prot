@@ -33,7 +33,8 @@ let firstRender = true;
 export function neuralRenderInWorker(
     modelPath: string, imageData: ImageData | Uint8Array, 
     proteinColoringInf: IProteinColoringInfo,
-    tf: any, sendMsgFunc: Function=undefined
+    tf: any, sendMsgFunc: Function=undefined,
+    cpu: boolean=false
 ): Promise<any> {
     let loadModelPromise: Promise<any>;
     if (modelPath !== storedModel.path) {
@@ -60,8 +61,15 @@ export function neuralRenderInWorker(
         storedModel.model = model;
         storedModel.path = modelPath;
 
-        // tf.setBackend('cpu');
-
+        if (cpu) {
+            // tf.setBackend('cpu');
+            return tf.setBackend('wasm')
+            .then(() => { return Promise.resolve(model); });
+        } else {
+            return Promise.resolve(model);
+        }
+    })
+    .then((model: any) => {
         let renderMsg = "Rendering image...";
     
         if (firstRender) {

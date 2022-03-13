@@ -222,6 +222,8 @@ function generateZIPDownload(files: any, zipFilename: string = "output.zip") {
         return Promise.resolve(mod.default);
     });
 
+    // let jsZipPromise = Promise.resolve(JSZip);
+
     let fileSaverPromise = import(
         /* webpackChunkName: "FileSaver" */ 
         /* webpackMode: "lazy" */
@@ -229,6 +231,7 @@ function generateZIPDownload(files: any, zipFilename: string = "output.zip") {
     )
     .then((mod) => {
         return Promise.resolve(mod.default);
+        // return Promise.resolve(mod);
     });
 
     Promise.all([jsZipPromise, fileSaverPromise])

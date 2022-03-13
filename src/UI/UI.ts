@@ -21,7 +21,7 @@ export function setup(): void {
                 <open-modal></open-modal>
 
                 <b-jumbotron class="jumbo" style="background-image:url(${Utils.curPath()}webina_logo.jpg);" header="Prot2Prot ${VERSION}" lead="Advanced protein rendering in the browser">
-                    <p>Brought to you by the <a target="_blank" href="http://durrantlab.com">Durrant Lab</a>.</p>
+                    <p>Brought to you by the <a target="_blank" href="http://durrantlab.com">Durrant Lab</a> and <a target="_blank" href="https://reporter.nih.gov/project-details/10189658">NIH 5R01GM132353</a>.</p>
                     <b-button variant="primary" target="_blank" href="http://durrantlab.com">More Info</b-button>
                 </b-jumbotron>
 
@@ -48,7 +48,7 @@ export function setup(): void {
          */
         "data"() {
             return {
-                "receptorFile": false,
+                "receptorFile": false
             }
         },
         "computed": {

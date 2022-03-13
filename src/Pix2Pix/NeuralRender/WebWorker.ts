@@ -48,7 +48,7 @@ if (inWebWorker) {
             neuralRenderInWorker(
                 data["modelPath"], data["imageData"], 
                 data["proteinColoringInf"],
-                tf, sendMsg
+                tf, sendMsg, data["cpu"]
             )
             .then((outTypedArray) => {
                 ctx.postMessage({

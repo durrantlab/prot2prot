@@ -37,7 +37,7 @@ export let viewSetupTemplate = /* html */ `
             :disabled="allDisabled"
         ></b-form-radio-group>
 
-        <b-alert class="slide-height mt-3 mb-0" show variant="info">{{$store.state.webWorkerInfo}}</b-alert>
+        <b-alert class="slide-height mt-3 mb-0" show variant="info" v-html="$store.state.webWorkerInfo"></b-alert>
 
         <b-form-checkbox 
             v-model="doColorize" name="check-button" switch
@@ -243,6 +243,7 @@ export let viewSetupMethodsFunctions = {
 
                 neuralRender(filename, imageData, proteinColoringInf)
                 .then((outImgData: ImageData) => {
+                    // outImgData = null; // For debugging
                     if ([undefined, null].indexOf(outImgData) === -1) {
                         drawImageDataOnCanvas(outImgData, canvas);
                         let deltaTime = (new Date().getTime() - startDrawImgTime) / 1000;
@@ -252,9 +253,17 @@ export let viewSetupMethodsFunctions = {
                         });
                         this["allDisabled"] = false;
                     } else {
+                        let msg = `ERROR: Render failed. GPU may not be powerful enough to render at this image size (${imageData.width}px x ${imageData.height}px). Try `;
+                        let myUrl = window.location.origin + window.location.pathname
+                        if (imageData.width !== 256) {
+                            let newWidth = (imageData.width === 1024) ? "512" : "256";
+                            msg += `(1) <a href="${myUrl}?size=${newWidth}">reducing the size</a> to ${newWidth}px x ${newWidth}px or (2) `
+                        }
+                        msg += `<a href="${myUrl}?cpu">using the CPU</a> instead (takes longer).`;
+
                         this.$store.commit("setVar", {
                             name: "webWorkerInfo",
-                            val: `ERROR: Render failed. GPU may not be powerful enough to render at this image size (${imageData.width}px x ${imageData.height}px). Try reloading the page and reducing the size.`
+                            val: msg
                         });
                         this["allDisabled"] = true;
                     }

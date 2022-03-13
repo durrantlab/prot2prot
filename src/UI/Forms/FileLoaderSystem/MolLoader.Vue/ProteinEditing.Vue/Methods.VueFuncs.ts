@@ -3,6 +3,7 @@
 // Jacob D. Durrant.
 
 import { IExtractInfo, iSelectionToStr } from '../../Common/Interfaces';
+import { deepCopy } from '../../Common/Utils';
 import { ISelection } from '../../Mols/ParentMol';
 import { deleteResidues, extractResidues } from './PDBUtils';
 
@@ -35,7 +36,7 @@ export let proteinProcessingMethodsFunctions = {
             pdb = pdb.deleteSelection(removeResidueSel);
         }
         
-        let files = Object.assign({}, this["value"]);
+        let files = deepCopy(this["value"]);
         files[this["selectedFilename"]] = pdb;  // .toText();
         this.$emit("input", files);
     },

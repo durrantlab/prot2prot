@@ -3,7 +3,7 @@
 // Jacob D. Durrant.
 
 import { IExtractInfo, iSelectionToStr } from "../../Common/Interfaces";
-import { getBasename, getExt, slugify } from "../../Common/Utils";
+import { deepCopy, getBasename, getExt, slugify } from "../../Common/Utils";
 import { ISelection } from "../../Mols/ParentMol";
 import { PDBMol } from "../../Mols/PDBMol";
 
@@ -19,7 +19,7 @@ export function deleteResidues(sel: ISelection): PDBMol {
 
     let [delPDB, keepPDB] = pdb.partitionBySelection(sel);
 
-    let files = Object.assign({}, this["value"]);  // reactivity in case you ever need it
+    let files = deepCopy(this["value"]);  // reactivity in case you ever need it
     files[this["selectedFilename"]] = keepPDB;  // .toText();
     this.$emit("input", files);
 

@@ -264,3 +264,12 @@ div.col small {
     overflow: hidden;
     height: 0;
 }
+
+/* see https://stackoverflow.com/questions/49889003/cannot-write-into-input-field-on-safari */
+input, input:before, input:after {
+    -webkit-user-select: initial !important;
+    -khtml-user-select: initial !important;
+    -moz-user-select: initial !important;
+    -ms-user-select: initial !important;
+    user-select: initial !important;
+}

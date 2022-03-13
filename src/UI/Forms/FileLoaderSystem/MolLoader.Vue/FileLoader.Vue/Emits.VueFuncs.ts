@@ -3,6 +3,7 @@
 // Jacob D. Durrant.
 
 import { IConvert, IFileInfo, IFileLoadError } from "../../Common/Interfaces";
+import { deepCopy } from "../../Common/Utils";
 
 // Note that plugin emits (with same name) are present in PluginParent.ts. These
 // emit from the encapsulating FileLoader itself.
@@ -40,7 +41,7 @@ export let fileLoaderEmitFunctions = {
         
         // If multiple not files allowed, copy current files.
         if (this["multipleFiles"] !== false) {
-            files = Object.assign({}, this["value"]);
+            files = deepCopy(this["value"]);
         }
 
         // Add this file to the object containing all files

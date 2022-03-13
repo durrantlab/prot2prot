@@ -7,6 +7,7 @@ import { makeInMemoryCanvas, getImageDataFromCanvas, drawImageDataOnCanvas } fro
 import { loadTfjs, tf } from '../LoadTF';
 import Worker from 'web-worker';
 import { neuralRenderInWorker } from './WebWorkerSupport';
+import { URL_PARAMS } from '../../URLParams';
 
 let inferenceRunning = false;
 let webWorker;
@@ -62,7 +63,8 @@ let runWebWorker = function(
         "data": {
             "modelPath": modelPath,
             "imageData": imageData,
-            "proteinColoringInf": proteinColoringInf
+            "proteinColoringInf": proteinColoringInf,
+            "cpu": URL_PARAMS.cpu
         }
     });
 }

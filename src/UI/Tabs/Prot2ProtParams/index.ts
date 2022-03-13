@@ -9,6 +9,7 @@ import { viewSetupMethodsFunctions } from '../Prot2ProtParams/ViewSetup';
 import { pickNeuralRendererComputedFunctions, pickNeuralRendererData, pickNeuralRendererMethodsFunctions, pickNeuralRendererTemplate } from "./PickNeuralRenderer";
 import { protCanvasComputedFunctions, protCanvasData, protCanvasMethodsFunctions, protCanvasWatchFunctions } from "./ProtCanvas";
 import { saveImageMethodsFunctions, saveImageTemplate } from "./SaveImage";
+import { URL_PARAMS } from '../../../URLParams';
 
 Vue.component('font-awesome-icon', FontAwesomeIcon)
 // Vue.config.productionTip = false
@@ -76,7 +77,14 @@ let methodsFunctions = {
  * The vue-component mounted function.
  * @returns void
  */
-function mountedFunction(): void {}
+function mountedFunction(): void {
+    if (URL_PARAMS.size !== undefined) {
+        this.$store.commit("setVar", {
+            name: "selectedDimensions",
+            val: URL_PARAMS.size
+        });
+    }
+}
 
 /**
  * Setup the prot2prot-params Vue commponent.

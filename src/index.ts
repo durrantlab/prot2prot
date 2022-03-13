@@ -6,6 +6,7 @@
 import * as UI from "./UI/UI";
 import * as VueSetup from "./VueInterface/Setup";
 import { VERSION } from "./Version";
+import { getUrlParams } from "./URLParams";
 declare var ga;
 
 console.log("Prot2Prot Web App " + VERSION);
@@ -15,6 +16,8 @@ console.log(__BUILD_TIME__);
 
 // Setup Vue
 VueSetup.setup();
+
+getUrlParams();
 
 // Setup UI
 UI.setup();
