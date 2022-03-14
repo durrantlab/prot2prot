@@ -9,7 +9,7 @@ import * as OpenModal from "../UI/Modal/OpenModal";
 import * as SubSection from "../UI/SubSection";
 import * as FormButton from "../UI/Forms/FormButton";
 import * as FormSelect  from "../UI/Forms/FormSelect";
-import { setupMolLoader } from '../UI/Forms/FileLoaderSystem/MolLoader.Vue/index';
+import { setupMolLoader } from '../UI/FileLoaderSystem/MolLoader.Vue/index';
 import { setupVueXStore } from "./Store";
 
 declare var Vue;

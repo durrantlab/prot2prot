@@ -1,6 +1,6 @@
 const fs = require("fs");
 import { getCoorsTransformed } from "../../../../src/Pix2Pix/InputImage/MakeImage";
-import { PDBMol } from "../../../../src/UI/Forms/FileLoaderSystem/Mols/PDBMol";
+import { PDBMol } from "../../../../src/UI/FileLoaderSystem/Mols/PDBMol";
 
 export function saveDebugTextFiles(mol: PDBMol, params, rotMat, offsetVec) {
     if (!params.debug) {

@@ -5,7 +5,7 @@
 import { initializeVars } from "../../../Pix2Pix/InputImage/MakeImage";
 import { loadMolIntoTF, pdbLines } from "../../../Pix2Pix/InputImage/PDBParser";
 import { keepOnlyProteinAtoms, replaceExt } from "../../../Utils";
-import { IFileInfo, IFileLoadError } from '../../Forms/FileLoaderSystem/Common/Interfaces';
+import { IFileInfo, IFileLoadError } from '../../FileLoaderSystem/Common/Interfaces';
 
 export let loadModelTemplate = /* html */ `
 <sub-section title="Input PDB File" v-if="showFileInputs">

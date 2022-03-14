@@ -6,7 +6,7 @@ import { loadTfjs, tf } from '../../LoadTF';
 import { initializeVars } from '../MakeImage';
 import { mergeAtomsData } from './MergedAtoms';
 import { vdwRadii } from './VDWRadii';
-import { ParentMol } from '../../../UI/Forms/FileLoaderSystem/Mols/ParentMol';
+import { ParentMol } from '../../../UI/FileLoaderSystem/Mols/ParentMol';
 
 export let coorsTensor: any;  // tf.Tensor<tf.Rank>;
 export let elements: string[];

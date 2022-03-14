@@ -1,7 +1,7 @@
 const fs = require("fs");
 const zlib = require('zlib');
-import { getMol } from "../../../../src/UI/Forms/FileLoaderSystem/Mols/";
-import { PDBMol } from "../../../../src/UI/Forms/FileLoaderSystem/Mols/PDBMol";
+import { getMol } from "../../../../src/UI/FileLoaderSystem/Mols/";
+import { PDBMol } from "../../../../src/UI/FileLoaderSystem/Mols/PDBMol";
 
 export function getMolObj(filename: string): PDBMol {
     // Get PDB text.

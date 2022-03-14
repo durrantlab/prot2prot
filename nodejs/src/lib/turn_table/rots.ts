@@ -1,4 +1,4 @@
-import { PDBMol } from "../../../../src/UI/Forms/FileLoaderSystem/Mols/PDBMol";
+import { PDBMol } from "../../../../src/UI/FileLoaderSystem/Mols/PDBMol";
 
 export function turnTableGetRotationAngles(params: any, mol: PDBMol): any[] {
     let rots: number[][] = [];

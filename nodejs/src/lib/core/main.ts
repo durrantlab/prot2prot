@@ -3,8 +3,8 @@ const Canvas = require('canvas')
 import { offsetVec, rotMat } from "../../../../src/Pix2Pix/InputImage/MakeImage";
 import { loadMolIntoTF } from "../../../../src/Pix2Pix/InputImage/PDBParser";
 import { IProteinColoringInfo, neuralRender } from "../../../../src/Pix2Pix/NeuralRender";
-import { PDBMol } from "../../../../src/UI/Forms/FileLoaderSystem/Mols/PDBMol";
-import { Frame } from "../../../../src/UI/Forms/FileLoaderSystem/Mols/ParentMol";
+import { PDBMol } from "../../../../src/UI/FileLoaderSystem/Mols/PDBMol";
+import { Frame } from "../../../../src/UI/FileLoaderSystem/Mols/ParentMol";
 import { saveDebugTextFiles } from "./debug";
 import { IHooks } from "./hooks";
 import { getMolObj } from "./load_pdb";
