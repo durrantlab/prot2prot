@@ -3,7 +3,7 @@
 // Jacob D. Durrant.
 
 import { IFileInfo, IFileLoadError } from "../../../../Common/Interfaces";
-import { extsStrToList, getExt } from "../../../../Common/Utils";
+import { extsStrToList, getExt, getFileTypeFromExt } from "../../../../Common/Utils";
 
 /**
  * Given a list of file infos, process them and return true if all files were
@@ -33,10 +33,10 @@ export function processFiles(filesInfo: IFileInfo[]): boolean {
         const ext = exts[i];
         let fileInfo = filesInfo[i];
 
-        if (convertExts.indexOf(ext) !== -1) {
+        if (getFileTypeFromExt(ext, convertExts)) {
             // It's one of the file formats that needs to be converted.
             files.convertNeeded.push(fileInfo);
-        } else if (acceptableExts.indexOf(ext) === -1) {
+        } else if (getFileTypeFromExt(ext, acceptableExts) === undefined) {
             // It is not one of the acceptable extensions. It's in an
             // unacceptable format.
             files.invalidFiles.push(fileInfo);

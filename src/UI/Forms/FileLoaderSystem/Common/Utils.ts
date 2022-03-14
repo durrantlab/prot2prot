@@ -66,6 +66,52 @@ export function getExt(filename: string, extensive = true): string {
 }
 
 /**
+ * Get the type of a file given the extension.
+ * @param {string}   ext                  The extension.
+ * @param {string[]} [choices=undefined]  The file-type options.
+ * @returns {string}  The detected type (one of the elements ni choices, if it's
+ *                    given).
+ */
+export function getFileTypeFromExt(ext: string, choices: string[] = undefined): string {
+    // Remove first letter from ext if it is "."
+    if (ext.substring(0, 1) === ".") { ext = ext.substring(1); }
+    
+    // Get the extension parts
+    let extPrts = ext.split(/\./g);
+    
+    if (choices === undefined) {
+        return extPrts.pop().toLowerCase();
+    }
+    
+    // Choices need to be lower case
+    let choicesLowerCase = choices.map(c => c.toLowerCase());
+
+    // In windows, text files often have the ".txt" extension, even if they are
+    // other formats (e.g., pdb.txt).
+    if (extPrts[extPrts.length - 1] === "txt") {
+        // But if txt is one of the choicesLowerCase, choose that.
+        if (choicesLowerCase.indexOf("txt") !== -1) {
+            return "txt";
+        }
+        extPrts.pop();
+    }
+
+    let lastExtPrt = extPrts.pop();
+    let idx = choicesLowerCase.indexOf(lastExtPrt);
+    if (idx === -1) {
+        // Not one of the choicesLowerCase
+        return undefined;
+    }
+    
+    return choices[idx];
+}
+
+// let fileType = getFileTypeFromExt(".pdb.txt", ["pdb"]);
+// fileType = getFileTypeFromExt(".pdb.txt", ["pdb", "txt"]);
+// fileType = getFileTypeFromExt(".pdb", ["pdb"]);
+// fileType = getFileTypeFromExt(".pdb", undefined);
+
+/**
  * Given a file object, returns a promise that resolves the text
  * in that file.
  * @param  {*} fileObj  The file object.

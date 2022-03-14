@@ -79,7 +79,10 @@ export function setupProteinEditing(): void {
                         <span v-if="allowAtomDelete">Delete:</span>
                         <span v-if="allowAtomExtract">Extract:</span>
                     </span>
-                    <small-pill-btn :actionStyling="editAction" @click="deleteAllNonProteinResidues(removeResiduesSelections)">
+                    <small-pill-btn 
+                        v-if="keepNonProteinResidueSelections(removeResiduesSelections).length > 0"
+                        :actionStyling="editAction" 
+                        @click="deleteAllNonProteinResidues(removeResiduesSelections)">
                         All Non-Protein
                     </small-pill-btn><small-pill-btn v-if="hasHydrogens && editAction === 'delete'" :actionStyling="editAction" @click="deleteHydrogens()">
                         Hydrogens

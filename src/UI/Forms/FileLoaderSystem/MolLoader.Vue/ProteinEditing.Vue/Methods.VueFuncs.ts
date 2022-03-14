@@ -19,6 +19,15 @@ export let proteinProcessingMethodsFunctions = {
         this.$emit("onExtractAtoms", residueInfo);
     },
 
+    /**
+     * Given a list of residue selections, keep only those relevant to
+     * non-protein residues.
+     * @param {any[]} nonProteinResidueSelections
+     * @returns {any[]}
+     */
+    "keepNonProteinResidueSelections"(nonProteinResidueSelections: any[]): any[] {
+        return nonProteinResidueSelections.filter(r => r["nonProtein"] === true);
+    },
 
     /**
      * Delete the non-protein selections.
@@ -26,9 +35,9 @@ export let proteinProcessingMethodsFunctions = {
      *                                     (including ones not limited to
      *                                     non-protein residues).
      */
-    "deleteAllNonProteinResidues"(removeResiduesSelections): void {
+    "deleteAllNonProteinResidues"(removeResiduesSelections: any[]): void {
         // Keep only the non-protein selections.
-        removeResiduesSelections = removeResiduesSelections.filter(r => r["nonProtein"] === true);
+        removeResiduesSelections = this["keepNonProteinResidueSelections"](removeResiduesSelections);
 
         let pdb = this["value"][this["selectedFilename"]];
 

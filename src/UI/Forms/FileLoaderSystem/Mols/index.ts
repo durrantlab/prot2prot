@@ -2,7 +2,7 @@
 // https://opensource.org/licenses/Apache-2.0 for full details. Copyright 2022
 // Jacob D. Durrant.
 
-import { getBasename, getExt } from "../Common/Utils";
+import { getBasename, getExt, getFileTypeFromExt } from "../Common/Utils";
 import { ParentMol } from "./ParentMol";
 import { PDBMol } from "./PDBMol";
 
@@ -18,10 +18,13 @@ import { PDBMol } from "./PDBMol";
  */
 export function getMol(filename: string, fileContents: string, mseToMet = true, removeAltLocs = true): ParentMol {
     let ext = getExt(filename);
-    if (ext === "txt") { ext = getExt(getBasename(filename)); }
-    ext = ext.toLowerCase();
 
-    switch (ext) {
+    let fileType = getFileTypeFromExt(
+        ext, 
+        ["pdb", "pdbqt", "ent", "brk"]
+    );
+
+    switch (fileType) {
         case "pdb":
             return new PDBMol(fileContents, mseToMet, removeAltLocs);
         case "pdbqt":
