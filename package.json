@@ -1,6 +1,6 @@
 {
     "name": "prot2prot",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "",
     "private": true,
     "scripts": {
@@ -11,7 +11,7 @@
     },
     "keywords": [],
     "author": "",
-    "license": "ISC",
+    "license": "Apache2",
     "devDependencies": {
         "@types/file-saver": "^2.0.3",
         "closure-webpack-plugin": "^2.3.0",

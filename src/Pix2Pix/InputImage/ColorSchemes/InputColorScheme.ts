@@ -57,7 +57,7 @@ export class InputColorScheme extends ParentColorScheme {
             baseColor =  this.atomColors["C"];
             console.warn("No color found! Undefined atom type?");
             console.warn("    Possible candidates: " + elements.filter(
-                e => ["C", "O", "N", "S", "H"].indexOf(e) === -1
+                e => ["C", "O", "N", "S", "H"].indexOf(e as string) === -1
             ).map(
                 e => ">" + e + "<").join(", ")
             );

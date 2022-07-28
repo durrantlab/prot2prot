@@ -56,7 +56,10 @@ export let loadModelMethodsFunctions = {
         loadMolIntoTF(fileInfo.mol).then(() => {
             initializeVars();
             this["offset"](false);
-            this["drawImg"](true);  // So on initial load, show all atoms (true).
+
+            // TODO: JDD: Zoom to fit here.
+
+            this["drawImg"](true, true);  // So on initial load, show all atoms (true).
 
             this.$store.commit("setVar", {
                 name: "pdbLoaded",
@@ -71,7 +74,7 @@ export let loadModelMethodsFunctions = {
      * @returns void
      */
      "onShowKeepProteinOnlyClick"(e: any): void {
-        let linesToKeep = keepOnlyProteinAtoms(pdbLines);
+        let linesToKeep = keepOnlyProteinAtoms(pdbLines as string[]);
 
         // Update some values.
         this["onFileReady"]({

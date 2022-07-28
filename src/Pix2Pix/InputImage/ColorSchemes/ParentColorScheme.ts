@@ -39,7 +39,7 @@ export abstract class ParentColorScheme {
      */
     abstract outlineColorFromDist(dist: number, maxDist: number): string;
     
-    abstract maxAtomsToShow: number;
+    abstract maxAtomsToShow: number | undefined;
     numSubCircleSteps = 3;
 
     /**
@@ -73,7 +73,7 @@ export abstract class ParentColorScheme {
      *                                of which has a color and radius.
      */
     getColorsForManyRadii(baseColor: number[], atomDrawRadius: number, atomCenterDist: number, maxDist: number): IAtomColorRadius[] {
-        let subCircles = [];
+        let subCircles: IAtomColorRadius[] = [];
         let r = this.numSubCircleSteps;
         while (r > 0) {
             let f = r / this.numSubCircleSteps;

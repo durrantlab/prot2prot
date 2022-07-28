@@ -176,13 +176,17 @@ export function loadRemote(url: string, vueComp: any): Promise<boolean> {
                 resolve(allFilesLoaded);
             })
             .catch((err) => {
-                vueComp.onError({
-                    title: "Bad URL",
-                    body: `Could not load the URL ${url}: ` + err.message
-                } as IFileLoadError);
-                resolve(false);
+                fetchError(err, url, vueComp, resolve);
             });
     })
+}
+
+export function fetchError(err, url, vueComp, resolveFunc = (v) => {}): void {
+    vueComp.onError({
+        title: "Bad URL",
+        body: `Could not load the URL ${url}: ` + err.message
+    } as IFileLoadError);
+    resolveFunc(false);
 }
 
 /**

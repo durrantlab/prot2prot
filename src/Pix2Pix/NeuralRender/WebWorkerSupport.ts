@@ -33,12 +33,13 @@ let firstRender = true;
 export function neuralRenderInWorker(
     modelPath: string, imageData: ImageData | Uint8Array, 
     proteinColoringInf: IProteinColoringInfo,
-    tf: any, sendMsgFunc: Function=undefined,
+    tf: any, sendMsgFunc: Function | undefined=undefined,
     cpu: boolean=false
 ): Promise<any> {
     let loadModelPromise: Promise<any>;
     if (modelPath !== storedModel.path) {
         if (storedModel.model) {
+            // @ts-ignore
             storedModel.model.dispose();
         }
 

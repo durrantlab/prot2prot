@@ -121,7 +121,7 @@ function getDimen(imageData: ImageData | Float32Array): number {
 export function neuralRender(
     modelPath: string, inputImageData: ImageData | Uint8Array,
     proteinColoringInf?: IProteinColoringInfo, ImageClass?: any
-): Promise<ImageData> {
+): Promise<ImageData | null | undefined> {
     // Note that you only need ImageClass if running in node with canvas-node.
     // See
     // https://stackoverflow.com/questions/32666458/node-js-canvas-image-data
@@ -151,7 +151,7 @@ export function neuralRender(
                 
                 // Rendering takes place in web worker.
                 runWebWorker(
-                    modelPath, inputImageData, proteinColoringInf, resolve
+                    modelPath, inputImageData, proteinColoringInf as IProteinColoringInfo, resolve
                 );
             })
         })

@@ -100,7 +100,10 @@ export function initializeVars(reset = false): void {
  *                                                        stopped.
  * @returns {Promise}  Resolves with the image data.
  */
-export function makeImg(imgSize: number, colorScheme: ParentColorScheme, simplify=false, alwaysShowAllAtoms=false): Promise<ImageData> {
+export function makeImg(
+    imgSize: number, colorScheme: ParentColorScheme, simplify=false, 
+    alwaysShowAllAtoms=false
+): Promise<ImageData | undefined> {
     if (coorsTensor === undefined) {
         // No pdb loaded yet.
         return Promise.resolve(undefined);
@@ -182,13 +185,13 @@ export function makeImg(imgSize: number, colorScheme: ParentColorScheme, simplif
             .then((dists: number[]) => {
                 distsTensor.dispose();
 
-                let distsWithIdxs = dists.map((v, i) => {
+                let distsWithIdxs: any[] = dists.map((v, i) => {
                     return [v, i]
                 });
 
                 // Here keep only a limited number (in case very large protein).
                 if (colorScheme.maxAtomsToShow && !alwaysShowAllAtoms) {
-                    let tmp = [];
+                    let tmp: number[] = [];
                     let step = distsWithIdxs.length / (maxAtomsToShowScale * colorScheme.maxAtomsToShow);
                     for (let i = 0; i < distsWithIdxs.length; i += step) {
                       tmp.push(distsWithIdxs[Math.floor(i)]);
@@ -218,6 +221,7 @@ export function makeImg(imgSize: number, colorScheme: ParentColorScheme, simplif
         // document.body.appendChild(canvas);
 
         // Draw spheres
+        let circlesOffCanvas = false;
         for (let data of distsSorted) {
             let atomCenterDist = data[0];
             let i = data[1];
@@ -225,7 +229,7 @@ export function makeImg(imgSize: number, colorScheme: ParentColorScheme, simplif
             let colorsInf = colorScheme.getColorsForAtom(
                 atomCenterDist, 
                 maxDist, 
-                element, 
+                element as string, 
                 drawRadii[i]
             );
     
@@ -242,6 +246,7 @@ export function makeImg(imgSize: number, colorScheme: ParentColorScheme, simplif
             ) {
                 // To avoid drawing circles needlessly. (It takes a while to
                 // draw.)
+                circlesOffCanvas = true;
                 continue;
             }
 
@@ -287,6 +292,10 @@ export function makeImg(imgSize: number, colorScheme: ParentColorScheme, simplif
                 }
             }
         }
+
+        // Adding circlesOffCanvas to imgData so I don't need to return two
+        // varibles.
+        imgData["circlesOffCanvas"] = circlesOffCanvas;
 
         return Promise.resolve(imgData);
     });

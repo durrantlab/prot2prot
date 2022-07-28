@@ -8,7 +8,7 @@ import { neuralRender, IProteinColoringInfo } from "../../../Pix2Pix/NeuralRende
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { faArrowUp, faArrowDown, faArrowLeft, faArrowRight, faUndo, faRedo, faArrowsAltV, faArrowsAltH, faExpandAlt } from '@fortawesome/free-solid-svg-icons'
 import { StandardColorScheme } from "../../../Pix2Pix/InputImage/ColorSchemes/StandardColorScheme";
-import { getRotMatAsArray, makeImg, setRotMatFromArray, updateOffsetVec, updateRotMat } from "../../../Pix2Pix/InputImage/MakeImage";
+import { CLOSEST_ALLOWED_DIST, getRotMatAsArray, makeImg, setRotMatFromArray, updateOffsetVec, updateRotMat } from "../../../Pix2Pix/InputImage/MakeImage";
 import { protCanvasTemplate } from "./ProtCanvas";
 
 // @ts-ignore
@@ -159,15 +159,57 @@ export let viewSetupMethodsFunctions = {
         }
         this["previousPreModeSelected"] = this["preModeSelected"];
     },
+    
+    /**
+     * Zooms the protein to fit the canvas viewport.
+     * @returns Promise
+     */
+    async zoomToFit(): Promise<void> {
+        const deltaZoom = 25;
+        while (true) {
+            const imgData = await makeImg(
+                this["selectedDimensions"], 
+                new StandardColorScheme(),
+                false,
+                true
+            )
+
+            if (imgData === undefined) {
+                // Image not loaded yet.
+                break;
+            }
+
+            if (this["protDist"] < CLOSEST_ALLOWED_DIST) {
+                this["protDist"] = CLOSEST_ALLOWED_DIST;
+                this["offset"]();
+                break;
+            }
+
+            // console.log(this["protDist"], imgData["circlesOffCanvas"], this["selectedDimensions"]);
+
+            if (imgData["circlesOffCanvas"]) {
+                // You've zoomed to the point that some circles are off the
+                // canvas. Too far.
+                this["protDist"] = this["protDist"] + deltaZoom;
+                this["offset"]();
+                break;
+            }
+
+            this["protDist"] = this["protDist"] - deltaZoom;
+            this["offset"]();
+        }
+    },
 
     /**
      * Creates an image from the protein data and then draws it on the canvas.
      * @param {boolean} [alwaysShowAllAtoms=false]  If true, will always show
      *                                              all atoms. Useful after
      *                                              rotating, when stopped.
+     * @param {boolean} [zoomToFit=false]           If true, zoom in to fit
+     *                                              canvas.
      * @returns void
      */
-    "drawImg"(alwaysShowAllAtoms=false): void {
+    "drawImg"(alwaysShowAllAtoms=false, zoomToFit=false): void {
         switch (this["preModeSelected"]) {
             case "save":
                 this["preModeSelected"] = this["previousPreModeSelected"];
@@ -178,8 +220,16 @@ export let viewSetupMethodsFunctions = {
                 break;
         }
 
-        let startDrawImgTime = new Date().getTime();
         let isFast = (this["preModeSelected"] === "fast");
+        
+        if (zoomToFit && isFast) {
+            this.zoomToFit(isFast, alwaysShowAllAtoms);
+        }
+        
+        let startDrawImgTime = new Date().getTime();
+
+        // console.log(this["protDist"]);
+        // debugger;
 
         let imgPromises = [
             makeImg(
@@ -216,7 +266,7 @@ export let viewSetupMethodsFunctions = {
             let canvas = this.$refs["viewCanvas"];
     
             if (isFast) {
-                // So howing fast representation to user (not rendered
+                // So showing fast representation to user (not rendered
                 // representation).
                 drawImageDataOnCanvas(imageData, canvas);
             } else {
@@ -242,9 +292,9 @@ export let viewSetupMethodsFunctions = {
                     : undefined
 
                 neuralRender(filename, imageData, proteinColoringInf)
-                .then((outImgData: ImageData) => {
+                .then((outImgData: ImageData | null | undefined) => {
                     // outImgData = null; // For debugging
-                    if ([undefined, null].indexOf(outImgData) === -1) {
+                    if (outImgData !== undefined && outImgData !== null) {
                         drawImageDataOnCanvas(outImgData, canvas);
                         let deltaTime = (new Date().getTime() - startDrawImgTime) / 1000;
                         this.$store.commit("setVar", {
@@ -253,10 +303,11 @@ export let viewSetupMethodsFunctions = {
                         });
                         this["allDisabled"] = false;
                     } else {
-                        let msg = `ERROR: Render failed. GPU may not be powerful enough to render at this image size (${imageData.width}px x ${imageData.height}px). Try `;
+                        const imgData = imageData as ImageData;
+                        let msg = `ERROR: Render failed. GPU may not be powerful enough to render at this image size (${imgData.width}px x ${imgData.height}px). Try `;
                         let myUrl = window.location.origin + window.location.pathname
-                        if (imageData.width !== 256) {
-                            let newWidth = (imageData.width === 1024) ? "512" : "256";
+                        if (imgData.width !== 256) {
+                            let newWidth = (imgData.width === 1024) ? "512" : "256";
                             msg += `(1) <a href="${myUrl}?size=${newWidth}">reducing the size</a> to ${newWidth}px x ${newWidth}px or (2) `
                         }
                         msg += `<a href="${myUrl}?cpu">using the CPU</a> instead (takes longer).`;
@@ -338,7 +389,7 @@ export let viewSetupComputedFunctions = {
             }
             if (data["dist"]) {
                 this["protDist"] = data["dist"];
-                this["offset"]();        
+                this["offset"]();
             }
             if (data["rotation"]) {
                 // console.log(data);

@@ -15,7 +15,7 @@ export function getUrlParams(): void {
 
     let cpu = (urlParams.get("cpu") !== null);
 
-    let size: string | number = urlParams.get("size");
+    let size: string | number | null | undefined = urlParams.get("size");
     if (size === null) {
         size = undefined;
     } else {

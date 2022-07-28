@@ -9,9 +9,9 @@ import { vdwRadii } from './VDWRadii';
 import { ParentMol } from '../../../UI/FileLoaderSystem/Mols/ParentMol';
 
 export let coorsTensor: any;  // tf.Tensor<tf.Rank>;
-export let elements: string[];
+export let elements: (string | undefined)[];
 export let vdw: any;  // tf.Tensor<tf.Rank>;
-export let pdbLines: string[];
+export let pdbLines: (string | undefined)[];
 
 /**
  * Load a molecule into tensorflow tensors.
@@ -22,7 +22,7 @@ export let pdbLines: string[];
  * @param {string[]}   atomNamesToKeep    An optional array of atom names to
  *                                        keep.
  */
-export function loadMolIntoTF(mol: ParentMol, recenter = true, radiusScale = 1.0, atomNamesToKeep: string[] = undefined): Promise<any> {
+export function loadMolIntoTF(mol: ParentMol, recenter = true, radiusScale = 1.0, atomNamesToKeep: string[] | undefined = undefined): Promise<any> {
     // Reset the rotation and offset vectors, in case reloading PDB.
     initializeVars(true);
 
@@ -46,7 +46,7 @@ export function loadMolIntoTF(mol: ParentMol, recenter = true, radiusScale = 1.0
         vdw = tf.tensor(
             elements.map((e) => {
                 // Assume carbon if radii not defined...
-                return radiusScale * (vdwRadii[e] !== undefined ? vdwRadii[e] : vdwRadii["C"]);
+                return radiusScale * (vdwRadii[e as string] !== undefined ? vdwRadii[e as string] : vdwRadii["C"]);
             })
         );
 
@@ -154,12 +154,12 @@ export function replaceElement(origElement: string, newElement: string, frequenc
             // PDB for loading in external programs (e.g., VMD).
             let pdbLine = pdbLines[idx];
     
-            while (pdbLine.length < 78) {
+            while ((pdbLine as string).length < 78) {
                 pdbLine = pdbLine + " ";
             }
     
-            let first = pdbLine.substring(0, 12);
-            let last = pdbLine.substring(17, 76);
+            let first = (pdbLine as string).substring(0, 12);
+            let last = (pdbLine as string).substring(17, 76);
     
             pdbLines[idx] = first + newElement + "   " + last + newElement;
         }

@@ -11,6 +11,7 @@ import { setupFileLoaderTextInput } from "../../Common/FileLoaderTextInput";
 import { PDBIDInputPlugin } from "./Plugins/PDBIDInput";
 import { URLInputPlugin } from "./Plugins/URLInput";
 import { FileLoaderPluginParent } from "./Plugins/PluginParent/PluginParent";
+import { AlphaFoldInputPlugin } from "./Plugins/AlphaFoldInput";
 
 declare var Vue;
 
@@ -105,7 +106,8 @@ export function setupFileLoader(): void {
     setupFileLoaderWithPlugins([
         new FileLoaderInputPlugin().setup(),
         new PDBIDInputPlugin().setup(),
-        new URLInputPlugin().setup()
+        new AlphaFoldInputPlugin().setup(),
+        new URLInputPlugin().setup(),
     ]);
 }
 

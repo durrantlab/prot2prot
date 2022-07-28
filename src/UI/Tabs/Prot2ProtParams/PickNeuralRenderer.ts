@@ -162,7 +162,7 @@ export let pickNeuralRendererComputedFunctions = {
             "uint8": "Low",  // smallest, almost identical to uint16 (slight differences only)
         };
 
-        let options = [];
+        let options: {[key: string]: string}[] = [];
         for (let id in qualInfo) {
             if ((descriptions[id] === "NOUSE") || (descriptions[id] === undefined)) {
                 continue;

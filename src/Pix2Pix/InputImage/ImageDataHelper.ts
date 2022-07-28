@@ -18,6 +18,7 @@ var createCanvas: Function = function(sizeX: number, sizeY: number): any {
 // Use offscreen canvas if available.
 if (typeof window !== 'undefined') {
     // So assume running in browser, not nodejs.
+    // @ts-ignore
     if (HTMLCanvasElement.prototype.transferControlToOffscreen) {
         createCanvas = function(sizeX: number, sizeY: number): any {
             const offscreenCanvas = new OffscreenCanvas(sizeX, sizeY);
@@ -63,7 +64,9 @@ export function drawImageDataOnCanvas(imageData: ImageData, canvas: HTMLCanvasEl
     var context = canvas.getContext('2d');
     canvas.width = imageData.width;
     canvas.height = imageData.height;
-    context.putImageData(imageData, 0, 0);
+    if (context) {
+        context.putImageData(imageData, 0, 0);
+    }
 }
 
 /**
@@ -74,6 +77,9 @@ export function drawImageDataOnCanvas(imageData: ImageData, canvas: HTMLCanvasEl
 export function getImageDataFromCanvas(canvas: HTMLCanvasElement): ImageData {
     let imgSize = canvas.width;  // assuming square
     let context = canvas.getContext('2d');
+    if (context === null) {
+        throw new Error('Could not get context from canvas.');
+    }
     return context.getImageData(0, 0, imgSize, imgSize);
 }
 
@@ -109,5 +115,8 @@ export function makeInMemoryCanvas(imgSize: number, id: string): HTMLCanvasEleme
 export function makeInMemoryCanvasContext(imgSize: number, id: string): CanvasRenderingContext2D {
     let canvas = makeInMemoryCanvas(imgSize, id);
     let context = canvas.getContext('2d');
+    if (context === null) {
+        throw new Error('Could not get context from canvas.');
+    }
     return context;
 }
